@@ -316,6 +316,58 @@ public class BufferBitSetTest {
 	}
 	
 	@Test
+	public void size() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		bs = bs.withResizeBehavior(ResizeBehavior.NO_RESIZE);
+		
+		bs.set(bs.size()-1);
+		try {
+			bs.set(bs.size());
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+	}
+	
+	@Test
+	public void isEmpty() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		bs.xor(bs);
+		Assertions.assertTrue(bs.isEmpty());
+		
+		Assertions.assertTrue(new BufferBitSet().isEmpty());
+		Assertions.assertTrue(BufferBitSet.valueOf(new byte[0]).isEmpty());
+		Assertions.assertTrue(BufferBitSet.valueOf(new byte[] {0}).isEmpty());
+		Assertions.assertTrue(new BufferBitSet(ByteBuffer.allocate(0)).isEmpty());
+		Assertions.assertTrue(new BufferBitSet(ByteBuffer.allocate(1)).isEmpty());
+	}
+	
+	@Test
+	public void cardinality() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		Assertions.assertEquals(SAMPLE_INDICES.size(), bs.cardinality());
+		Assertions.assertEquals(0,	new BufferBitSet().cardinality());
+	}
+	
+	@Test
+	public void hashCodeTest() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);				
+		
+		int expected = Arrays.hashCode(bs.getBuffer().array());
+		
+		Assertions.assertEquals(expected, bs.hashCode());
+		Assertions.assertEquals(0,	new BufferBitSet().hashCode());
+	}
+	
+	@Test
 	public void emptyToString() {
 		Assertions.assertEquals("[]", new BufferBitSet().toString());
 	}

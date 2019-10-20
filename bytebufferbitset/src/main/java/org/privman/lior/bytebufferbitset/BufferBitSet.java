@@ -776,6 +776,61 @@ public class BufferBitSet {
 		return 8 * (buffer.position() - 1) + (8 - numberOfLeadingZeros(buffer.get(buffer.position() - 1)));
 	}
 
+	/**
+	 * Returns the number of bits of space actually in use by this
+	 * {@link BufferBitSet} to represent bit values. The maximum element that can be
+	 * set without resizing is {@code size()-1}
+	 *
+	 * @return the number of bits of space currently in this bit set
+	 */
+	public int size() {
+		return buffer.limit() * 8;
+	}
+
+	/**
+	 * Returns true if this {@link BufferBitSet} contains no bits that are set to
+	 * {@code true}.
+	 *
+	 * @return boolean indicating whether this bitset is empty
+	 */
+	public boolean isEmpty() {
+		return buffer.position() == 0;
+	}
+
+	/**
+	 * Returns the number of bits set to {@code true} in this {@link BufferBitSet}.
+	 *
+	 * @return the number of bits set to {@code true} in this {@link BufferBitSet}
+	 */
+	public int cardinality() {
+		int sum = 0;
+		for (int i = 0; i < buffer.position(); i++)
+			sum += Integer.bitCount(buffer.get(i) & 0xFF);
+		return sum;
+	}
+
+	/**
+	 * Returns the hashcode value for this bitset. The hashcode depends only on
+	 * which bits are set within this {@link BufferBitSet}.
+	 * <p>
+	 * Hashcode is computed using formula from
+	 * {@link java.util.Arrays#hashCode(byte[])}
+	 *
+	 * @return the hashcode value for this bitset
+	 */
+	@Override
+	public int hashCode() {
+		// borrowed from Arrays#hashCode(byte a[])
+		if (isEmpty())
+			return 0;
+
+		int result = 1;
+		for (int i = 0; i < buffer.position(); i++)
+			result = 31 * result + buffer.get(i);
+
+		return result;
+	}
+
 	/*--------------------------------------------------------------------------------
 	 *  Methods related to resizing
 	 *-------------------------------------------------------------------------------*/
