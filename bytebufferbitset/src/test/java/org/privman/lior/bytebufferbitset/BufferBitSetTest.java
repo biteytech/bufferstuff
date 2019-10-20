@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 public class BufferBitSetTest {
 	
-	private static final TreeSet<Integer> SAMPLE_INDICES = new TreeSet<>(Arrays.asList(1, 10, 39, 38, 100, 9000));
+	private static final TreeSet<Integer> SAMPLE_INDICES = new TreeSet<>(Arrays.asList(1, 10, 38, 39, 100, 9000));
 	
 	private static void populateWithSampleIndices(BufferBitSet bs) {
 		for(int index : SAMPLE_INDICES)
@@ -102,7 +102,147 @@ public class BufferBitSetTest {
 	}
 	
 	@Test
-	public void negativeIndices() {
+	public void setRange() {
+		setRange(0, 0);
+		setRange(1, 1);
+		setRange(1, 2);
+		setRange(0, 7);
+		setRange(0, 9);
+		setRange(8, 16);
+		setRange(5, 20);
+		setRange(1000, 2000);
+	}
+	
+	private void setRange(int fromIndex, int toIndex) {
+		
+		BufferBitSet bs = new BufferBitSet();
+		bs.set(fromIndex, toIndex);
+		
+		Set<Integer> expected = new TreeSet<>();
+		for(int i = fromIndex; i < toIndex; i++)
+			expected.add(i);
+		
+		Assertions.assertEquals(expected.toString(), bs.toString());
+	}
+	
+	@Test
+	public void clearRange() {
+		clearRange(0, 0);
+		clearRange(1, 1);
+		clearRange(1, 2);
+		clearRange(0, 7);
+		clearRange(0, 9);
+		clearRange(8, 16);
+		clearRange(5, 20);
+		clearRange(1000, 2000);
+	}
+	
+	private void clearRange(int fromIndex, int toIndex) {
+		
+		BufferBitSet bs = new BufferBitSet();
+		bs.set(0, toIndex+1);
+		bs.clear(fromIndex, toIndex);
+		
+		Set<Integer> expected = new TreeSet<>();
+		for(int i = 0; i < fromIndex; i++)
+			expected.add(i);
+		expected.add(toIndex);
+		
+		Assertions.assertEquals(expected.toString(), bs.toString());
+	}
+	
+	@Test
+	public void flipRange() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		bs.flip(0, 10000);
+		
+		Set<Integer> expected = new TreeSet<>();
+		for(int i = 0; i < 10000; i++)
+			if(!SAMPLE_INDICES.contains(i))
+				expected.add(i);
+		
+		Assertions.assertEquals(expected.toString(), bs.toString());
+	}
+	
+	@Test
+	public void nextSetBit() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		Set<Integer> actual = new TreeSet<>();
+		for(int bit = bs.nextSetBit(0); bit != -1; bit = bs.nextSetBit(bit+1))
+			actual.add(bit);
+		
+		Assertions.assertEquals(SAMPLE_INDICES, actual);
+		
+		Assertions.assertEquals(-1, bs.nextSetBit(10000));
+	}
+	
+	@Test
+	public void nextClearBit() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		bs.flip(0, 10000);
+		
+		Set<Integer> actual = new TreeSet<>();
+		for(int bit = bs.nextClearBit(0); bit <= 9000; bit = bs.nextClearBit(bit+1))
+			actual.add(bit);
+		
+		Assertions.assertEquals(SAMPLE_INDICES, actual);
+		
+		Assertions.assertEquals(20000, bs.nextClearBit(20000));
+	}
+	
+	@Test
+	public void previousSetBit() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		Set<Integer> actual = new TreeSet<>();
+		for(int bit = bs.previousSetBit(10000); bit != -1; bit = bs.previousSetBit(bit-1))
+			actual.add(bit);
+		
+		Assertions.assertEquals(SAMPLE_INDICES, actual);
+		
+		Assertions.assertEquals(-1, bs.previousSetBit(0));
+	}
+	
+	@Test
+	public void previousClearBit() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		bs.flip(0, 10000);
+		
+		Set<Integer> actual = new TreeSet<>();
+		for(int bit = SAMPLE_INDICES.last(); bit != -1; bit = bs.previousClearBit(bit-1))
+			actual.add(bit);
+		
+		Assertions.assertEquals(SAMPLE_INDICES, actual);
+		
+		Assertions.assertEquals(-1, bs.previousClearBit(0));
+	}
+	
+	@Test
+	public void length() {
+		BufferBitSet bs = new BufferBitSet();
+		Assertions.assertEquals(0, bs.length());
+		
+		bs.set(0);
+		Assertions.assertEquals(1, bs.length());
+		
+		populateWithSampleIndices(bs);
+		Assertions.assertEquals(9001, bs.length());
+	}
+	
+	@Test
+	public void emptyToString() {
+		Assertions.assertEquals("[]", new BufferBitSet().toString());
+	}
+	
+	@Test
+	public void badIndices() {
 		
 		BufferBitSet bs = new BufferBitSet();
 		
@@ -137,10 +277,85 @@ public class BufferBitSetTest {
 		catch(IndexOutOfBoundsException ex) {
 			// good
 		}
-	}
-	
-	@Test
-	public void emptyToString() {
-		Assertions.assertEquals("[]", new BufferBitSet().toString());
+		
+		try {
+			bs.set(-1, 0);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.set(0, -1);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.set(7, 3);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.clear(-1, 0);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.clear(0, -1);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.clear(7, 3);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.nextSetBit(-1);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.nextClearBit(-1);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.previousSetBit(-2);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.previousClearBit(-2);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
 	}
 }

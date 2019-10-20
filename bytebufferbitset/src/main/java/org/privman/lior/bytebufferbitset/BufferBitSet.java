@@ -1,26 +1,9 @@
-/*-
- *  Copyright 2019 Lior Privman
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package org.privman.lior.bytebufferbitset;
 
 import static org.privman.lior.bytebufferbitset.ResizeBehavior.ALLOCATE;
 import static org.privman.lior.bytebufferbitset.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
-import java.util.SortedSet;
 
 /**
  * Similar to {@link java.util.BitSet BitSet}, but backed by a
@@ -38,6 +21,9 @@ import java.util.SortedSet;
  * state. External modifications to the backing buffer can do the same.
  * 
  * @author Lior Privman
+ * @author Arthur van Hoff (java.util.BitSet)
+ * @author Michael McCloskey (java.util.BitSet)
+ * @author Martin Buchholz (java.util.BitSet)
  * 
  * @see java.util.BitSet
  * @see java.nio.ByteBuffer
@@ -45,6 +31,8 @@ import java.util.SortedSet;
 public class BufferBitSet {
 
 	private static final int INITIAL_SIZE = 8;
+
+	private static final int MASK = 0xFF;
 
 	/** {@link ResizeBehavior} */
 	private final ResizeBehavior resizeBehavior;
@@ -85,15 +73,14 @@ public class BufferBitSet {
 
 		this.resizeBehavior = resizeBehavior;
 
-		if(external) {
+		if (external) {
 			this.buffer = buffer.slice();
-			
+
 			// TODO: zero-out as we go (tracking highwater mark)
-			byte zero = (byte)0;
-			for(int i = 0; i < buffer.limit(); i++)
+			byte zero = (byte) 0;
+			for (int i = 0; i < buffer.limit(); i++)
 				this.buffer.put(i, zero);
-		}
-		else {
+		} else {
 			this.buffer = buffer;
 		}
 	}
@@ -259,6 +246,42 @@ public class BufferBitSet {
 	}
 
 	/**
+	 * Returns a new {@code BufferBitSet} composed of bits from this bitset from
+	 * {@code fromIndex} (inclusive) to {@code toIndex} (exclusive).
+	 * <p>
+	 * The resulting bitset will have the same {@link ResizeBehavior resize}
+	 * behavior as this bitset. It may or may not share the same underlying space as
+	 * this bitset depending on the indices and the {@code alwaysCopy} parameter.
+	 *
+	 * @param fromIndex  - index of the first bit to include
+	 * @param toIndex    - index after the last bit to include
+	 * @param alwaysCopy - this method will always return the bits in newly
+	 *                   allocated space if true
+	 * @return a new biset from a range of this bitset
+	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
+	 *                                   {@code toIndex} is negative, or
+	 *                                   {@code fromIndex} is larger than
+	 *                                   {@code toIndex}
+	 */
+	public BufferBitSet get(int fromIndex, int toIndex, boolean alwaysCopy) {
+		checkRange(fromIndex, toIndex);
+
+		if (fromIndex == toIndex)
+			return new BufferBitSet(resizeBehavior);
+
+		if (!alwaysCopy && (fromIndex & 7) == 0 && (toIndex & 7) == 0) {
+			// sweet optimization if both indices are byte-aligned
+			ByteBuffer buffer = this.buffer.duplicate();
+			buffer.limit(byteIndex(toIndex));
+			buffer.position(byteIndex(fromIndex));
+			return new BufferBitSet(buffer.slice(), resizeBehavior, false);
+		}
+
+		// TODO
+		return null;
+	}
+
+	/**
 	 * Sets the bit at the specified index to {@code true}.
 	 *
 	 * @param bitIndex a bit index
@@ -274,67 +297,351 @@ public class BufferBitSet {
 		byte b = (byte) (buffer.get(byteIndex) | bit(bitIndex));
 		buffer.put(byteIndex, b);
 	}
-	
-    /**
-     * Sets the bit at the specified index to the specified value.
-     *
-     * @param  bitIndex a bit index
-     * @param  value a boolean value to set
-     * @throws IndexOutOfBoundsException if the specified index is negative
-     */
-    public void set(int bitIndex, boolean value) {
-        if (value)
-            set(bitIndex);
-        else
-            clear(bitIndex);
-    }
-	
-    /**
-     * Sets the bit at the specified index to the complement of its
-     * current value.
-     *
-     * @param  bitIndex the index of the bit to flip
-     * @throws IndexOutOfBoundsException if the specified index is negative
-     */
-    public void flip(int bitIndex) {
-        if (bitIndex < 0)
-            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
-        int byteIndex = byteIndex(bitIndex);
-        expandTo(byteIndex);
+	/**
+	 * Sets the bit at the specified index to the specified value.
+	 *
+	 * @param bitIndex a bit index
+	 * @param value    a boolean value to set
+	 * @throws IndexOutOfBoundsException if the specified index is negative
+	 */
+	public void set(int bitIndex, boolean value) {
+		if (value)
+			set(bitIndex);
+		else
+			clear(bitIndex);
+	}
 
-        byte b = (byte) (buffer.get(byteIndex) ^ bit(bitIndex));
-        buffer.put(byteIndex, b);
+	/**
+	 * Sets the bits from the specified {@code fromIndex} (inclusive) to the
+	 * specified {@code toIndex} (exclusive) to {@code true}.
+	 *
+	 * @param fromIndex index of the first bit to be set
+	 * @param toIndex   index after the last bit to be set
+	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
+	 *                                   {@code toIndex} is negative, or
+	 *                                   {@code fromIndex} is larger than
+	 *                                   {@code toIndex}
+	 */
+	public void set(int fromIndex, int toIndex) {
+		checkRange(fromIndex, toIndex);
 
-        recalculateBytesInUse();
-    }
+		if (fromIndex == toIndex)
+			return;
 
-    /**
-     * Sets the bit specified by the index to {@code false}.
-     *
-     * @param  bitIndex the index of the bit to be cleared
-     * @throws IndexOutOfBoundsException if the specified index is negative
-     */
-    public void clear(int bitIndex) {
-        if (bitIndex < 0)
-            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+		// Increase capacity if necessary
+		int startByteIndex = byteIndex(fromIndex);
+		int endByteIndex = byteIndex(toIndex - 1);
+		expandTo(endByteIndex);
 
-        int byteIndex = byteIndex(bitIndex);
-        if (byteIndex >= buffer.position())
-            return;
+		int firstByteMask = MASK << (fromIndex & 7);
+		int lastByteMask = MASK >>> ((-toIndex) & 7);
+		byte b;
+		if (startByteIndex == endByteIndex) {
+			// Case 1: One word
+			b = (byte) (buffer.get(startByteIndex) | (firstByteMask & lastByteMask));
+			buffer.put(startByteIndex, b);
+		} else {
+			// Case 2: Multiple words
+			// Handle first word
+			b = (byte) (buffer.get(startByteIndex) | firstByteMask);
+			buffer.put(startByteIndex, b);
 
-        byte b = (byte) (buffer.get(byteIndex) & ~bit(bitIndex));
-        buffer.put(byteIndex, b);
+			// Handle intermediate words, if any
+			for (int i = startByteIndex + 1; i < endByteIndex; i++)
+				buffer.put(i, (byte) MASK);
 
-        recalculateBytesInUse();
-    }
+			// Handle last word
+			b = (byte) (buffer.get(endByteIndex) | lastByteMask);
+			buffer.put(endByteIndex, b);
+		}
+	}
+
+	/**
+	 * Sets the bits from the specified {@code fromIndex} (inclusive) to the
+	 * specified {@code toIndex} (exclusive) to the specified value.
+	 *
+	 * @param fromIndex index of the first bit to be set
+	 * @param toIndex   index after the last bit to be set
+	 * @param value     value to set the selected bits to
+	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
+	 *                                   {@code toIndex} is negative, or
+	 *                                   {@code fromIndex} is larger than
+	 *                                   {@code toIndex}
+	 */
+	public void set(int fromIndex, int toIndex, boolean value) {
+		if (value)
+			set(fromIndex, toIndex);
+		else
+			clear(fromIndex, toIndex);
+	}
+
+	/**
+	 * Sets the bit at the specified index to the complement of its current value.
+	 *
+	 * @param bitIndex the index of the bit to flip
+	 * @throws IndexOutOfBoundsException if the specified index is negative
+	 */
+	public void flip(int bitIndex) {
+		if (bitIndex < 0)
+			throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+
+		int byteIndex = byteIndex(bitIndex);
+		expandTo(byteIndex);
+
+		byte b = (byte) (buffer.get(byteIndex) ^ bit(bitIndex));
+		buffer.put(byteIndex, b);
+
+		recalculateBytesInUse();
+	}
+
+	/**
+	 * Sets each bit from the specified {@code fromIndex} (inclusive) to the
+	 * specified {@code toIndex} (exclusive) to the complement of its current value.
+	 *
+	 * @param fromIndex index of the first bit to flip
+	 * @param toIndex   index after the last bit to flip
+	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
+	 *                                   {@code toIndex} is negative, or
+	 *                                   {@code fromIndex} is larger than
+	 *                                   {@code toIndex}
+	 */
+	public void flip(int fromIndex, int toIndex) {
+		checkRange(fromIndex, toIndex);
+
+		if (fromIndex == toIndex)
+			return;
+
+		// Increase capacity if necessary
+		int startByteIndex = byteIndex(fromIndex);
+		int endByteIndex = byteIndex(toIndex - 1);
+		expandTo(endByteIndex);
+
+		int firstByteMask = MASK << (fromIndex & 7);
+		int lastByteMask = MASK >>> ((-toIndex) & 7);
+		byte b;
+		if (startByteIndex == endByteIndex) {
+			// Case 1: One word
+			b = (byte) (buffer.get(startByteIndex) ^ (firstByteMask & lastByteMask));
+			buffer.put(startByteIndex, b);
+		} else {
+			// Case 2: Multiple words
+			// Handle first word
+			b = (byte) (buffer.get(startByteIndex) ^ firstByteMask);
+			buffer.put(startByteIndex, b);
+
+			// Handle intermediate words, if any
+			for (int i = startByteIndex + 1; i < endByteIndex; i++) {
+				b = (byte) (buffer.get(i) ^ MASK);
+				buffer.put(i, b);
+			}
+
+			// Handle last word
+			b = (byte) (buffer.get(endByteIndex) ^ lastByteMask);
+			buffer.put(endByteIndex, b);
+		}
+
+		recalculateBytesInUse();
+	}
+
+	/**
+	 * Sets the bit specified by the index to {@code false}.
+	 *
+	 * @param bitIndex the index of the bit to be cleared
+	 * @throws IndexOutOfBoundsException if the specified index is negative
+	 */
+	public void clear(int bitIndex) {
+		if (bitIndex < 0)
+			throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+
+		int byteIndex = byteIndex(bitIndex);
+		if (byteIndex >= buffer.position())
+			return;
+
+		byte b = (byte) (buffer.get(byteIndex) & ~bit(bitIndex));
+		buffer.put(byteIndex, b);
+
+		recalculateBytesInUse();
+	}
+
+	/**
+	 * Sets the bits from the specified {@code fromIndex} (inclusive) to the
+	 * specified {@code toIndex} (exclusive) to {@code false}.
+	 *
+	 * @param fromIndex index of the first bit to be cleared
+	 * @param toIndex   index after the last bit to be cleared
+	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
+	 *                                   {@code toIndex} is negative, or
+	 *                                   {@code fromIndex} is larger than
+	 *                                   {@code toIndex}
+	 */
+	public void clear(int fromIndex, int toIndex) {
+		checkRange(fromIndex, toIndex);
+
+		if (fromIndex == toIndex)
+			return;
+
+		// Increase capacity if necessary
+		int startByteIndex = byteIndex(fromIndex);
+		int endByteIndex = byteIndex(toIndex - 1);
+		expandTo(endByteIndex);
+
+		int firstByteMask = MASK << (fromIndex & 7);
+		int lastByteMask = MASK >>> ((-toIndex) & 7);
+		byte b;
+		if (startByteIndex == endByteIndex) {
+			// Case 1: One word
+			b = (byte) (buffer.get(startByteIndex) & ~(firstByteMask & lastByteMask));
+			buffer.put(startByteIndex, b);
+		} else {
+			// Case 2: Multiple words
+			// Handle first word
+			b = (byte) (buffer.get(startByteIndex) & ~firstByteMask);
+			buffer.put(startByteIndex, b);
+
+			// Handle intermediate words, if any
+			for (int i = startByteIndex + 1; i < endByteIndex; i++)
+				buffer.put(i, (byte) 0);
+
+			// Handle last word
+			b = (byte) (buffer.get(endByteIndex) & ~lastByteMask);
+			buffer.put(endByteIndex, b);
+		}
+
+		recalculateBytesInUse();
+	}
 
 	/*--------------------------------------------------------------------------------
-	 *  Object methods
+	 *  next/previous set/clear bit
+	 *-------------------------------------------------------------------------------*/
+	/**
+	 * Returns the index of the first bit that is set to {@code true} that occurs on
+	 * or after the specified starting index. If no such bit exists then {@code -1}
+	 * is returned.
+	 *
+	 * @param fromIndex the index to start checking from (inclusive)
+	 * @return the index of the next set bit, or {@code -1} if there is no such bit
+	 * @throws IndexOutOfBoundsException if the specified index is negative
+	 */
+	public int nextSetBit(int fromIndex) {
+		if (fromIndex < 0)
+			throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+
+		int u = byteIndex(fromIndex);
+		if (u >= buffer.position())
+			return -1;
+
+		byte b = (byte) (buffer.get(u) & (MASK << (fromIndex & 7)));
+
+		while (true) {
+			if (b != 0)
+				return (u * 8) + Integer.numberOfTrailingZeros(b);
+			if (++u == buffer.position())
+				return -1;
+			b = buffer.get(u);
+		}
+	}
+
+	/**
+	 * Returns the index of the first bit that is set to {@code false} that occurs
+	 * on or after the specified starting index.
+	 *
+	 * @param fromIndex the index to start checking from (inclusive)
+	 * @return the index of the next clear bit
+	 * @throws IndexOutOfBoundsException if the specified index is negative
+	 */
+	public int nextClearBit(int fromIndex) {
+
+		if (fromIndex < 0)
+			throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+
+		int u = byteIndex(fromIndex);
+		if (u >= buffer.position())
+			return fromIndex;
+
+		byte b = (byte) (~buffer.get(u) & (MASK << (fromIndex & 7)));
+
+		while (true) {
+			if (b != 0)
+				return (u * 8) + Integer.numberOfTrailingZeros(b);
+			if (++u == buffer.position())
+				return buffer.position() * 8;
+			b = (byte) ~buffer.get(u);
+		}
+	}
+
+	/**
+	 * Returns the index of the nearest bit that is set to {@code true} that occurs
+	 * on or before the specified starting index. If no such bit exists, or if
+	 * {@code -1} is given as the starting index, then {@code -1} is returned.
+	 *
+	 * @param fromIndex the index to start checking from (inclusive)
+	 * @return the index of the previous set bit, or {@code -1} if there is no such
+	 *         bit
+	 * @throws IndexOutOfBoundsException if the specified index is less than
+	 *                                   {@code -1}
+	 */
+	public int previousSetBit(int fromIndex) {
+		if (fromIndex < 0) {
+			if (fromIndex == -1)
+				return -1;
+			throw new IndexOutOfBoundsException("fromIndex < -1: " + fromIndex);
+		}
+
+		int u = byteIndex(fromIndex);
+		if (u >= buffer.position())
+			return length() - 1;
+
+		byte b = (byte) (buffer.get(u) & (MASK >>> ((-(fromIndex + 1)) & 7)));
+
+		while (true) {
+			if (b != 0)
+				return (u + 1) * 8 - 1 - numberOfLeadingZeros(b);
+			if (u-- == 0)
+				return -1;
+			b = buffer.get(u);
+		}
+	}
+
+	/**
+	 * Returns the index of the nearest bit that is set to {@code false} that occurs
+	 * on or before the specified starting index. If no such bit exists, or if
+	 * {@code -1} is given as the starting index, then {@code -1} is returned.
+	 *
+	 * @param fromIndex the index to start checking from (inclusive)
+	 * @return the index of the previous clear bit, or {@code -1} if there is no
+	 *         such bit
+	 * @throws IndexOutOfBoundsException if the specified index is less than
+	 *                                   {@code -1}
+	 */
+	public int previousClearBit(int fromIndex) {
+		if (fromIndex < 0) {
+			if (fromIndex == -1)
+				return -1;
+			throw new IndexOutOfBoundsException("fromIndex < -1: " + fromIndex);
+		}
+
+		int u = byteIndex(fromIndex);
+		if (u >= buffer.position())
+			return fromIndex;
+
+		byte b = (byte) (~buffer.get(u) & (MASK >>> ((-(fromIndex + 1)) & 7)));
+
+		while (true) {
+			if (b != 0)
+				return (u + 1) * 8 - 1 - numberOfLeadingZeros(b);
+			if (u-- == 0)
+				return -1;
+			b = (byte) ~buffer.get(u);
+		}
+	}
+
+	/*--------------------------------------------------------------------------------
+	 *  Object & Collection-like methods
 	 *-------------------------------------------------------------------------------*/
 	/**
 	 * Returns a string representation of this {@link BufferBitSet} equivalent to
-	 * the representation of a {@link SortedSet} containing the indices of the bits
+	 * the representation of a {@code SortedSet} containing the indices of the bits
 	 * which are set in this bitset.
 	 */
 	public String toString() {
@@ -358,20 +665,22 @@ public class BufferBitSet {
 		return sb.toString();
 	}
 
-	/*--------------------------------------------------------------------------------
-	 *  Utility methods
-	 *-------------------------------------------------------------------------------*/
 	/**
-	 * Given a bit index, return byte index containing it.
+	 * Returns the "logical size" of this bitset: the index of the highest set bit
+	 * in the bitset plus one. Returns zero if the bitset contains no set bits.
+	 *
+	 * @return the logical size of this biset
 	 */
-	private static int byteIndex(int bitIndex) {
-		return bitIndex >> 3;
+	public int length() {
+		if (buffer.position() == 0)
+			return 0;
+
+		return 8 * (buffer.position() - 1) + (8 - numberOfLeadingZeros(buffer.get(buffer.position() - 1)));
 	}
 
-	private static int bit(int bitIndex) {
-		return 1 << (bitIndex & 7);
-	}
-
+	/*--------------------------------------------------------------------------------
+	 *  Resizing methods
+	 *-------------------------------------------------------------------------------*/
 	/**
 	 * Ensures that the BitSet can accommodate a given wordIndex.
 	 */
@@ -398,13 +707,44 @@ public class BufferBitSet {
 		if (byteIndex >= buffer.position())
 			buffer.position(byteIndex + 1);
 	}
-	
+
 	private void recalculateBytesInUse() {
 		// find last set bit
 		int n = buffer.position() - 1;
 		while (n >= 0 && buffer.get(n) == 0)
 			n--;
-		
+
 		buffer.position(n + 1);
+	}
+
+	/*--------------------------------------------------------------------------------
+	 *  Utility methods
+	 *-------------------------------------------------------------------------------*/
+	/**
+	 * Given a bit index, return byte index containing it.
+	 */
+	private static int byteIndex(int bitIndex) {
+		return bitIndex >> 3;
+	}
+
+	private static int bit(int bitIndex) {
+		return 1 << (bitIndex & 7);
+	}
+
+	/**
+	 * Checks that fromIndex ... toIndex is a valid range of bit indices.
+	 */
+	private static void checkRange(int fromIndex, int toIndex) {
+		if (fromIndex < 0)
+			throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+		if (toIndex < 0)
+			throw new IndexOutOfBoundsException("toIndex < 0: " + toIndex);
+		if (fromIndex > toIndex)
+			throw new IndexOutOfBoundsException("fromIndex: " + fromIndex + " > toIndex: " + toIndex);
+	}
+
+	private static int numberOfLeadingZeros(byte b) {
+
+		return Integer.numberOfLeadingZeros(b & 0xFF) & 7;
 	}
 }
