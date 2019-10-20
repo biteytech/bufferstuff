@@ -1,9 +1,11 @@
 package org.privman.lior.bytebufferbitset;
 
 import static org.privman.lior.bytebufferbitset.ResizeBehavior.ALLOCATE;
+import static org.privman.lior.bytebufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
 import static org.privman.lior.bytebufferbitset.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
+import java.util.BitSet;
 
 /**
  * Similar to {@link java.util.BitSet BitSet}, but backed by a
@@ -195,6 +197,23 @@ public class BufferBitSet {
 	}
 
 	/**
+	 * Returns a new {@link BufferBitSet} containing all of the bits in the given
+	 * {@link java.util.Bitset}.
+	 *
+	 * @param bitset - the bitset to copy
+	 * 
+	 * @return a {@code BufferBitSet} containing all the bits in the given bitset,
+	 *         and with resize behavior {@link ResizeBehavior#ALLOCATE ALLOCATE}.
+	 */
+	public static BufferBitSet valueOf(BitSet bs) {
+		byte[] array = bs.toByteArray();
+		ByteBuffer buffer = ByteBuffer.wrap(array);
+		buffer.limit(array.length);
+		buffer.position(array.length);
+		return new BufferBitSet(buffer, ALLOCATE, false);
+	}
+
+	/**
 	 * Returns a new {@link BufferBitSet} with the specified {@link ResizeBehavior
 	 * resize} behavior. The buffer object itself will be
 	 * {@link ByteBuffer#duplicate duplicated}, but will share the underlying space.
@@ -224,6 +243,13 @@ public class BufferBitSet {
 
 		return array;
 	}
+	
+	/**
+	 * Returns a new {@link java.util.BitSet} containing all of the bits in this {@link BufferBitSet}.
+	 */
+	public BitSet toBitSet() {
+		return BitSet.valueOf(toByteArray());
+	}
 
 	/*--------------------------------------------------------------------------------
 	 *  Get / Set / Flip / Clear
@@ -250,35 +276,58 @@ public class BufferBitSet {
 	 * {@code fromIndex} (inclusive) to {@code toIndex} (exclusive).
 	 * <p>
 	 * The resulting bitset will have the same {@link ResizeBehavior resize}
-	 * behavior as this bitset. It may or may not share the same underlying space as
-	 * this bitset depending on the indices and the {@code alwaysCopy} parameter.
+	 * behavior as this bitset.
 	 *
-	 * @param fromIndex  - index of the first bit to include
-	 * @param toIndex    - index after the last bit to include
-	 * @param alwaysCopy - this method will always return the bits in newly
-	 *                   allocated space if true
+	 * @param fromIndex - index of the first bit to include
+	 * @param toIndex   - index after the last bit to include
 	 * @return a new biset from a range of this bitset
 	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
 	 *                                   {@code toIndex} is negative, or
 	 *                                   {@code fromIndex} is larger than
 	 *                                   {@code toIndex}
 	 */
-	public BufferBitSet get(int fromIndex, int toIndex, boolean alwaysCopy) {
+	public BufferBitSet get(int fromIndex, int toIndex) {
 		checkRange(fromIndex, toIndex);
 
-		if (fromIndex == toIndex)
+		int len = length();
+
+		// If no set bits in range return empty bitset
+		if (len <= fromIndex || fromIndex == toIndex)
 			return new BufferBitSet(resizeBehavior);
 
-		if (!alwaysCopy && (fromIndex & 7) == 0 && (toIndex & 7) == 0) {
-			// sweet optimization if both indices are byte-aligned
-			ByteBuffer buffer = this.buffer.duplicate();
-			buffer.limit(byteIndex(toIndex));
-			buffer.position(byteIndex(fromIndex));
-			return new BufferBitSet(buffer.slice(), resizeBehavior, false);
+		// An optimization
+		if (toIndex > len)
+			toIndex = len;
+
+		ByteBuffer resultBuffer = resizeBehavior == ALLOCATE_DIRECT
+				? ByteBuffer.allocateDirect((toIndex - fromIndex) * 8)
+				: ByteBuffer.allocate((toIndex - fromIndex) * 8);
+		BufferBitSet result = new BufferBitSet(resultBuffer, resizeBehavior, false);
+
+		int targetBytes = byteIndex(toIndex - fromIndex - 1) + 1;
+		int sourceIndex = byteIndex(fromIndex);
+		boolean byteAligned = ((fromIndex & 7) == 0);
+
+		// Process all bytes but the last one
+		for (int i = 0; i < targetBytes - 1; i++, sourceIndex++) {
+			resultBuffer.put(i,
+					(byte) (byteAligned ? buffer.get(sourceIndex)
+							: ((buffer.get(sourceIndex) & 0xFF) >>> (fromIndex & 7))
+									| (buffer.get(sourceIndex + 1) << ((-fromIndex) & 7))));
 		}
 
-		// TODO
-		return null;
+		// Process the last byte
+		int lastWordMask = MASK >>> ((-toIndex) & 7);
+		resultBuffer.put(targetBytes - 1, (byte) (((toIndex - 1) & 7) < (fromIndex & 7) ? /* straddles source bytes */
+				(((buffer.get(sourceIndex) & 0xFF) >>> fromIndex)
+						| (buffer.get(sourceIndex + 1) & lastWordMask) << ((-fromIndex) & 7))
+				: ((buffer.get(sourceIndex) & lastWordMask) >>> (fromIndex & 7))));
+
+		// Set position correctly
+		result.buffer.position(targetBytes);
+		result.recalculateBytesInUse();
+
+		return result;
 	}
 
 	/**

@@ -6,18 +6,21 @@ import static org.privman.lior.bytebufferbitset.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.ObjIntConsumer;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class BufferBitSetTest {
 	
-	private static final TreeSet<Integer> SAMPLE_INDICES = new TreeSet<>(Arrays.asList(1, 10, 38, 39, 100, 9000));
+	private static final TreeSet<Integer> SAMPLE_INDICES =
+			new TreeSet<>(Arrays.asList(1, 10, 38, 39, 40, 41, 42, 100, 9000));
 	
 	private static void populateWithSampleIndices(BufferBitSet bs) {
 		for(int index : SAMPLE_INDICES)
@@ -68,6 +71,20 @@ public class BufferBitSetTest {
 		
 		BufferBitSet rebuilt = BufferBitSet.valueOf(bs.toByteArray());
 		Assertions.assertEquals(SAMPLE_INDICES.toString(), rebuilt.toString());
+	}
+	
+	@Test
+	public void toFromBitSet() {
+		
+		BitSet bs = new BitSet();
+		for(int i : SAMPLE_INDICES)
+			bs.set(i);
+		
+		BufferBitSet bbs = BufferBitSet.valueOf(bs);
+		Assertions.assertEquals(SAMPLE_INDICES.toString(), bbs.toString());
+		
+		BitSet rebuilt = bbs.toBitSet();
+		Assertions.assertEquals(bs, rebuilt);
 	}
 	
 	private void basicFlipOrClear(ObjIntConsumer<BufferBitSet> op) {
@@ -164,6 +181,29 @@ public class BufferBitSetTest {
 				expected.add(i);
 		
 		Assertions.assertEquals(expected.toString(), bs.toString());
+	}
+	
+	@Test
+	public void getRange() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);		
+		// 1, 10, 38, 39, 100, 9000
+		
+		Assertions.assertEquals("[]", bs.get(0, 0).toString());
+		Assertions.assertEquals("[]", bs.get(10000, 20000).toString());
+		Assertions.assertEquals("[0, 28, 29]", bs.get(10, 40).toString());
+		Assertions.assertEquals(SAMPLE_INDICES.toString(), bs.get(0, 9001).toString());
+		Assertions.assertEquals(SAMPLE_INDICES.toString(), bs.get(0, 10000).toString());
+		
+		for(int shift = 1; shift <= 100; shift++) {
+			final int s = shift;
+			Set<Integer> expected =  new TreeSet<>(SAMPLE_INDICES.stream()
+					.map(i -> i - s)
+					.filter(i -> i >= 0)
+					.collect(Collectors.toSet()));
+			
+			Assertions.assertEquals(expected.toString(), bs.get(s, 9001).toString());
+		}
 	}
 	
 	@Test
