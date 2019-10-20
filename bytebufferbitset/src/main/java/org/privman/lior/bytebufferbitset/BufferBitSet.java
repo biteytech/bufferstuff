@@ -46,8 +46,14 @@ public class BufferBitSet {
 
 	private static final int INITIAL_SIZE = 8;
 
+	/** {@link ResizeBehavior} */
 	private final ResizeBehavior resizeBehavior;
 
+	/**
+	 * This buffer's limit should always be equal to its capacity.
+	 * <p>
+	 * The position is used to track how many bytes are actually in use.
+	 */
 	private ByteBuffer buffer;
 
 	/*--------------------------------------------------------------------------------
@@ -72,14 +78,24 @@ public class BufferBitSet {
 	 *  Constructors and factory methods
 	 *-------------------------------------------------------------------------------*/
 	/**
-	 * Internal constructor, allows for controlling whether or not to slice the
-	 * provided buffer.
+	 * Internal constructor, allows for specifying whether or not the buffer was
+	 * supplied externally.
 	 */
-	private BufferBitSet(ByteBuffer buffer, ResizeBehavior resizeBehavior, boolean slice) {
+	private BufferBitSet(ByteBuffer buffer, ResizeBehavior resizeBehavior, boolean external) {
 
 		this.resizeBehavior = resizeBehavior;
 
-		this.buffer = slice ? buffer.slice() : buffer;
+		if(external) {
+			this.buffer = buffer.slice();
+			
+			// TODO: zero-out as we go (tracking highwater mark)
+			byte zero = (byte)0;
+			for(int i = 0; i < buffer.limit(); i++)
+				this.buffer.put(i, zero);
+		}
+		else {
+			this.buffer = buffer;
+		}
 	}
 
 	/**
@@ -137,10 +153,7 @@ public class BufferBitSet {
 	 * @throws NullPointerException if the provided buffer is null
 	 */
 	public BufferBitSet(ByteBuffer buffer) {
-
-		resizeBehavior = ALLOCATE;
-
-		this.buffer = buffer.slice();
+		this(buffer, NO_RESIZE);
 	}
 
 	/**
@@ -149,8 +162,6 @@ public class BufferBitSet {
 	 * {@link ByteBuffer#limit()}. The provided buffer object will not itself be
 	 * modified, though of course the buffer's content can be via writes to this
 	 * bitset.
-	 * <p>
-	 * The resize behavior defaults to {@link ResizeBehavior#NO_RESIZE NO_RESIZE}.
 	 * 
 	 * @param buffer         - the {@link ByteBuffer} to be wrapped by this bitset.
 	 *                       Writes to this bitset will modify the buffer's content.
@@ -163,15 +174,15 @@ public class BufferBitSet {
 	}
 
 	/**
-	 * Returns a new bit set containing all the bits in the given byte array.
+	 * Returns a new bit set containing all of the bits in the given byte array.
 	 * <p>
 	 * More precisely, <br>
 	 * {@code BufferBitSet.valueOf(bytes).get(n) == ((bytes[n/8] & (1<<(n%8))) != 0)}
 	 * <br>
 	 * for all {@code n <  8 * bytes.length}.
 	 * <p>
-	 * <em>The provided array is wrap, it is not copied.</em> Writes to this bitset
-	 * will modify the array.
+	 * <em>The provided array is wrapped, it is not copied.</em> Writes to this
+	 * bitset will modify the array.
 	 *
 	 * @param bytes - a byte array containing a sequence of bits to be used as the
 	 *              initial bits of the new bit set
@@ -263,6 +274,60 @@ public class BufferBitSet {
 		byte b = (byte) (buffer.get(byteIndex) | bit(bitIndex));
 		buffer.put(byteIndex, b);
 	}
+	
+    /**
+     * Sets the bit at the specified index to the specified value.
+     *
+     * @param  bitIndex a bit index
+     * @param  value a boolean value to set
+     * @throws IndexOutOfBoundsException if the specified index is negative
+     */
+    public void set(int bitIndex, boolean value) {
+        if (value)
+            set(bitIndex);
+        else
+            clear(bitIndex);
+    }
+	
+    /**
+     * Sets the bit at the specified index to the complement of its
+     * current value.
+     *
+     * @param  bitIndex the index of the bit to flip
+     * @throws IndexOutOfBoundsException if the specified index is negative
+     */
+    public void flip(int bitIndex) {
+        if (bitIndex < 0)
+            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+
+        int byteIndex = byteIndex(bitIndex);
+        expandTo(byteIndex);
+
+        byte b = (byte) (buffer.get(byteIndex) ^ bit(bitIndex));
+        buffer.put(byteIndex, b);
+
+        recalculateBytesInUse();
+    }
+
+    /**
+     * Sets the bit specified by the index to {@code false}.
+     *
+     * @param  bitIndex the index of the bit to be cleared
+     * @throws IndexOutOfBoundsException if the specified index is negative
+     */
+    public void clear(int bitIndex) {
+        if (bitIndex < 0)
+            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+
+        int byteIndex = byteIndex(bitIndex);
+        if (byteIndex >= buffer.position())
+            return;
+
+        byte b = (byte) (buffer.get(byteIndex) & ~bit(bitIndex));
+        buffer.put(byteIndex, b);
+
+        recalculateBytesInUse();
+    }
 
 	/*--------------------------------------------------------------------------------
 	 *  Object methods
@@ -286,9 +351,9 @@ public class BufferBitSet {
 			}
 		}
 
-		if(sb.length() > 1)
-			sb.delete(sb.length()-2, sb.length());
-			
+		if (sb.length() > 1)
+			sb.delete(sb.length() - 2, sb.length());
+
 		sb.append(']');
 		return sb.toString();
 	}
@@ -332,5 +397,14 @@ public class BufferBitSet {
 
 		if (byteIndex >= buffer.position())
 			buffer.position(byteIndex + 1);
+	}
+	
+	private void recalculateBytesInUse() {
+		// find last set bit
+		int n = buffer.position() - 1;
+		while (n >= 0 && buffer.get(n) == 0)
+			n--;
+		
+		buffer.position(n + 1);
 	}
 }

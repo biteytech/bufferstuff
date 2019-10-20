@@ -8,7 +8,9 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.ObjIntConsumer;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,7 @@ public class BufferBitSetTest {
 		setsAndIfThrows.put(new BufferBitSet(NO_RESIZE), true);
 		setsAndIfThrows.put(new BufferBitSet(ALLOCATE), false);
 		setsAndIfThrows.put(new BufferBitSet(ALLOCATE_DIRECT), false);
-		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(0)), false);
+		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(0)), true);
 		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(0), NO_RESIZE), true);
 		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(2000), NO_RESIZE), false);
 		setsAndIfThrows.put(new BufferBitSet().withResizeBehavior(NO_RESIZE), true);
@@ -68,6 +70,37 @@ public class BufferBitSetTest {
 		Assertions.assertEquals(SAMPLE_INDICES.toString(), rebuilt.toString());
 	}
 	
+	private void basicFlipOrClear(ObjIntConsumer<BufferBitSet> op) {
+		
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		Set<Integer> expected = new TreeSet<>(SAMPLE_INDICES);
+				
+		expected.remove(9000);
+		op.accept(bs, 9000);
+		
+		expected.remove(38);
+		op.accept(bs, 38);
+		
+		Assertions.assertEquals(expected.toString(), bs.toString());
+	}
+	
+	@Test
+	public void basicFlip() {		
+		basicFlipOrClear(BufferBitSet::flip);
+	}
+	
+	@Test
+	public void basicClear() {		
+		basicFlipOrClear(BufferBitSet::clear);
+		
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);		
+		bs.clear(Integer.MAX_VALUE);		
+		Assertions.assertEquals(SAMPLE_INDICES.toString(), bs.toString());
+	}
+	
 	@Test
 	public void negativeIndices() {
 		
@@ -83,6 +116,22 @@ public class BufferBitSetTest {
 		
 		try {
 			bs.set(-1);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.flip(-1);
+			throw new RuntimeException("Expected IndexOutOfBoundsException");
+		}
+		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.clear(-1);
 			throw new RuntimeException("Expected IndexOutOfBoundsException");
 		}
 		catch(IndexOutOfBoundsException ex) {
