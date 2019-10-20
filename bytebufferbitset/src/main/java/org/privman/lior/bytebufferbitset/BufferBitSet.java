@@ -637,6 +637,104 @@ public class BufferBitSet {
 	}
 
 	/*--------------------------------------------------------------------------------
+	 *  Logical operations - and/or/xor/andNot
+	 *-------------------------------------------------------------------------------*/
+	/**
+	 * Performs a logical <b>AND</b> of this target bitset with the argument bitset.
+	 * This bitset is modified so that each bit in it has the value {@code true} if
+	 * and only if it both initially had the value {@code true} and the
+	 * corresponding bit in the bitset argument also had the value {@code true}.
+	 *
+	 * @param set - a {@link BufferBitSet}
+	 */
+	public void and(BufferBitSet set) {
+		if (this == set)
+			return;
+
+		while (buffer.position() > set.buffer.position()) {
+			buffer.position(buffer.position() - 1);
+			buffer.put(buffer.position(), (byte) 0);
+		}
+
+		// Perform logical AND on words in common
+		for (int i = 0; i < buffer.position(); i++) {
+			byte b = (byte) (buffer.get(i) & set.buffer.get(i));
+			buffer.put(i, b);
+		}
+
+		recalculateBytesInUse();
+	}
+
+	/**
+	 * Performs a logical <b>OR</b> of this bitset with the bitset argument. This
+	 * bitset is modified so that a bit in it has the value {@code true} if and only
+	 * if it either already had the value {@code true} or the corresponding bit in
+	 * the bitset argument has the value {@code true}.
+	 *
+	 * @param set - a {@link BufferBitSet}
+	 */
+	public void or(BufferBitSet set) {
+		if (this == set)
+			return;
+
+		int bytesInCommon = Math.min(this.buffer.position(), set.buffer.position());
+
+		// Perform logical OR on bytes in common
+		for (int i = 0; i < bytesInCommon; i++) {
+			byte b = (byte) (buffer.get(i) | set.buffer.get(i));
+			buffer.put(i, b);
+		}
+
+		copyRemainingBytes(bytesInCommon, set);
+
+		// recalculateBytesInUse() is unnecessary
+	}
+
+	/**
+	 * Performs a logical <b>XOR</b> of this bitset with the bitset argument. This
+	 * bitset is modified so that a bit in it has the value {@code true} if and only
+	 * if one of the following statements holds:
+	 * <ul>
+	 * <li>The bit initially has the value {@code true}, and the corresponding bit
+	 * in the argument has the value {@code false}.
+	 * <li>The bit initially has the value {@code false}, and the corresponding bit
+	 * in the argument has the value {@code true}.
+	 * </ul>
+	 *
+	 * @param set - a {@link BufferBitSet}
+	 */
+	public void xor(BufferBitSet set) {
+
+		int bytesInCommon = Math.min(this.buffer.position(), set.buffer.position());
+
+		// Perform logical XOR on bytes in common
+		for (int i = 0; i < bytesInCommon; i++) {
+			byte b = (byte) (buffer.get(i) ^ set.buffer.get(i));
+			buffer.put(i, b);
+		}
+
+		copyRemainingBytes(bytesInCommon, set);
+
+		recalculateBytesInUse();
+	}
+
+	/**
+	 * Clears all of the bits in this bitset whose corresponding bit is set in the
+	 * specified bitset.
+	 *
+	 * @param set - the {@link BufferBitSet} with which to mask this bitset
+	 */
+	public void andNot(BufferBitSet set) {
+		// Perform logical (a & !b) on bytes in common
+		for (int i = Math.min(buffer.position(), set.buffer.position()) - 1; i >= 0; i--) {
+			byte b = (byte) (buffer.get(i) & ~set.buffer.get(i));
+			buffer.put(i, b);
+		}
+
+		recalculateBytesInUse();
+	}
+
+	/*--------------------------------------------------------------------------------
 	 *  Object & Collection-like methods
 	 *-------------------------------------------------------------------------------*/
 	/**
@@ -679,7 +777,7 @@ public class BufferBitSet {
 	}
 
 	/*--------------------------------------------------------------------------------
-	 *  Resizing methods
+	 *  Methods related to resizing
 	 *-------------------------------------------------------------------------------*/
 	/**
 	 * Ensures that the BitSet can accommodate a given wordIndex.
@@ -715,6 +813,20 @@ public class BufferBitSet {
 			n--;
 
 		buffer.position(n + 1);
+	}
+
+	private void copyRemainingBytes(int bytesInCommon, BufferBitSet set) {
+		// Copy any remaining bytes
+		if (bytesInCommon < set.buffer.position()) {
+			expandTo(set.buffer.position() - 1);
+			buffer.position(bytesInCommon);
+
+			ByteBuffer remaining = set.buffer.duplicate();
+			remaining.position(bytesInCommon);
+			remaining.limit(set.buffer.position());
+
+			buffer.put(remaining);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------

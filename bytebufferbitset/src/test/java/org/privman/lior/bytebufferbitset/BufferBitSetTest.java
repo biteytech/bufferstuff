@@ -225,6 +225,85 @@ public class BufferBitSetTest {
 	}
 	
 	@Test
+	public void and() {
+		BufferBitSet bs1 = new BufferBitSet();
+		populateWithSampleIndices(bs1);
+		bs1.clear(1);
+		
+		BufferBitSet bs2 = new BufferBitSet();
+		populateWithSampleIndices(bs2);
+		bs2.clear(9000);
+		
+		Set<Integer> expected = new TreeSet<>(SAMPLE_INDICES);
+		expected.remove(1);
+		expected.remove(9000);
+		
+		bs1.and(bs2);		
+		Assertions.assertEquals(expected.toString(), bs1.toString());
+		
+		bs1.and(bs1);
+		Assertions.assertEquals(expected.toString(), bs1.toString());
+	}
+	
+	@Test
+	public void or() {
+		BufferBitSet bs1 = new BufferBitSet();
+		populateWithSampleIndices(bs1);
+		bs1.clear(1);
+		
+		BufferBitSet bs2 = new BufferBitSet();
+		populateWithSampleIndices(bs2);
+		bs2.clear(9000);
+		bs2.set(20000);
+		
+		Set<Integer> expected = new TreeSet<>(SAMPLE_INDICES);
+		expected.add(20000);
+		
+		bs1.or(bs2);
+		Assertions.assertEquals(expected.toString(), bs1.toString());
+		
+		bs1.or(bs1);
+		Assertions.assertEquals(expected.toString(), bs1.toString());
+	}
+	
+	@Test
+	public void xor() {
+		BufferBitSet bs1 = new BufferBitSet();
+		populateWithSampleIndices(bs1);
+		
+		BufferBitSet bs2 = new BufferBitSet();
+		populateWithSampleIndices(bs2);
+		bs2.set(20000);
+		
+		Set<Integer> expected = new TreeSet<>();
+		expected.add(20000);
+		
+		bs1.xor(bs2);
+		Assertions.assertEquals(expected.toString(), bs1.toString());
+		
+		bs1.xor(bs1);
+		Assertions.assertEquals(0, bs1.length());
+	}
+	
+	@Test
+	public void andNot() {
+		BufferBitSet bs1 = new BufferBitSet();
+		populateWithSampleIndices(bs1);
+		
+		BufferBitSet bs2 = new BufferBitSet();
+		bs2.set(20000);
+				
+		bs1.andNot(bs2);
+		Assertions.assertEquals(SAMPLE_INDICES.toString(), bs1.toString());
+		
+		bs2.set(9000);
+		bs1.andNot(bs2);
+		Set<Integer> expected = new TreeSet<>(SAMPLE_INDICES);
+		expected.remove(9000);
+		Assertions.assertEquals(expected.toString(), bs1.toString());
+	}
+	
+	@Test
 	public void length() {
 		BufferBitSet bs = new BufferBitSet();
 		Assertions.assertEquals(0, bs.length());
