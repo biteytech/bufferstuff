@@ -193,7 +193,7 @@ public class BufferBitSet {
 
 		buffer.position(n + 1);
 
-		return new BufferBitSet(ByteBuffer.wrap(bytes));
+		return new BufferBitSet(buffer, ALLOCATE, false);
 	}
 
 	/**
