@@ -274,8 +274,8 @@ public class BufferBitSet {
 	 * Returns a new {@code BufferBitSet} composed of bits from this bitset from
 	 * {@code fromIndex} (inclusive) to {@code toIndex} (exclusive).
 	 * <p>
-	 * The resulting bitset will have the same {@link ResizeBehavior resize}
-	 * behavior as this bitset.
+	 * The resulting bitset will always be stored in newly allocated space, and will
+	 * have the same {@link ResizeBehavior} as this bitset.
 	 *
 	 * @param fromIndex - index of the first bit to include
 	 * @param toIndex   - index after the last bit to include
@@ -298,12 +298,12 @@ public class BufferBitSet {
 		if (toIndex > len)
 			toIndex = len;
 
-		ByteBuffer resultBuffer = resizeBehavior == ALLOCATE_DIRECT
-				? ByteBuffer.allocateDirect((toIndex - fromIndex) * 8)
-				: ByteBuffer.allocate((toIndex - fromIndex) * 8);
+		final int targetBytes = byteIndex(toIndex - fromIndex - 1) + 1;
+
+		ByteBuffer resultBuffer = resizeBehavior == ALLOCATE_DIRECT ? ByteBuffer.allocateDirect(targetBytes)
+				: ByteBuffer.allocate(targetBytes);
 		BufferBitSet result = new BufferBitSet(resultBuffer, resizeBehavior, false);
 
-		int targetBytes = byteIndex(toIndex - fromIndex - 1) + 1;
 		int sourceIndex = byteIndex(fromIndex);
 		boolean byteAligned = ((fromIndex & 7) == 0);
 
@@ -766,6 +766,46 @@ public class BufferBitSet {
 			put(i, byt(i) & ~set.byt(i));
 
 		recalculateBytesInUse();
+	}
+
+	/*--------------------------------------------------------------------------------
+	 *  shift-right
+	 *-------------------------------------------------------------------------------*/
+	/**
+	 * Returns a copy of this bitset with each bit shifted right by {@code offset}.
+	 * The resulting bitset will always be stored in newly allocated space, and will
+	 * have the same {@link ResizeBehavior} as this bitset.
+	 * 
+	 * @param offset - number of bits to shift by
+	 * 
+	 * @return a new bitset with shifted right by {@code offset}
+	 * 
+	 * @throws IllegalArgumentException if offset is negative
+	 */
+	public BufferBitSet shiftRight(int offset) {
+
+		if (offset < 0)
+			throw new IllegalArgumentException("offset < 0: " + offset);
+
+		final int offsetBytes = (offset - 1) / 8 + 1;
+		final int totalBytes = offsetBytes + buffer.position();
+
+		ByteBuffer buffer = resizeBehavior == ALLOCATE_DIRECT ? ByteBuffer.allocateDirect(totalBytes)
+				: ByteBuffer.allocate(totalBytes);
+
+		buffer.position(offsetBytes);
+		ByteBuffer from = this.buffer.duplicate();
+		from.flip();
+		buffer.put(from);
+
+		BufferBitSet bs = new BufferBitSet(buffer, resizeBehavior, false);
+
+		final int actualOffset = offsetBytes * 8;
+		if (actualOffset > offset) {
+			int leftShift = actualOffset - offset;
+			return bs.get(leftShift, totalBytes * 8 + 1);
+		} else
+			return bs;
 	}
 
 	/*--------------------------------------------------------------------------------

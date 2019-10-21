@@ -189,7 +189,6 @@ public class BufferBitSetTest {
 	public void getRange() {
 		BufferBitSet bs = new BufferBitSet();
 		populateWithSampleIndices(bs);		
-		// 1, 10, 38, 39, 100, 9000
 		
 		Assertions.assertEquals("[]", bs.get(0, 0).toString());
 		Assertions.assertEquals("[]", bs.get(10000, 20000).toString());
@@ -415,6 +414,21 @@ public class BufferBitSetTest {
 	}
 	
 	@Test
+	public void shiftRight() {
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+
+		for(int shift = 0; shift <= 100; shift++) {
+			final int s = shift;
+			Set<Integer> expected =  new TreeSet<>(SAMPLE_INDICES.stream()
+					.map(i -> i + s)
+					.collect(Collectors.toSet()));
+			
+			Assertions.assertEquals(expected.toString(), bs.shiftRight(shift).toString());
+		}
+	}
+	
+	@Test
 	public void badIndices() {
 		
 		BufferBitSet bs = new BufferBitSet();
@@ -528,6 +542,14 @@ public class BufferBitSetTest {
 			throw new RuntimeException("Expected IndexOutOfBoundsException");
 		}
 		catch(IndexOutOfBoundsException ex) {
+			// good
+		}
+		
+		try {
+			bs.shiftRight(-1);
+			throw new RuntimeException("Expected IllegalArgumentException");
+		}
+		catch(IllegalArgumentException ex) {
 			// good
 		}
 	}
