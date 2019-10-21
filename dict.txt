@@ -1,4 +1,0 @@
-cloneable
-serializable
-lior
-privman
