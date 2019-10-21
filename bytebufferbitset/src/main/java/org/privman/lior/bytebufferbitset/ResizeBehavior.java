@@ -10,13 +10,13 @@ import java.nio.ByteBuffer;
  * <li>{@link #ALLOCATE_DIRECT}
  * </ul>
  * 
- * @author Lior Privman
+ * @author lior.privman*protonmail.com
  */
 public enum ResizeBehavior {
 
 	/**
 	 * Additional storage will not be allocated. Attempting to write a bit outside
-	 * of the current buffer's space will throw a {@link IndexOutOfBoundsException}.
+	 * of the current buffer's space will throw an {@link IndexOutOfBoundsException}.
 	 */
 	NO_RESIZE,
 

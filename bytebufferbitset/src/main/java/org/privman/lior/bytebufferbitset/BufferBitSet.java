@@ -15,14 +15,14 @@ import java.util.BitSet;
  * {@code BufferBitSet}
  * <ul>
  * <li>... is neither {@code Cloneable} nor {@code Serializable}.
- * <li>... does not hide the backing buffer, and offers copy-free constructors
- * for wrapping an existing buffer.
+ * <li>... does not hide the backing buffer, and offers copy-free methods for
+ * wrapping an existing buffer.
  * <li>... allows for specifying the {@link ResizeBehavior resize} behavior.
  * </ul>
  * This bitset is not thread safe, and concurrent writes could put it into a bad
  * state. External modifications to the backing buffer can do the same.
  * 
- * @author Lior Privman
+ * @author lior.privman*protonmail.com
  * @author Arthur van Hoff (java.util.BitSet)
  * @author Michael McCloskey (java.util.BitSet)
  * @author Martin Buchholz (java.util.BitSet)
@@ -32,7 +32,7 @@ import java.util.BitSet;
  */
 public class BufferBitSet {
 
-	private static final int INITIAL_SIZE = 8;
+	private static final int DEFAULT_INITIAL_SIZE = 8;
 
 	private static final int MASK = 0xFF;
 
@@ -40,9 +40,9 @@ public class BufferBitSet {
 	private final ResizeBehavior resizeBehavior;
 
 	/**
-	 * This buffer's limit should always be equal to its capacity.
-	 * <p>
-	 * The position is used to track how many bytes are actually in use.
+	 * This buffer's {@link ByteBuffer#limit() limit} is always equal to its
+	 * {@link ByteBuffer#capacity() capacity}. The {@link ByteBuffer#position()
+	 * position} is used to track how many bytes are actually in use.
 	 */
 	private ByteBuffer buffer;
 
@@ -57,8 +57,7 @@ public class BufferBitSet {
 	}
 
 	/**
-	 * Return this {@link BufferBitSet bitset's} {@link ResizeBehavior resize}
-	 * behavior.
+	 * Return this bitset's {@link ResizeBehavior resize} behavior.
 	 */
 	public ResizeBehavior getResizeBehavior() {
 		return resizeBehavior;
@@ -68,23 +67,29 @@ public class BufferBitSet {
 	 *  Constructors and factory methods
 	 *-------------------------------------------------------------------------------*/
 	/**
-	 * Internal constructor, allows for specifying whether or not the buffer was
-	 * supplied externally.
+	 * "Master" constructor. All other constructors invoke this one.
 	 */
-	private BufferBitSet(ByteBuffer buffer, ResizeBehavior resizeBehavior, boolean external) {
+	private BufferBitSet(ByteBuffer buffer, ResizeBehavior resizeBehavior, boolean externalBuffer) {
 
-		this.resizeBehavior = resizeBehavior;
+		if (buffer == null)
+			throw new NullPointerException("buffer cannot be null");
 
-		if (external) {
+		if (resizeBehavior == null)
+			throw new NullPointerException("resizeBehavior cannot be null");
+
+		if (externalBuffer) {
 			this.buffer = buffer.slice();
 
-			// TODO: zero-out as we go (tracking highwater mark)
-			byte zero = (byte) 0;
-			for (int i = 0; i < buffer.limit(); i++)
+			// TODO: zero-out as we go instead (tracking highwater mark)
+			final byte zero = (byte) 0;
+			final int limit = buffer.limit();
+			for (int i = 0; i < limit; i++)
 				this.buffer.put(i, zero);
 		} else {
 			this.buffer = buffer;
 		}
+
+		this.resizeBehavior = resizeBehavior;
 	}
 
 	/**
@@ -92,47 +97,27 @@ public class BufferBitSet {
 	 * {@link ResizeBehavior#ALLOCATE ALLOCATE}.
 	 */
 	public BufferBitSet() {
-
-		resizeBehavior = ResizeBehavior.ALLOCATE;
-
-		buffer = ByteBuffer.allocate(INITIAL_SIZE);
+		this(ALLOCATE);
 	}
 
 	/**
 	 * Creates a {@link BufferBitSet} with the specified resize behavior.
 	 * 
 	 * @param resizeBehavior - the {@link ResizeBehavior}. If
-	 *                       {@link ResizeBehavior#NO_RESIZE} is specified then this
-	 *                       bitset will always be empty.
+	 *                       {@link ResizeBehavior#NO_RESIZE NO_RESIZE} is specified
+	 *                       then this bitset will always be empty.
 	 * 
 	 * @throws NullPointerException if resizeBehavior is null
 	 */
 	public BufferBitSet(ResizeBehavior resizeBehavior) {
-
-		if (resizeBehavior == null)
-			throw new NullPointerException("resizeBehavior cannot be null");
-
-		this.resizeBehavior = resizeBehavior;
-
-		switch (resizeBehavior) {
-		case ALLOCATE:
-			buffer = ByteBuffer.allocate(INITIAL_SIZE);
-			break;
-		case ALLOCATE_DIRECT:
-			buffer = ByteBuffer.allocateDirect(INITIAL_SIZE);
-			break;
-		default:
-			buffer = ByteBuffer.allocate(0);
-			break;
-		}
+		this(allocateInitialBuffer(resizeBehavior), resizeBehavior, false);
 	}
 
 	/**
 	 * Creates a {@link BufferBitSet} which wraps the provided buffer. This bitset
 	 * will only make use of the space demarked by {@link ByteBuffer#position()} and
 	 * {@link ByteBuffer#limit()}. The provided buffer object will not itself be
-	 * modified, though of course the buffer's content can be via writes to this
-	 * bitset.
+	 * modified, though the buffer's content can be via writes to this bitset.
 	 * <p>
 	 * The resize behavior defaults to {@link ResizeBehavior#NO_RESIZE NO_RESIZE}.
 	 * 
@@ -142,15 +127,14 @@ public class BufferBitSet {
 	 * @throws NullPointerException if the provided buffer is null
 	 */
 	public BufferBitSet(ByteBuffer buffer) {
-		this(buffer, NO_RESIZE);
+		this(buffer, NO_RESIZE, true);
 	}
 
 	/**
 	 * Creates a {@link BufferBitSet} which wraps the provided buffer. This bitset
 	 * will only make use of the space demarked by {@link ByteBuffer#position()} and
 	 * {@link ByteBuffer#limit()}. The provided buffer object will not itself be
-	 * modified, though of course the buffer's content can be via writes to this
-	 * bitset.
+	 * modified, though the buffer's content can be via writes to this bitset.
 	 * 
 	 * @param buffer         - the {@link ByteBuffer} to be wrapped by this bitset.
 	 *                       Writes to this bitset will modify the buffer's content.
@@ -171,7 +155,7 @@ public class BufferBitSet {
 	 * for all {@code n <  8 * bytes.length}.
 	 * <p>
 	 * <em>The provided array is wrapped, it is not copied.</em> Writes to this
-	 * bitset will modify the array.
+	 * bitset can modify the array.
 	 *
 	 * @param bytes - a byte array containing a sequence of bits to be used as the
 	 *              initial bits of the new bit set
@@ -200,16 +184,19 @@ public class BufferBitSet {
 	 * Returns a new {@link BufferBitSet} containing all of the bits in the given
 	 * {@link java.util.Bitset}.
 	 *
-	 * @param bitset - the bitset to copy
+	 * @param bs - the bitset to copy
 	 * 
 	 * @return a {@code BufferBitSet} containing all the bits in the given bitset,
-	 *         and with resize behavior {@link ResizeBehavior#ALLOCATE ALLOCATE}.
+	 *         with resize behavior {@link ResizeBehavior#ALLOCATE ALLOCATE}.
 	 */
 	public static BufferBitSet valueOf(BitSet bs) {
+
 		byte[] array = bs.toByteArray();
 		ByteBuffer buffer = ByteBuffer.wrap(array);
+
 		buffer.limit(array.length);
 		buffer.position(array.length);
+
 		return new BufferBitSet(buffer, ALLOCATE, false);
 	}
 
@@ -221,7 +208,7 @@ public class BufferBitSet {
 	 * Concurrent modifications to this bitset and the returned bitset can put both
 	 * into a bad state.
 	 * 
-	 * @param resizeBehavior - the specified {@link ResizeBehavior resize} behavior.
+	 * @param resizeBehavior - {@link ResizeBehavior}
 	 */
 	public BufferBitSet withResizeBehavior(ResizeBehavior resizeBehavior) {
 		return new BufferBitSet(buffer.duplicate(), resizeBehavior, false);
@@ -243,9 +230,10 @@ public class BufferBitSet {
 
 		return array;
 	}
-	
+
 	/**
-	 * Returns a new {@link java.util.BitSet} containing all of the bits in this {@link BufferBitSet}.
+	 * Returns a new {@link java.util.BitSet} containing all of the bits in this
+	 * {@link BufferBitSet}.
 	 */
 	public BitSet toBitSet() {
 		return BitSet.valueOf(toByteArray());
@@ -268,7 +256,7 @@ public class BufferBitSet {
 			throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
 		int byteIndex = byteIndex(bitIndex);
-		return (byteIndex < buffer.position()) && ((buffer.get(byteIndex) & bit(bitIndex)) != 0);
+		return (byteIndex < buffer.position()) && ((byt(byteIndex) & bit(bitIndex)) != 0);
 	}
 
 	/**
@@ -310,18 +298,16 @@ public class BufferBitSet {
 
 		// Process all bytes but the last one
 		for (int i = 0; i < targetBytes - 1; i++, sourceIndex++) {
-			resultBuffer.put(i,
-					(byte) (byteAligned ? buffer.get(sourceIndex)
-							: ((buffer.get(sourceIndex) & 0xFF) >>> (fromIndex & 7))
-									| (buffer.get(sourceIndex + 1) << ((-fromIndex) & 7))));
+			resultBuffer.put(i, (byte) (byteAligned ? byt(sourceIndex)
+					: ((byt(sourceIndex) & 0xFF) >>> (fromIndex & 7)) | (byt(sourceIndex + 1) << ((-fromIndex) & 7))));
 		}
 
 		// Process the last byte
 		int lastWordMask = MASK >>> ((-toIndex) & 7);
 		resultBuffer.put(targetBytes - 1, (byte) (((toIndex - 1) & 7) < (fromIndex & 7) ? /* straddles source bytes */
-				(((buffer.get(sourceIndex) & 0xFF) >>> fromIndex)
-						| (buffer.get(sourceIndex + 1) & lastWordMask) << ((-fromIndex) & 7))
-				: ((buffer.get(sourceIndex) & lastWordMask) >>> (fromIndex & 7))));
+				(((byt(sourceIndex) & 0xFF) >>> fromIndex)
+						| (byt(sourceIndex + 1) & lastWordMask) << ((-fromIndex) & 7))
+				: ((byt(sourceIndex) & lastWordMask) >>> (fromIndex & 7))));
 
 		// Set position correctly
 		result.buffer.position(targetBytes);
@@ -343,8 +329,7 @@ public class BufferBitSet {
 		int byteIndex = byteIndex(bitIndex);
 		expandTo(byteIndex);
 
-		byte b = (byte) (buffer.get(byteIndex) | bit(bitIndex));
-		buffer.put(byteIndex, b);
+		put(byteIndex, byt(byteIndex) | bit(bitIndex));
 	}
 
 	/**
@@ -385,24 +370,21 @@ public class BufferBitSet {
 
 		int firstByteMask = MASK << (fromIndex & 7);
 		int lastByteMask = MASK >>> ((-toIndex) & 7);
-		byte b;
+
 		if (startByteIndex == endByteIndex) {
 			// Case 1: One word
-			b = (byte) (buffer.get(startByteIndex) | (firstByteMask & lastByteMask));
-			buffer.put(startByteIndex, b);
+			put(startByteIndex, byt(startByteIndex) | (firstByteMask & lastByteMask));
 		} else {
 			// Case 2: Multiple words
 			// Handle first word
-			b = (byte) (buffer.get(startByteIndex) | firstByteMask);
-			buffer.put(startByteIndex, b);
+			put(startByteIndex, byt(startByteIndex) | firstByteMask);
 
 			// Handle intermediate words, if any
 			for (int i = startByteIndex + 1; i < endByteIndex; i++)
-				buffer.put(i, (byte) MASK);
+				put(i, MASK);
 
 			// Handle last word
-			b = (byte) (buffer.get(endByteIndex) | lastByteMask);
-			buffer.put(endByteIndex, b);
+			put(endByteIndex, byt(endByteIndex) | lastByteMask);
 		}
 	}
 
@@ -438,8 +420,7 @@ public class BufferBitSet {
 		int byteIndex = byteIndex(bitIndex);
 		expandTo(byteIndex);
 
-		byte b = (byte) (buffer.get(byteIndex) ^ bit(bitIndex));
-		buffer.put(byteIndex, b);
+		put(byteIndex, byt(byteIndex) ^ bit(bitIndex));
 
 		recalculateBytesInUse();
 	}
@@ -468,26 +449,21 @@ public class BufferBitSet {
 
 		int firstByteMask = MASK << (fromIndex & 7);
 		int lastByteMask = MASK >>> ((-toIndex) & 7);
-		byte b;
+
 		if (startByteIndex == endByteIndex) {
 			// Case 1: One word
-			b = (byte) (buffer.get(startByteIndex) ^ (firstByteMask & lastByteMask));
-			buffer.put(startByteIndex, b);
+			put(startByteIndex, byt(startByteIndex) ^ (firstByteMask & lastByteMask));
 		} else {
 			// Case 2: Multiple words
 			// Handle first word
-			b = (byte) (buffer.get(startByteIndex) ^ firstByteMask);
-			buffer.put(startByteIndex, b);
+			put(startByteIndex, byt(startByteIndex) ^ firstByteMask);
 
 			// Handle intermediate words, if any
-			for (int i = startByteIndex + 1; i < endByteIndex; i++) {
-				b = (byte) (buffer.get(i) ^ MASK);
-				buffer.put(i, b);
-			}
+			for (int i = startByteIndex + 1; i < endByteIndex; i++)
+				put(i, byt(i) ^ MASK);
 
 			// Handle last word
-			b = (byte) (buffer.get(endByteIndex) ^ lastByteMask);
-			buffer.put(endByteIndex, b);
+			put(endByteIndex, byt(endByteIndex) ^ lastByteMask);
 		}
 
 		recalculateBytesInUse();
@@ -507,8 +483,7 @@ public class BufferBitSet {
 		if (byteIndex >= buffer.position())
 			return;
 
-		byte b = (byte) (buffer.get(byteIndex) & ~bit(bitIndex));
-		buffer.put(byteIndex, b);
+		put(byteIndex, byt(byteIndex) & ~bit(bitIndex));
 
 		recalculateBytesInUse();
 	}
@@ -537,24 +512,21 @@ public class BufferBitSet {
 
 		int firstByteMask = MASK << (fromIndex & 7);
 		int lastByteMask = MASK >>> ((-toIndex) & 7);
-		byte b;
+
 		if (startByteIndex == endByteIndex) {
 			// Case 1: One word
-			b = (byte) (buffer.get(startByteIndex) & ~(firstByteMask & lastByteMask));
-			buffer.put(startByteIndex, b);
+			put(startByteIndex, byt(startByteIndex) & ~(firstByteMask & lastByteMask));
 		} else {
 			// Case 2: Multiple words
 			// Handle first word
-			b = (byte) (buffer.get(startByteIndex) & ~firstByteMask);
-			buffer.put(startByteIndex, b);
+			put(startByteIndex, byt(startByteIndex) & ~firstByteMask);
 
 			// Handle intermediate words, if any
 			for (int i = startByteIndex + 1; i < endByteIndex; i++)
-				buffer.put(i, (byte) 0);
+				put(i, 0);
 
 			// Handle last word
-			b = (byte) (buffer.get(endByteIndex) & ~lastByteMask);
-			buffer.put(endByteIndex, b);
+			put(endByteIndex, byt(endByteIndex) & ~lastByteMask);
 		}
 
 		recalculateBytesInUse();
@@ -576,18 +548,20 @@ public class BufferBitSet {
 		if (fromIndex < 0)
 			throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
 
+		final int position = buffer.position();
+
 		int u = byteIndex(fromIndex);
-		if (u >= buffer.position())
+		if (u >= position)
 			return -1;
 
-		byte b = (byte) (buffer.get(u) & (MASK << (fromIndex & 7)));
+		byte b = (byte) (byt(u) & (MASK << (fromIndex & 7)));
 
 		while (true) {
 			if (b != 0)
 				return (u * 8) + Integer.numberOfTrailingZeros(b);
-			if (++u == buffer.position())
+			if (++u == position)
 				return -1;
-			b = buffer.get(u);
+			b = byt(u);
 		}
 	}
 
@@ -604,18 +578,20 @@ public class BufferBitSet {
 		if (fromIndex < 0)
 			throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
 
+		final int position = buffer.position();
+
 		int u = byteIndex(fromIndex);
-		if (u >= buffer.position())
+		if (u >= position)
 			return fromIndex;
 
-		byte b = (byte) (~buffer.get(u) & (MASK << (fromIndex & 7)));
+		byte b = (byte) (~byt(u) & (MASK << (fromIndex & 7)));
 
 		while (true) {
 			if (b != 0)
 				return (u * 8) + Integer.numberOfTrailingZeros(b);
-			if (++u == buffer.position())
-				return buffer.position() * 8;
-			b = (byte) ~buffer.get(u);
+			if (++u == position)
+				return position * 8;
+			b = (byte) ~byt(u);
 		}
 	}
 
@@ -641,14 +617,14 @@ public class BufferBitSet {
 		if (u >= buffer.position())
 			return length() - 1;
 
-		byte b = (byte) (buffer.get(u) & (MASK >>> ((-(fromIndex + 1)) & 7)));
+		byte b = (byte) (byt(u) & (MASK >>> ((-(fromIndex + 1)) & 7)));
 
 		while (true) {
 			if (b != 0)
 				return (u + 1) * 8 - 1 - numberOfLeadingZeros(b);
 			if (u-- == 0)
 				return -1;
-			b = buffer.get(u);
+			b = byt(u);
 		}
 	}
 
@@ -674,14 +650,14 @@ public class BufferBitSet {
 		if (u >= buffer.position())
 			return fromIndex;
 
-		byte b = (byte) (~buffer.get(u) & (MASK >>> ((-(fromIndex + 1)) & 7)));
+		byte b = (byte) (~byt(u) & (MASK >>> ((-(fromIndex + 1)) & 7)));
 
 		while (true) {
 			if (b != 0)
 				return (u + 1) * 8 - 1 - numberOfLeadingZeros(b);
 			if (u-- == 0)
 				return -1;
-			b = (byte) ~buffer.get(u);
+			b = (byte) ~byt(u);
 		}
 	}
 
@@ -700,16 +676,17 @@ public class BufferBitSet {
 		if (this == set)
 			return;
 
-		while (buffer.position() > set.buffer.position()) {
-			buffer.position(buffer.position() - 1);
-			buffer.put(buffer.position(), (byte) 0);
-		}
+		int position = buffer.position();
+		final int setPosition = set.buffer.position();
+
+		while (position > setPosition)
+			put(--position, 0);
+
+		buffer.position(position);
 
 		// Perform logical AND on words in common
-		for (int i = 0; i < buffer.position(); i++) {
-			byte b = (byte) (buffer.get(i) & set.buffer.get(i));
-			buffer.put(i, b);
-		}
+		for (int i = 0; i < position; i++)
+			put(i, byt(i) & set.byt(i));
 
 		recalculateBytesInUse();
 	}
@@ -729,10 +706,8 @@ public class BufferBitSet {
 		int bytesInCommon = Math.min(this.buffer.position(), set.buffer.position());
 
 		// Perform logical OR on bytes in common
-		for (int i = 0; i < bytesInCommon; i++) {
-			byte b = (byte) (buffer.get(i) | set.buffer.get(i));
-			buffer.put(i, b);
-		}
+		for (int i = 0; i < bytesInCommon; i++)
+			put(i, byt(i) | set.byt(i));
 
 		copyRemainingBytes(bytesInCommon, set);
 
@@ -757,10 +732,8 @@ public class BufferBitSet {
 		int bytesInCommon = Math.min(this.buffer.position(), set.buffer.position());
 
 		// Perform logical XOR on bytes in common
-		for (int i = 0; i < bytesInCommon; i++) {
-			byte b = (byte) (buffer.get(i) ^ set.buffer.get(i));
-			buffer.put(i, b);
-		}
+		for (int i = 0; i < bytesInCommon; i++)
+			put(i, byt(i) ^ set.byt(i));
 
 		copyRemainingBytes(bytesInCommon, set);
 
@@ -774,11 +747,12 @@ public class BufferBitSet {
 	 * @param set - the {@link BufferBitSet} with which to mask this bitset
 	 */
 	public void andNot(BufferBitSet set) {
+
+		int bytesInCommon = Math.min(this.buffer.position(), set.buffer.position());
+
 		// Perform logical (a & !b) on bytes in common
-		for (int i = Math.min(buffer.position(), set.buffer.position()) - 1; i >= 0; i--) {
-			byte b = (byte) (buffer.get(i) & ~set.buffer.get(i));
-			buffer.put(i, b);
-		}
+		for (int i = bytesInCommon - 1; i >= 0; i--)
+			put(i, byt(i) & ~set.byt(i));
 
 		recalculateBytesInUse();
 	}
@@ -795,8 +769,10 @@ public class BufferBitSet {
 		StringBuilder sb = new StringBuilder();
 		sb.append('[');
 
-		for (int i = 0; i < buffer.position(); i++) {
-			int b = buffer.get(i) & 0xFF;
+		final int position = buffer.position();
+
+		for (int i = 0; i < position; i++) {
+			int b = byt(i) & 0xFF;
 			for (int j = 0; b > 0; b >>= 1, j++) {
 				if ((b & 1) != 0) {
 					sb.append((i << 3) + j);
@@ -819,10 +795,13 @@ public class BufferBitSet {
 	 * @return the logical size of this biset
 	 */
 	public int length() {
-		if (buffer.position() == 0)
+
+		if (isEmpty())
 			return 0;
 
-		return 8 * (buffer.position() - 1) + (8 - numberOfLeadingZeros(buffer.get(buffer.position() - 1)));
+		final int lastUsedIndex = buffer.position() - 1;
+
+		return 8 * lastUsedIndex + (8 - numberOfLeadingZeros(byt(lastUsedIndex)));
 	}
 
 	/**
@@ -852,9 +831,13 @@ public class BufferBitSet {
 	 * @return the number of bits set to {@code true} in this {@link BufferBitSet}
 	 */
 	public int cardinality() {
+
+		final int position = buffer.position();
 		int sum = 0;
-		for (int i = 0; i < buffer.position(); i++)
-			sum += Integer.bitCount(buffer.get(i) & 0xFF);
+
+		for (int i = 0; i < position; i++)
+			sum += Integer.bitCount(byt(i) & 0xFF);
+
 		return sum;
 	}
 
@@ -869,13 +852,15 @@ public class BufferBitSet {
 	 */
 	@Override
 	public int hashCode() {
-		// borrowed from Arrays#hashCode(byte a[])
+
 		if (isEmpty())
 			return 0;
 
+		final int position = buffer.position();
 		int result = 1;
-		for (int i = 0; i < buffer.position(); i++)
-			result = 31 * result + buffer.get(i);
+
+		for (int i = 0; i < position; i++)
+			result = 31 * result + byt(i);
 
 		return result;
 	}
@@ -910,25 +895,32 @@ public class BufferBitSet {
 			buffer.position(byteIndex + 1);
 	}
 
+	/**
+	 * Discard upper bytes that are not in use (zero / all clear)
+	 */
 	private void recalculateBytesInUse() {
 		// find last set bit
 		int n = buffer.position() - 1;
-		while (n >= 0 && buffer.get(n) == 0)
+		while (n >= 0 && byt(n) == 0)
 			n--;
 
 		buffer.position(n + 1);
 	}
 
+	/**
+	 * Bulk copy all bytes from the provided bitset on or after index
+	 * {@code bytesInCommon}
+	 */
 	private void copyRemainingBytes(int bytesInCommon, BufferBitSet set) {
 		// Copy any remaining bytes
 		if (bytesInCommon < set.buffer.position()) {
 			expandTo(set.buffer.position() - 1);
-			buffer.position(bytesInCommon);
 
 			ByteBuffer remaining = set.buffer.duplicate();
 			remaining.position(bytesInCommon);
 			remaining.limit(set.buffer.position());
 
+			buffer.position(bytesInCommon);
 			buffer.put(remaining);
 		}
 	}
@@ -943,8 +935,31 @@ public class BufferBitSet {
 		return bitIndex >> 3;
 	}
 
+	/**
+	 * Given a bit index, return single-bit mask into containing byte.
+	 */
 	private static int bit(int bitIndex) {
 		return 1 << (bitIndex & 7);
+	}
+
+	/**
+	 * Given a byte index, return byte value from buffer
+	 */
+	private byte byt(int byteIndex) {
+		return buffer.get(byteIndex);
+	}
+
+//	// canary method used to detect spuriuos up-conversions from byte to int
+//	private void put(int byteIndex, byte b) {
+//		buffer.put(byteIndex, (byte) b);
+//	}
+
+	/**
+	 * Write a byte to the buffer at the given index. In practice, the "byte" always
+	 * comes in as an {@code int} due to upcasting from logical operations.
+	 */
+	private void put(int byteIndex, int b) {
+		buffer.put(byteIndex, (byte) b);
 	}
 
 	/**
@@ -959,8 +974,24 @@ public class BufferBitSet {
 			throw new IndexOutOfBoundsException("fromIndex: " + fromIndex + " > toIndex: " + toIndex);
 	}
 
+	/**
+	 * {@link Integer#numberOfLeadingZeros(int)} modified to work for a {@code byte}
+	 */
 	private static int numberOfLeadingZeros(byte b) {
-
 		return Integer.numberOfLeadingZeros(b & 0xFF) & 7;
+	}
+
+	/**
+	 * Allocate the initial buffer used to back this bitset.
+	 */
+	private static ByteBuffer allocateInitialBuffer(ResizeBehavior resizeBehavior) {
+		switch (resizeBehavior) {
+		case ALLOCATE:
+			return ByteBuffer.allocate(DEFAULT_INITIAL_SIZE);
+		case ALLOCATE_DIRECT:
+			return ByteBuffer.allocateDirect(DEFAULT_INITIAL_SIZE);
+		default:
+			return ByteBuffer.allocate(0);
+		}
 	}
 }
