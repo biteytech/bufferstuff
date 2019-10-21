@@ -299,12 +299,26 @@ public class BufferBitSet {
 			toIndex = len;
 
 		final int targetBytes = byteIndex(toIndex - fromIndex - 1) + 1;
-		
+
 		ByteBuffer resultBuffer = resizeBehavior == ALLOCATE_DIRECT ? ByteBuffer.allocateDirect(targetBytes)
 				: ByteBuffer.allocate(targetBytes);
 		BufferBitSet result = new BufferBitSet(resultBuffer, resizeBehavior, false);
 
-		leftShift(fromIndex, toIndex, targetBytes, resultBuffer);
+		int sourceIndex = byteIndex(fromIndex);
+		boolean byteAligned = ((fromIndex & 7) == 0);
+
+		// Process all bytes but the last one
+		for (int i = 0; i < targetBytes - 1; i++, sourceIndex++) {
+			resultBuffer.put(i, (byte) (byteAligned ? byt(sourceIndex)
+					: ((byt(sourceIndex) & 0xFF) >>> (fromIndex & 7)) | (byt(sourceIndex + 1) << ((-fromIndex) & 7))));
+		}
+
+		// Process the last byte
+		int lastWordMask = MASK >>> ((-toIndex) & 7);
+		resultBuffer.put(targetBytes - 1, (byte) (((toIndex - 1) & 7) < (fromIndex & 7) ? /* straddles source bytes */
+				(((byt(sourceIndex) & 0xFF) >>> fromIndex)
+						| (byt(sourceIndex + 1) & lastWordMask) << ((-fromIndex) & 7))
+				: ((byt(sourceIndex) & lastWordMask) >>> (fromIndex & 7))));
 
 		// Set position correctly
 		result.buffer.position(targetBytes);
@@ -755,7 +769,7 @@ public class BufferBitSet {
 	}
 
 	/*--------------------------------------------------------------------------------
-	 *  Shift methods
+	 *  shift-right
 	 *-------------------------------------------------------------------------------*/
 	/**
 	 * Returns a copy of this bitset with each bit shifted right by {@code offset}.
@@ -788,40 +802,10 @@ public class BufferBitSet {
 
 		final int actualOffset = offsetBytes * 8;
 		if (actualOffset > offset) {
-			int shift = actualOffset - offset;
-			bs.leftShift(shift, totalBytes * 8 + 1, totalBytes-1, buffer);
-			bs.put(totalBytes-1, 0);
-			bs.recalculateBytesInUse();
-		}
-		
-		return bs;
-	}
-	
-	/**
-	 * Core left-shift functionality
-	 * 
-	 * @param fromIndex - index of the first bit to include
-	 * @param toIndex   - index after the last bit to include
-	 * @param targetBytes
-	 * @param bb - the byte buffer to write shift bits to
-	 */
-	private void leftShift(int fromIndex, int toIndex, int targetBytes, ByteBuffer bb) {
-
-		int sourceIndex = byteIndex(fromIndex);
-		boolean byteAligned = ((fromIndex & 7) == 0);
-
-		// Process all bytes but the last one
-		for (int i = 0; i < targetBytes - 1; i++, sourceIndex++) {
-			bb.put(i, (byte) (byteAligned ? byt(sourceIndex)
-					: ((byt(sourceIndex) & 0xFF) >>> (fromIndex & 7)) | (byt(sourceIndex + 1) << ((-fromIndex) & 7))));
-		}
-
-		// Process the last byte
-		int lastWordMask = MASK >>> ((-toIndex) & 7);
-		bb.put(targetBytes - 1, (byte) (((toIndex - 1) & 7) < (fromIndex & 7) ? /* straddles source bytes */
-				(((byt(sourceIndex) & 0xFF) >>> fromIndex)
-						| (byt(sourceIndex + 1) & lastWordMask) << ((-fromIndex) & 7))
-				: ((byt(sourceIndex) & lastWordMask) >>> (fromIndex & 7))));		
+			int leftShift = actualOffset - offset;
+			return bs.get(leftShift, totalBytes * 8 + 1);
+		} else
+			return bs;
 	}
 
 	/*--------------------------------------------------------------------------------
