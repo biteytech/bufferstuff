@@ -50,14 +50,18 @@ public class BufferBitSet {
 	 *  Getters
 	 *-------------------------------------------------------------------------------*/
 	/**
-	 * Return the {@link ByteBuffer} backing this {@link BufferBitSet}.
+	 * Returns the {@link ByteBuffer} backing this {@link BufferBitSet}.
+	 * 
+	 * @return the {@link ByteBuffer} backing this {@link BufferBitSet}.
 	 */
 	public ByteBuffer getBuffer() {
 		return buffer;
 	}
 
 	/**
-	 * Return this bitset's {@link ResizeBehavior resize} behavior.
+	 * Returns this bitset's {@link ResizeBehavior resize} behavior.
+	 * 
+	 * @return this bitset's {@link ResizeBehavior resize} behavior.
 	 */
 	public ResizeBehavior getResizeBehavior() {
 		return resizeBehavior;
@@ -182,7 +186,7 @@ public class BufferBitSet {
 
 	/**
 	 * Returns a new {@link BufferBitSet} containing all of the bits in the given
-	 * {@link java.util.Bitset}.
+	 * {@link java.util.BitSet}.
 	 *
 	 * @param bs - the bitset to copy
 	 * 
@@ -209,6 +213,8 @@ public class BufferBitSet {
 	 * into a bad state.
 	 * 
 	 * @param resizeBehavior - {@link ResizeBehavior}
+	 * 
+	 * @return a new bitset with the specified resize behavior
 	 */
 	public BufferBitSet withResizeBehavior(ResizeBehavior resizeBehavior) {
 		return new BufferBitSet(buffer.duplicate(), resizeBehavior, false);
@@ -219,6 +225,8 @@ public class BufferBitSet {
 	 *-------------------------------------------------------------------------------*/
 	/**
 	 * Returns a new byte array containing all the bits in this bit set.
+	 * 
+	 * @return a new byte array containing all the bits in this bit set.
 	 */
 	public byte[] toByteArray() {
 
@@ -234,6 +242,9 @@ public class BufferBitSet {
 	/**
 	 * Returns a new {@link java.util.BitSet} containing all of the bits in this
 	 * {@link BufferBitSet}.
+	 * 
+	 * @return a new {@link java.util.BitSet} containing all of the bits in this
+	 *         {@link BufferBitSet}.
 	 */
 	public BitSet toBitSet() {
 		return BitSet.valueOf(toByteArray());
