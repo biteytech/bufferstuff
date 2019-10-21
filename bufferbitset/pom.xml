@@ -21,6 +21,12 @@
 		</license>
 	</licenses>
 
+	<developers>
+		<developer>
+			<email>strangecharm*protonmail.com</email>
+		</developer>
+	</developers>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
