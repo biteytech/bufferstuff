@@ -84,7 +84,7 @@ public class BufferBitSet {
 		if (externalBuffer) {
 			this.buffer = buffer.slice();
 
-			// TODO: zero-out as we go instead (tracking highwater mark)
+			// TODO: zero-out as we go instead (tracking high-water mark)
 			final byte zero = (byte) 0;
 			final int limit = buffer.limit();
 			for (int i = 0; i < limit; i++)
@@ -279,7 +279,7 @@ public class BufferBitSet {
 	 *
 	 * @param fromIndex - index of the first bit to include
 	 * @param toIndex   - index after the last bit to include
-	 * @return a new biset from a range of this bitset
+	 * @return a new bitset from a range of this bitset
 	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
 	 *                                   {@code toIndex} is negative, or
 	 *                                   {@code fromIndex} is larger than
@@ -803,7 +803,7 @@ public class BufferBitSet {
 	 * Returns the "logical size" of this bitset: the index of the highest set bit
 	 * in the bitset plus one. Returns zero if the bitset contains no set bits.
 	 *
-	 * @return the logical size of this biset
+	 * @return the logical size of this bitset
 	 */
 	public int length() {
 
@@ -960,14 +960,14 @@ public class BufferBitSet {
 		return buffer.get(byteIndex);
 	}
 
-//	// canary method used to detect spuriuos up-conversions from byte to int
+//	// canary method used to detect spurious up-conversions from byte to int
 //	private void put(int byteIndex, byte b) {
 //		buffer.put(byteIndex, (byte) b);
 //	}
 
 	/**
 	 * Write a byte to the buffer at the given index. In practice, the "byte" always
-	 * comes in as an {@code int} due to upcasting from logical operations.
+	 * comes in as an {@code int} due to widening from logical operations.
 	 */
 	private void put(int byteIndex, int b) {
 		buffer.put(byteIndex, (byte) b);

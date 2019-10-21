@@ -16,7 +16,8 @@ public enum ResizeBehavior {
 
 	/**
 	 * Additional storage will not be allocated. Attempting to write a bit outside
-	 * of the current buffer's space will throw an {@link IndexOutOfBoundsException}.
+	 * of the current buffer's space will throw an
+	 * {@link IndexOutOfBoundsException}.
 	 */
 	NO_RESIZE,
 
@@ -24,7 +25,7 @@ public enum ResizeBehavior {
 	 * Additional storage will be allocated using {@link ByteBuffer#allocate(int)}.
 	 * <p>
 	 * <b>Note</b>: <em>If an external {@link ByteBuffer} was supplied, or an
-	 * interal buffer unwrapped, they will no longer be updated by future writes to
+	 * internal buffer unwrapped, they will no longer be updated by future writes to
 	 * this bitset after a resize.</em>
 	 */
 	ALLOCATE,
@@ -34,7 +35,7 @@ public enum ResizeBehavior {
 	 * {@link ByteBuffer#allocateDirect(int)}.
 	 * <p>
 	 * <b>Note</b>: <em>If an external {@link ByteBuffer} was supplied, or an
-	 * interal buffer unwrapped, they will no longer be updated by future writes to
+	 * internal buffer unwrapped, they will no longer be updated by future writes to
 	 * this bitset after a resize.</em>
 	 */
 	ALLOCATE_DIRECT,
