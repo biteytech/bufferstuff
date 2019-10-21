@@ -409,6 +409,27 @@ public class BufferBitSetTest {
 	}
 	
 	@Test
+	public void equals() {
+		Assertions.assertFalse(new BufferBitSet().equals(null));
+		Assertions.assertTrue(new BufferBitSet().equals(new BufferBitSet()));		
+		
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		Assertions.assertTrue(bs.equals(bs));
+		Assertions.assertFalse(new BufferBitSet().equals(bs));
+		Assertions.assertFalse(bs.equals(new BufferBitSet()));
+
+		BufferBitSet bs2 = new BufferBitSet();
+		populateWithSampleIndices(bs2);
+		Assertions.assertTrue(bs.equals(bs2));
+		
+		bs2.set(0);
+		Assertions.assertFalse(bs.equals(bs2));
+		Assertions.assertFalse(bs2.equals(bs));
+	}
+	
+	@Test
 	public void emptyToString() {
 		Assertions.assertEquals("[]", new BufferBitSet().toString());
 	}

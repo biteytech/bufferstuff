@@ -816,6 +816,7 @@ public class BufferBitSet {
 	 * the representation of a {@code SortedSet} containing the indices of the bits
 	 * which are set in this bitset.
 	 */
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append('[');
@@ -916,6 +917,43 @@ public class BufferBitSet {
 		return result;
 	}
 
+	/**
+	 * Compares this object against the specified object. The result is {@code true}
+	 * if and only if the argument is not {@code null} and is a {@code BufferBitset}
+	 * object that has exactly the same set of bits set to {@code true} as this bit
+	 * set. That is, for every nonnegative {@code int} index {@code k},
+	 * 
+	 * <pre>
+	 * ((BitBufferSet) obj).get(k) == this.get(k)
+	 * </pre>
+	 * 
+	 * must be true. The current sizes of the two bit sets are not compared.
+	 *
+	 * @param obj the object to compare with
+	 * 
+	 * @return {@code true} if the objects are the same; {@code false} otherwise
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof BufferBitSet))
+			return false;
+		if (this == obj)
+			return true;
+
+		final BufferBitSet set = (BufferBitSet) obj;
+		final int position = buffer.position();
+
+		if (position != set.buffer.position())
+			return false;
+
+		// Check bytes in use by both bitsets
+		for (int i = 0; i < position; i++)
+			if (byt(i) != set.byt(i))
+				return false;
+
+		return true;
+	}
+
 	/*--------------------------------------------------------------------------------
 	 *  Methods related to resizing
 	 *-------------------------------------------------------------------------------*/
@@ -1000,10 +1038,8 @@ public class BufferBitSet {
 		return buffer.get(byteIndex);
 	}
 
-//	// canary method used to detect spurious up-conversions from byte to int
-//	private void put(int byteIndex, byte b) {
-//		buffer.put(byteIndex, (byte) b);
-//	}
+	// canary method used to detect spurious up-conversions from byte to int
+//	private void put(int byteIndex, byte b) {}
 
 	/**
 	 * Write a byte to the buffer at the given index. In practice, the "byte" always
