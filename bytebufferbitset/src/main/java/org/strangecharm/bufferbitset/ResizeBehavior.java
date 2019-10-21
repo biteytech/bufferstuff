@@ -1,4 +1,4 @@
-package org.privman.lior.bytebufferbitset;
+package org.strangecharm.bufferbitset;
 
 import java.nio.ByteBuffer;
 
@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * <li>{@link #ALLOCATE_DIRECT}
  * </ul>
  * 
- * @author lior.privman*protonmail.com
+ * @author strangecharm*protonmail.com
  */
 public enum ResizeBehavior {
 

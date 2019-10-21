@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.privman.lior</groupId>
-	<artifactId>bytebufferbitset</artifactId>
+	<groupId>org.strangecharm</groupId>
+	<artifactId>bufferbitset</artifactId>
 	<version>0.1</version>
 	<packaging>jar</packaging>
 
-	<name>bytebufferbitset</name>
+	<name>bufferbitset</name>
 	<description>A reimplementation of java.util.BitSet, replacing the backing long[] with a java.nio.ByteBuffer</description>
 	<url>http://maven.apache.org</url>
 

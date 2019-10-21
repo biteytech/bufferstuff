@@ -1,8 +1,8 @@
-package org.privman.lior.bytebufferbitset;
+package org.strangecharm.bufferbitset;
 
-import static org.privman.lior.bytebufferbitset.ResizeBehavior.ALLOCATE;
-import static org.privman.lior.bytebufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
-import static org.privman.lior.bytebufferbitset.ResizeBehavior.NO_RESIZE;
+import static org.strangecharm.bufferbitset.ResizeBehavior.ALLOCATE;
+import static org.strangecharm.bufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
+import static org.strangecharm.bufferbitset.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;
@@ -22,7 +22,7 @@ import java.util.BitSet;
  * This bitset is not thread safe, and concurrent writes could put it into a bad
  * state. External modifications to the backing buffer can do the same.
  * 
- * @author lior.privman*protonmail.com
+ * @author strangecharm*protonmail.com
  * @author Arthur van Hoff (java.util.BitSet)
  * @author Michael McCloskey (java.util.BitSet)
  * @author Martin Buchholz (java.util.BitSet)

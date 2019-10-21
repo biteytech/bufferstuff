@@ -1,8 +1,8 @@
-package org.privman.lior.bytebufferbitset;
+package org.strangecharm.bufferbitset;
 
-import static org.privman.lior.bytebufferbitset.ResizeBehavior.ALLOCATE;
-import static org.privman.lior.bytebufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
-import static org.privman.lior.bytebufferbitset.ResizeBehavior.NO_RESIZE;
+import static org.strangecharm.bufferbitset.ResizeBehavior.ALLOCATE;
+import static org.strangecharm.bufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
+import static org.strangecharm.bufferbitset.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.strangecharm.bufferbitset.BufferBitSet;
+import org.strangecharm.bufferbitset.ResizeBehavior;
 
 public class BufferBitSetTest {
 	
