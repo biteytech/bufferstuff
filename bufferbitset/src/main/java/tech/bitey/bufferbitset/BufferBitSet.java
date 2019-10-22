@@ -1,8 +1,8 @@
-package org.strangecharm.bufferbitset;
+package tech.bitey.bufferbitset;
 
-import static org.strangecharm.bufferbitset.ResizeBehavior.ALLOCATE;
-import static org.strangecharm.bufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
-import static org.strangecharm.bufferbitset.ResizeBehavior.NO_RESIZE;
+import static tech.bitey.bufferbitset.ResizeBehavior.ALLOCATE;
+import static tech.bitey.bufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
+import static tech.bitey.bufferbitset.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;

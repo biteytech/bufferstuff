@@ -1,4 +1,4 @@
-package org.strangecharm.bufferbitset;
+package tech.bitey.bufferbitset;
 
 import java.nio.ByteBuffer;
 

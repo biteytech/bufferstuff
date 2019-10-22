@@ -1,8 +1,8 @@
-package org.strangecharm.bufferbitset;
+package tech.bitey.bufferbitset;
 
-import static org.strangecharm.bufferbitset.ResizeBehavior.ALLOCATE;
-import static org.strangecharm.bufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
-import static org.strangecharm.bufferbitset.ResizeBehavior.NO_RESIZE;
+import static tech.bitey.bufferbitset.ResizeBehavior.ALLOCATE;
+import static tech.bitey.bufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
+import static tech.bitey.bufferbitset.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -16,8 +16,9 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.strangecharm.bufferbitset.BufferBitSet;
-import org.strangecharm.bufferbitset.ResizeBehavior;
+
+import tech.bitey.bufferbitset.BufferBitSet;
+import tech.bitey.bufferbitset.ResizeBehavior;
 
 public class BufferBitSetTest {
 	
