@@ -27,11 +27,10 @@ public enum BufferSearch {
 	 * Copied from {@code java.util.Arrays}
 	 * <p>
 	 * Searches a range of the specified {@link IntBuffer} for the specified value
-	 * using the binary search algorithm. The range must be sorted (as by the
-	 * {@link #heapSort(IntBuffer, int, int) heapSort method}) prior to making this
-	 * call. If it is not sorted, the results are undefined. If the range contains
-	 * multiple elements with the specified value, there is no guarantee which one
-	 * will be found.
+	 * using the binary search algorithm. The range must be sorted in ascending
+	 * order prior to making this call. If it is not sorted, the results are
+	 * undefined. If the range contains multiple elements with the specified value,
+	 * there is no guarantee which one will be found.
 	 *
 	 * @param b         the buffer to be searched
 	 * @param fromIndex the index of the first element (inclusive) to be searched
@@ -78,11 +77,10 @@ public enum BufferSearch {
 	 * Copied from {@code java.util.Arrays}
 	 * <p>
 	 * Searches a range of the specified {@link LongBuffer} for the specified value
-	 * using the binary search algorithm. The range must be sorted (as by the
-	 * {@link #heapSort(LongBuffer, int, int) heapSort method}) prior to making this
-	 * call. If it is not sorted, the results are undefined. If the range contains
-	 * multiple elements with the specified value, there is no guarantee which one
-	 * will be found.
+	 * using the binary search algorithm. The range must be sorted in ascending
+	 * order prior to making this call. If it is not sorted, the results are
+	 * undefined. If the range contains multiple elements with the specified value,
+	 * there is no guarantee which one will be found.
 	 *
 	 * @param b         the buffer to be searched
 	 * @param fromIndex the index of the first element (inclusive) to be searched
@@ -129,12 +127,11 @@ public enum BufferSearch {
 	 * Copied from {@code java.util.Arrays}
 	 * <p>
 	 * Searches a range of the specified {@link FloatBuffer} for the specified value
-	 * using the binary search algorithm. The range must be sorted (as by the
-	 * {@link #heapSort(FloatBuffer, int, int) heapSort method}) prior to making
-	 * this call. If it is not sorted, the results are undefined. If the range
-	 * contains multiple elements with the specified value, there is no guarantee
-	 * which one will be found. This method considers all NaN values to be
-	 * equivalent and equal.
+	 * using the binary search algorithm. The range must be sorted in ascending
+	 * order prior to making this call. If it is not sorted, the results are
+	 * undefined. If the range contains multiple elements with the specified value,
+	 * there is no guarantee which one will be found. This method considers all NaN
+	 * values to be equivalent and equal.
 	 *
 	 * @param b         the buffer to be searched
 	 * @param fromIndex the index of the first element (inclusive) to be searched
@@ -189,12 +186,11 @@ public enum BufferSearch {
 	 * Copied from {@code java.util.Arrays}
 	 * <p>
 	 * Searches a range of the specified {@link DoubleBuffer} for the specified
-	 * value using the binary search algorithm. The range must be sorted (as by the
-	 * {@link #heapSort(DoubleBuffer, int, int) heapSort method}) prior to making
-	 * this call. If it is not sorted, the results are undefined. If the range
-	 * contains multiple elements with the specified value, there is no guarantee
-	 * which one will be found. This method considers all NaN values to be
-	 * equivalent and equal.
+	 * value using the binary search algorithm. The range must be sorted in
+	 * ascending order prior to making this call. If it is not sorted, the results
+	 * are undefined. If the range contains multiple elements with the specified
+	 * value, there is no guarantee which one will be found. This method considers
+	 * all NaN values to be equivalent and equal.
 	 *
 	 * @param b         the buffer to be searched
 	 * @param fromIndex the index of the first element (inclusive) to be searched

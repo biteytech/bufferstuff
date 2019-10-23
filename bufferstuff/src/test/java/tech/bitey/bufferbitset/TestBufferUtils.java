@@ -5,10 +5,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-
-import tech.bitey.bufferbitset.BufferUtils;
+import org.junit.jupiter.api.Test;
 
 public class TestBufferUtils {
 

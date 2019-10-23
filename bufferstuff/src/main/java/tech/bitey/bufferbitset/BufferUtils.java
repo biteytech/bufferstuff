@@ -32,7 +32,6 @@ public enum BufferUtils {
 	 * 
 	 * @return true if the buffer is sorted inside the specified range
 	 * 
-	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -66,7 +65,6 @@ public enum BufferUtils {
 	 * 
 	 * @return true if the buffer is sorted and distinct inside the specified range
 	 * 
-	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -98,7 +96,6 @@ public enum BufferUtils {
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
 	 * 
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
@@ -133,7 +130,6 @@ public enum BufferUtils {
 	 * 
 	 * @return true if the buffer is sorted and distinct inside the specified range
 	 * 
-	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -166,7 +162,6 @@ public enum BufferUtils {
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
 	 * 
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
@@ -202,7 +197,6 @@ public enum BufferUtils {
 	 * 
 	 * @return true if the buffer is sorted and distinct inside the specified range
 	 * 
-	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -235,7 +229,6 @@ public enum BufferUtils {
 	 * @param toIndex   - the index of the last element (exclusive) to be checked
 	 * 
 	 * @return true if the buffer is sorted inside the specified range
-	 * 
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
@@ -271,7 +264,6 @@ public enum BufferUtils {
 	 * 
 	 * @return true if the buffer is sorted and distinct inside the specified range
 	 * 
-	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
@@ -296,8 +288,14 @@ public enum BufferUtils {
 	/**
 	 * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws
 	 * an exception if they aren't.
+	 * 
+	 * @param bufferCapacity - capacity of the buffer being checked
+	 * @param fromIndex      - the index of the first element (inclusive) to be
+	 *                       checked
+	 * @param toIndex        - the index of the last element (exclusive) to be
+	 *                       checked
 	 */
-	public static void rangeCheck(int bufferCapacity, int fromIndex, int toIndex) {
+	static void rangeCheck(int bufferCapacity, int fromIndex, int toIndex) {
 		if (fromIndex > toIndex) {
 			throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
 		}
