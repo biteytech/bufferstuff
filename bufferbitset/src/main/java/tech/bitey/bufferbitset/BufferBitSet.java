@@ -22,7 +22,7 @@ import java.util.BitSet;
  * This bitset is not thread safe, and concurrent writes could put it into a bad
  * state. External modifications to the backing buffer can do the same.
  * 
- * @author strangecharm*protonmail.com
+ * @author Lior Privman
  * @author Arthur van Hoff (java.util.BitSet)
  * @author Michael McCloskey (java.util.BitSet)
  * @author Martin Buchholz (java.util.BitSet)

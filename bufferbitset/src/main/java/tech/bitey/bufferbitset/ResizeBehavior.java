@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * <li>{@link #ALLOCATE_DIRECT}
  * </ul>
  * 
- * @author strangecharm*protonmail.com
+ * @author Lior Privman
  */
 public enum ResizeBehavior {
 
