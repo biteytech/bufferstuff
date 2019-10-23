@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>tech.bitey</groupId>
-	<artifactId>bufferbitset</artifactId>
-	<version>0.1</version>
+	<artifactId>bufferstuff</artifactId>
+	<version>0.2</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>A reimplementation of java.util.BitSet, replacing the backing long[] with a java.nio.ByteBuffer</description>
+	<description>A collection of utilities for working with NIO Buffers</description>
 	<url>http://bitey.tech</url>
 
 	<licenses>

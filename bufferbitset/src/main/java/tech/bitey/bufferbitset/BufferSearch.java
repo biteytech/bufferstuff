@@ -1,4 +1,4 @@
-package tech.bitey.bufferalgos;
+package tech.bitey.bufferbitset;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -20,7 +20,7 @@ import java.nio.LongBuffer;
  * 
  * @author Lior Privman
  */
-public enum BufferBinarySearch {
+public enum BufferSearch {
 	; // static methods only, enum prevents instantiation
 
 	/**

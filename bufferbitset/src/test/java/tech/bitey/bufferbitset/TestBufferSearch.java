@@ -1,4 +1,4 @@
-package tech.bitey.bufferalgos;
+package tech.bitey.bufferbitset;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -9,7 +9,9 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestBinarySearch {
+import tech.bitey.bufferbitset.BufferSearch;
+
+public class TestBufferSearch {
 
 	private static final int IMIN = Integer.MIN_VALUE;
 	private static final int IMAX = Integer.MAX_VALUE;
@@ -42,7 +44,7 @@ public class TestBinarySearch {
 			for (int value : config[2]) {
 
 				int expected = Arrays.binarySearch(a, fromIndex, toIndex, value);
-				int actual = BufferBinarySearch.binarySearch(b, fromIndex, toIndex, value);
+				int actual = BufferSearch.binarySearch(b, fromIndex, toIndex, value);
 				Assertions.assertEquals(expected, actual);
 			}
 		}
@@ -79,7 +81,7 @@ public class TestBinarySearch {
 			for (long value : config[2]) {
 
 				int expected = Arrays.binarySearch(a, fromIndex, toIndex, value);
-				int actual = BufferBinarySearch.binarySearch(b, fromIndex, toIndex, value);
+				int actual = BufferSearch.binarySearch(b, fromIndex, toIndex, value);
 				Assertions.assertEquals(expected, actual);
 			}
 		}
@@ -118,7 +120,7 @@ public class TestBinarySearch {
 			for (float value : config[2]) {
 
 				int expected = Arrays.binarySearch(a, fromIndex, toIndex, value);
-				int actual = BufferBinarySearch.binarySearch(b, fromIndex, toIndex, value);
+				int actual = BufferSearch.binarySearch(b, fromIndex, toIndex, value);
 				Assertions.assertEquals(expected, actual);
 			}
 		}
@@ -157,7 +159,7 @@ public class TestBinarySearch {
 			for (double value : config[2]) {
 
 				int expected = Arrays.binarySearch(a, fromIndex, toIndex, value);
-				int actual = BufferBinarySearch.binarySearch(b, fromIndex, toIndex, value);
+				int actual = BufferSearch.binarySearch(b, fromIndex, toIndex, value);
 				Assertions.assertEquals(expected, actual);
 			}
 		}

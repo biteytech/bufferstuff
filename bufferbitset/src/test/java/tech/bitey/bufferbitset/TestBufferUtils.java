@@ -1,4 +1,4 @@
-package tech.bitey.bufferalgos;
+package tech.bitey.bufferbitset;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -8,7 +8,9 @@ import java.nio.LongBuffer;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
-public class TestBinaryUtils {
+import tech.bitey.bufferbitset.BufferUtils;
+
+public class TestBufferUtils {
 
 	private static final int IMIN = Integer.MIN_VALUE;
 	private static final int IMAX = Integer.MAX_VALUE;
@@ -148,9 +150,10 @@ public class TestBinaryUtils {
 	private static final double DMAX = Double.POSITIVE_INFINITY;
 	private static final double DNAN = Double.NaN;
 
-	private static final double[][] SORTED_DOUBLE = { {}, { 0 }, { 0, 0 }, { DMIN, DMIN }, { DMAX, DMAX }, { DMIN, DMAX },
-			{ DMIN, 0, DMAX }, { -2, -1, 1, 2 }, { DNAN }, { 0, DNAN }, { 0, 0, DNAN }, { DMIN, DMIN, DNAN },
-			{ DMAX, DMAX, DNAN }, { DMIN, DMAX, DNAN }, { DMIN, 0, DMAX, DNAN }, { -2, -1, 1, 2, DNAN } };
+	private static final double[][] SORTED_DOUBLE = { {}, { 0 }, { 0, 0 }, { DMIN, DMIN }, { DMAX, DMAX },
+			{ DMIN, DMAX }, { DMIN, 0, DMAX }, { -2, -1, 1, 2 }, { DNAN }, { 0, DNAN }, { 0, 0, DNAN },
+			{ DMIN, DMIN, DNAN }, { DMAX, DMAX, DNAN }, { DMIN, DMAX, DNAN }, { DMIN, 0, DMAX, DNAN },
+			{ -2, -1, 1, 2, DNAN } };
 	private static final double[][] NOT_SORTED_DOUBLE = { { 1, 0 }, { DMAX, DMIN }, { 3, 2, 1 }, { DNAN, DMAX } };
 
 	@Test

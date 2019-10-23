@@ -1,4 +1,4 @@
-package tech.bitey.bufferalgos;
+package tech.bitey.bufferbitset;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
