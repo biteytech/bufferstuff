@@ -6,7 +6,9 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 /**
- * A collection of basic algorithms for working with nio buffers.
+ * The primitive-array binary search implementations from
+ * {@code java.util.Arrays}, modified with minimal changes to support nio
+ * buffers.
  * <p>
  * <u>Supported Buffer Types</u>
  * <ul>
@@ -15,16 +17,10 @@ import java.nio.LongBuffer;
  * <li>{@link FloatBuffer}
  * <li>{@link DoubleBuffer}
  * </ul>
- * <p>
- * <u>Algorithms</u>
- * <ul>
- * <li>Binary Search
- * <li>Heap Sort
- * </ul>
  * 
  * @author Lior Privman
  */
-public enum BufferAlgos {
+public enum BufferBinarySearch {
 	; // static methods only, enum prevents instantiation
 
 	/**
@@ -41,6 +37,7 @@ public enum BufferAlgos {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
+	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -49,12 +46,13 @@ public enum BufferAlgos {
 	 *         in the range are less than the specified key. Note that this
 	 *         guarantees that the return value will be &gt;= 0 if and only if the
 	 *         key is found.
+	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
 	public static int binarySearch(IntBuffer b, int fromIndex, int toIndex, int key) {
-		rangeCheck(b.capacity(), fromIndex, toIndex);
+		BufferUtils.rangeCheck(b.capacity(), fromIndex, toIndex);
 		return binarySearch0(b, fromIndex, toIndex, key);
 	}
 
@@ -90,6 +88,7 @@ public enum BufferAlgos {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
+	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -98,12 +97,13 @@ public enum BufferAlgos {
 	 *         in the range are less than the specified key. Note that this
 	 *         guarantees that the return value will be &gt;= 0 if and only if the
 	 *         key is found.
+	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
 	public static int binarySearch(LongBuffer b, int fromIndex, int toIndex, long key) {
-		rangeCheck(b.capacity(), fromIndex, toIndex);
+		BufferUtils.rangeCheck(b.capacity(), fromIndex, toIndex);
 		return binarySearch0(b, fromIndex, toIndex, key);
 	}
 
@@ -140,6 +140,7 @@ public enum BufferAlgos {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
+	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -148,12 +149,13 @@ public enum BufferAlgos {
 	 *         in the range are less than the specified key. Note that this
 	 *         guarantees that the return value will be &gt;= 0 if and only if the
 	 *         key is found.
+	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
 	public static int binarySearch(FloatBuffer b, int fromIndex, int toIndex, float key) {
-		rangeCheck(b.capacity(), fromIndex, toIndex);
+		BufferUtils.rangeCheck(b.capacity(), fromIndex, toIndex);
 		return binarySearch0(b, fromIndex, toIndex, key);
 	}
 
@@ -198,6 +200,7 @@ public enum BufferAlgos {
 	 * @param fromIndex the index of the first element (inclusive) to be searched
 	 * @param toIndex   the index of the last element (exclusive) to be searched
 	 * @param key       the value to be searched for
+	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
 	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
 	 *         The <i>insertion point</i> is defined as the point at which the key
@@ -206,12 +209,13 @@ public enum BufferAlgos {
 	 *         in the range are less than the specified key. Note that this
 	 *         guarantees that the return value will be &gt;= 0 if and only if the
 	 *         key is found.
+	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
 	public static int binarySearch(DoubleBuffer b, int fromIndex, int toIndex, double key) {
-		rangeCheck(b.capacity(), fromIndex, toIndex);
+		BufferUtils.rangeCheck(b.capacity(), fromIndex, toIndex);
 		return binarySearch0(b, fromIndex, toIndex, key);
 	}
 
@@ -239,21 +243,5 @@ public enum BufferAlgos {
 			}
 		}
 		return -(low + 1); // key not found.
-	}
-
-	/**
-	 * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws
-	 * an exception if they aren't.
-	 */
-	private static void rangeCheck(int bufferCapacity, int fromIndex, int toIndex) {
-		if (fromIndex > toIndex) {
-			throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
-		}
-		if (fromIndex < 0) {
-			throw new IndexOutOfBoundsException("fromIndex(" + fromIndex + ") < 0");
-		}
-		if (toIndex > bufferCapacity) {
-			throw new IndexOutOfBoundsException("toIndex(" + toIndex + ") > " + bufferCapacity);
-		}
 	}
 }
