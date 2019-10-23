@@ -1,8 +1,8 @@
-package tech.bitey.bufferbitset;
+package tech.bitey.bufferstuff;
 
-import static tech.bitey.bufferbitset.ResizeBehavior.ALLOCATE;
-import static tech.bitey.bufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
-import static tech.bitey.bufferbitset.ResizeBehavior.NO_RESIZE;
+import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE;
+import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
+import static tech.bitey.bufferstuff.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;

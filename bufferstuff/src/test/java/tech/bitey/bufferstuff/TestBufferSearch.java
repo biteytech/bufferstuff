@@ -1,4 +1,4 @@
-package tech.bitey.bufferbitset;
+package tech.bitey.bufferstuff;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import tech.bitey.bufferbitset.BufferSearch;
+import tech.bitey.bufferstuff.BufferSearch;
 
 public class TestBufferSearch {
 

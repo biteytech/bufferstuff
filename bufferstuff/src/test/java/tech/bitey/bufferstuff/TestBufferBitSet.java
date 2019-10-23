@@ -1,8 +1,8 @@
-package tech.bitey.bufferbitset;
+package tech.bitey.bufferstuff;
 
-import static tech.bitey.bufferbitset.ResizeBehavior.ALLOCATE;
-import static tech.bitey.bufferbitset.ResizeBehavior.ALLOCATE_DIRECT;
-import static tech.bitey.bufferbitset.ResizeBehavior.NO_RESIZE;
+import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE;
+import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
+import static tech.bitey.bufferstuff.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import tech.bitey.bufferbitset.BufferBitSet;
-import tech.bitey.bufferbitset.ResizeBehavior;
+import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.ResizeBehavior;
 
 public class TestBufferBitSet {
 
