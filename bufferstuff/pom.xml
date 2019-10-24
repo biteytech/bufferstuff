@@ -5,11 +5,11 @@
 
 	<groupId>tech.bitey</groupId>
 	<artifactId>bufferstuff</artifactId>
-	<version>0.2</version>
+	<version>0.2.1</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>A collection of utilities for working with NIO Buffers</description>
+	<description>Utilities for working with NIO Buffers. Including a BitSet implementation and sorting/searching algos.</description>
 	<url>http://bitey.tech</url>
 
 	<licenses>

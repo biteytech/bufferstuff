@@ -81,17 +81,10 @@ public class BufferBitSet {
 		if (resizeBehavior == null)
 			throw new NullPointerException("resizeBehavior cannot be null");
 
-		if (externalBuffer) {
+		if (externalBuffer)
 			this.buffer = buffer.slice();
-
-			// TODO: zero-out as we go instead (tracking high-water mark)
-			final byte zero = (byte) 0;
-			final int limit = buffer.limit();
-			for (int i = 0; i < limit; i++)
-				this.buffer.put(i, zero);
-		} else {
-			this.buffer = buffer;
-		}
+		else
+			this.buffer = buffer;		
 
 		this.resizeBehavior = resizeBehavior;
 	}
