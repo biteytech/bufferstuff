@@ -1,5 +1,9 @@
 package tech.bitey.bufferstuff;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+
+import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -7,8 +11,6 @@ import java.nio.LongBuffer;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import tech.bitey.bufferstuff.BufferUtils;
 
 public class TestBufferUtils {
 
@@ -191,6 +193,55 @@ public class TestBufferUtils {
 
 		for (double[] array : NOT_SORTED_DISTINCT_DOUBLE)
 			Assertions.assertFalse(BufferUtils.isSortedAndDistinct(DoubleBuffer.wrap(array), 0, array.length));
+	}
+	
+	@Test
+	public void testDuplicate() {
+		ByteBuffer b = ByteBuffer.allocate(10);
+		b.limit(8);
+		b.position(5);
+		
+		ByteBuffer b2 = BufferUtils.duplicate(b.order(LITTLE_ENDIAN));
+		Assertions.assertEquals(b.position(), b2.position());
+		Assertions.assertEquals(b.limit(), b2.limit());
+		Assertions.assertEquals(b.order(), b2.order());
+		
+		ByteBuffer b3 = BufferUtils.duplicate(b.order(BIG_ENDIAN));
+		Assertions.assertEquals(b.position(), b3.position());
+		Assertions.assertEquals(b.limit(), b3.limit());
+		Assertions.assertEquals(b.order(), b3.order());
+	}
+	
+	@Test
+	public void testSlice() {
+		ByteBuffer b = ByteBuffer.allocate(10);
+		b.limit(8);
+		b.position(5);
+		
+		ByteBuffer b2 = BufferUtils.slice(b.order(LITTLE_ENDIAN));
+		Assertions.assertEquals(0, b2.position());
+		Assertions.assertEquals(b.remaining(), b2.limit());
+		Assertions.assertEquals(b.order(), b2.order());
+		
+		ByteBuffer b3 = BufferUtils.slice(b.order(BIG_ENDIAN));
+		Assertions.assertEquals(0, b3.position());
+		Assertions.assertEquals(b.remaining(), b3.limit());
+		Assertions.assertEquals(b.order(), b3.order());
+	}
+	
+	@Test
+	public void testSliceRange() {
+		ByteBuffer b = ByteBuffer.wrap(new byte[] {(byte)0, (byte)1, (byte)2, (byte)3, (byte)4});
+		
+		ByteBuffer b2 = BufferUtils.slice(b.order(LITTLE_ENDIAN), 1, 5);
+		Assertions.assertEquals(1, b2.get(0));
+		Assertions.assertEquals(4, b2.get(3));
+		Assertions.assertEquals(b.order(), b2.order());
+		
+		ByteBuffer b3 = BufferUtils.slice(b.order(BIG_ENDIAN), 0, 4);
+		Assertions.assertEquals(0, b3.get(0));
+		Assertions.assertEquals(3, b3.get(3));
+		Assertions.assertEquals(b.order(), b3.order());
 	}
 
 	@Test

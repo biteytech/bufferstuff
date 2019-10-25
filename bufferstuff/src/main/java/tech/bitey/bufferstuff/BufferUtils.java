@@ -1,5 +1,6 @@
 package tech.bitey.bufferstuff;
 
+import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -7,19 +8,73 @@ import java.nio.LongBuffer;
 
 /**
  * Utility methods for working with nio buffers.
- * <p>
- * <u>Supported Buffer Types</u>
- * <ul>
- * <li>{@link IntBuffer}
- * <li>{@link LongBuffer}
- * <li>{@link FloatBuffer}
- * <li>{@link DoubleBuffer}
- * </ul>
  * 
  * @author Lior Privman
  */
 public enum BufferUtils {
 	; // static methods only, enum prevents instantiation
+
+	/**
+	 * Duplicate a {@link ByteBuffer} and preserve the order. Equivalent to:
+	 * 
+	 * <pre>
+	 * b.duplicate().order(b.order())
+	 * </pre>
+	 * 
+	 * @param b - the buffer to be duplicated
+	 * 
+	 * @return duplicated buffer with order preserved
+	 * 
+	 * @see ByteBuffer#duplicate()
+	 * @see ByteBuffer#order()
+	 */
+	public static ByteBuffer duplicate(ByteBuffer b) {
+		return b.duplicate().order(b.order());
+	}
+
+	/**
+	 * Slice a {@link ByteBuffer} and preserve the order. Equivalent to:
+	 * 
+	 * <pre>
+	 * b.slice().order(b.order())
+	 * </pre>
+	 * 
+	 * @param b - the buffer to be sliced
+	 * 
+	 * @return sliced buffer with order preserved
+	 * 
+	 * @see ByteBuffer#slice()
+	 * @see ByteBuffer#order()
+	 */
+	public static ByteBuffer slice(ByteBuffer b) {
+		return b.slice().order(b.order());
+	}
+
+	/**
+	 * Slice a range from the specified {@link ByteBuffer}. The buffer's order is
+	 * preserved.
+	 * 
+	 * @param b         - the buffer to be sliced
+	 * @param fromIndex - the index of the first element in the range (inclusive)
+	 * @param toIndex   - the index of the last element in the range (exclusive)
+	 * 
+	 * @return sliced buffer with order preserved
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 * 
+	 * @see ByteBuffer#slice()
+	 * @see ByteBuffer#order()
+	 */
+	public static ByteBuffer slice(ByteBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		ByteBuffer dup = duplicate(b);
+		dup.limit(toIndex);
+		dup.position(fromIndex);
+		return slice(dup);
+	}
 
 	/**
 	 * Determines if the specified buffer is sorted inside the specified range. That
