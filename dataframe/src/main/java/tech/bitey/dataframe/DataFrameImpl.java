@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -188,6 +189,25 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public Row get(int rowIndex) {
 		checkElementIndex(rowIndex, size());
 		return new RowImpl(rowIndex);
+	}
+	
+	@Override
+	public boolean equals(DataFrame df, boolean dataOnly) {
+		
+		DataFrameImpl rhs = (DataFrameImpl)df;
+		
+		if(!Arrays.equals(columns, rhs.columns))
+			return false;
+		
+		return dataOnly || (Arrays.equals(columnNames, rhs.columnNames)
+				&& Objects.equals(keyIndex, rhs.keyIndex));
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(!(o instanceof DataFrameImpl))
+			return false;
+		return equals((DataFrame)o, false);
 	}
 	
 	
@@ -759,22 +779,22 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		if(leftIndex)
 			return (DataFrame)joinSingleIndex0(df, nonIndexColumnName)[0];
 		else {
-//			DataFrameImpl backasswards = (DataFrameImpl)((DataFrameImpl)df).joinSingleIndex0(this, nonIndexColumnName)[0];
-//			
-//			Column<?>[] columns = new Column<?>[backasswards.columnCount()];
-//			System.arraycopy(backasswards.columns, df.columnCount(), columns, 0, this.columnCount()-1);
-//			System.arraycopy(backasswards.columns, 0, columns, this.columnCount()-1, df.columnCount());
-//			
-//			int idx = this.columnCount()-1+df.keyColumnIndex();
-//			Column<?> indexColumn = columns[idx];
-//			// TODO: avoid shifting arrays
-//			columns = ArrayUtils.remove(columns, idx);
-//			columns = ArrayUtils.insert(columnIndex(nonIndexColumnName), columns, indexColumn);			
-//			
-//			String[] columnNames = jointColumnNames(df, df.keyColumnIndex());
-//			
-//			return new DataFrameImpl(columns, columnNames, keyIndex);
-			throw new UnsupportedOperationException("joinSingleIndex, leftIndex==false");
+			DataFrameImpl backasswards = (DataFrameImpl)((DataFrameImpl)df).joinSingleIndex0(this, nonIndexColumnName)[0];
+			
+			Column<?>[] columns = new Column<?>[backasswards.columnCount()];
+			System.arraycopy(backasswards.columns, df.columnCount(), columns, 0, this.columnCount()-1);
+			System.arraycopy(backasswards.columns, 0, columns, this.columnCount()-1, df.columnCount());
+			
+			int idx = this.columnCount()-1+df.keyColumnIndex();
+			Column<?> indexColumn = columns[idx];
+			
+			List<Column<?>> columnList = new ArrayList<>(Arrays.asList(columns));
+			columnList.remove(idx);
+			columnList.add(columnIndex(nonIndexColumnName), indexColumn);
+			
+			String[] columnNames = jointColumnNames(df, df.keyColumnIndex());
+			
+			return new DataFrameImpl(columnList.toArray(new Column<?>[0]), columnNames, null);
 		}
 	}
 	

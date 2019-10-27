@@ -44,6 +44,13 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	static final int SORTED_FLAG      = 1 << 2;
 	static final int KEY_COLUMN_FLAG  = 1 << 3;
 	
+	
+	/*--------------------------------------------------------------------------------
+	 *	Object, Collection, and List Methods
+	 *--------------------------------------------------------------------------------*/
+	boolean equals(DataFrame df, boolean dataOnly);
+	
+	
 	/*--------------------------------------------------------------------------------
 	 *	Miscellaneous Methods
 	 *--------------------------------------------------------------------------------*/
