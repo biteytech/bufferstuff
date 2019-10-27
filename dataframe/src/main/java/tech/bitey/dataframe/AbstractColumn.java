@@ -71,8 +71,6 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 	
 	protected abstract C empty();
 	
-	protected abstract String oracleType();
-	
 	protected abstract C subColumn0(int fromIndex, int toIndex);
 	
 	protected abstract E getNoOffset(int index);

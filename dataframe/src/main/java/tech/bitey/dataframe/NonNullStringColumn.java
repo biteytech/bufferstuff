@@ -14,7 +14,6 @@
 
 package tech.bitey.dataframe;
 
-import static java.lang.Math.max;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
 
@@ -287,21 +286,6 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 				keepRight.set(i - rhs.offset);
 			}
 		}
-	}
-
-	@Override
-	protected String oracleType() {
-		
-		if(isEmpty())
-			return "VARCHAR2(255)";
-		
-		int maxLength = 0;
-		for(int i = offset; i <= lastIndex(); i++)
-			maxLength = max(maxLength, length(i));
-		
-		int padding = (int)max(1, maxLength * 0.1);
-		
-		return "VARCHAR2("+(maxLength+padding)+")";
 	}
 
 	@Override

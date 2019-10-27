@@ -58,11 +58,6 @@ class NonNullDateColumn extends IntArrayColumn<LocalDate, NonNullDateColumn> imp
 	}
 
 	@Override
-	protected String oracleType() {
-		return "DATE";
-	}
-
-	@Override
 	protected boolean checkType(Object o) {
 		return o instanceof LocalDate;
 	}

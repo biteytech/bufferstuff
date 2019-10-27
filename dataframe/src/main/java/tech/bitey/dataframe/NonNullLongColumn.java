@@ -14,9 +14,6 @@
 
 package tech.bitey.dataframe;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.log10;
-import static java.lang.Math.max;
 import static tech.bitey.dataframe.LongArrayPacker.LONG;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
@@ -64,19 +61,6 @@ class NonNullLongColumn extends LongArrayColumn<Long, NonNullLongColumn> impleme
 	public long getLong(int index) {
 		checkElementIndex(index, size);
 		return at(index+offset);
-	}
-
-	@Override
-	protected String oracleType() {
-		
-		if(isEmpty())
-			return "NUMBER(19)";
-		
-		int maxLength = 0;
-		for(int i = offset; i <= lastIndex(); i++)
-			maxLength = max(maxLength, (int)log10(abs(at(i))+1));
-		
-		return "NUMBER("+(maxLength+2)+")";
 	}
 
 	@Override

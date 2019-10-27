@@ -14,9 +14,6 @@
 
 package tech.bitey.dataframe;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.log10;
-import static java.lang.Math.max;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
@@ -185,19 +182,6 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 				keepRight.set(i - rhs.offset);
 			}
 		}
-	}
-
-	@Override
-	protected String oracleType() {
-		
-		if(isEmpty())
-			return "NUMBER(18,6)";
-		
-		int maxLength = 0;
-		for(int i = offset; i <= lastIndex(); i++)
-			maxLength = max(maxLength, (int)log10(abs(at(i))+1));
-		
-		return "NUMBER("+(maxLength+8)+",6)";
 	}
 
 	@Override

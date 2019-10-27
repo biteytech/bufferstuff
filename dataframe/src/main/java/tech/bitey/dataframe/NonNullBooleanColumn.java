@@ -163,11 +163,6 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	protected String oracleType() {
-		return "VARCHAR2(1)";
-	}
-
-	@Override
 	protected boolean checkType(Object o) {
 		return o instanceof Boolean;
 	}

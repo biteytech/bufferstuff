@@ -51,11 +51,6 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 	}
 	
 	@Override
-	protected String oracleType() {
-		return column.oracleType();
-	}
-	
-	@Override
 	ByteOrder byteOrder() {
 		return column.byteOrder();
 	}

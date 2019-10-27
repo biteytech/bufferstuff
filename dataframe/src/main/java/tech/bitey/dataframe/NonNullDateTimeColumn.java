@@ -15,7 +15,6 @@
 package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.LongArrayPacker.LOCAL_DATE_TIME;
-import static java.lang.Math.max;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
@@ -48,28 +47,6 @@ class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, NonNullDateTi
 	@Override
 	public ColumnType getType() {
 		return ColumnType.DATETIME;
-	}
-
-	@Override
-	protected String oracleType() {
-		
-		int maxPrecision = 0; // seconds
-		
-		for(int i = offset; i <= lastIndex(); i++) {
-			int micros = (int)(at(i) & 0xFFFFF);
-			
-			final int precision;
-			if(micros % 1000000 == 0)
-				precision = 0;
-			else if(micros % 1000 == 0)
-				precision = 3;
-			else
-				precision = 6;
-			
-			maxPrecision = max(maxPrecision, precision);
-		}
-		
-		return "TIMESTAMP("+maxPrecision+")";
 	}
 
 	@Override
