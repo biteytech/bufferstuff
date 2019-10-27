@@ -1,5 +1,7 @@
 package tech.bitey.bufferstuff;
 
+import static tech.bitey.bufferstuff.BufferUtils.rangeCheck;
+
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -51,7 +53,7 @@ public enum BufferSearch {
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
 	public static int binarySearch(IntBuffer b, int fromIndex, int toIndex, int key) {
-		BufferUtils.rangeCheck(b.capacity(), fromIndex, toIndex);
+		rangeCheck(b.capacity(), fromIndex, toIndex);
 		return binarySearch0(b, fromIndex, toIndex, key);
 	}
 
@@ -101,7 +103,7 @@ public enum BufferSearch {
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
 	public static int binarySearch(LongBuffer b, int fromIndex, int toIndex, long key) {
-		BufferUtils.rangeCheck(b.capacity(), fromIndex, toIndex);
+		rangeCheck(b.capacity(), fromIndex, toIndex);
 		return binarySearch0(b, fromIndex, toIndex, key);
 	}
 
@@ -152,7 +154,7 @@ public enum BufferSearch {
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
 	public static int binarySearch(FloatBuffer b, int fromIndex, int toIndex, float key) {
-		BufferUtils.rangeCheck(b.capacity(), fromIndex, toIndex);
+		rangeCheck(b.capacity(), fromIndex, toIndex);
 		return binarySearch0(b, fromIndex, toIndex, key);
 	}
 
@@ -211,7 +213,7 @@ public enum BufferSearch {
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
 	public static int binarySearch(DoubleBuffer b, int fromIndex, int toIndex, double key) {
-		BufferUtils.rangeCheck(b.capacity(), fromIndex, toIndex);
+		rangeCheck(b.capacity(), fromIndex, toIndex);
 		return binarySearch0(b, fromIndex, toIndex, key);
 	}
 
