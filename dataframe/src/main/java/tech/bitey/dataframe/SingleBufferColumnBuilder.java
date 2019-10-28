@@ -22,15 +22,15 @@ import java.nio.ByteOrder;
 
 abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>> extends ColumnBuilder<E, C, B> {
 
-	SingleBufferColumnBuilder(boolean sortedSet) {
-		super(sortedSet);
+	SingleBufferColumnBuilder(int characteristics) {
+		super(characteristics);
 	}
 
 	ByteBuffer buffer = allocate(8);
 	F elements = asBuffer(buffer);
 
 	abstract F asBuffer(ByteBuffer buffer);
-	abstract C buildNonNullColumn(ByteBuffer trim);
+	abstract C buildNonNullColumn(ByteBuffer trim, int characteristics);
 	abstract int elementSize();	
 	
 	private void resetElementBuffer() {
@@ -68,7 +68,7 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 	}
 
 	@Override
-	protected C buildNonNullColumn() {
+	protected C buildNonNullColumn(int characteristics) {
 		ByteBuffer full = duplicate(buffer);
 		full.flip();
 		full.limit(elements.position() * elementSize());
@@ -77,7 +77,7 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 		trim.put(full);
 		trim.flip();
 		
-		return buildNonNullColumn(trim);
+		return buildNonNullColumn(trim, characteristics);
 	}
 
 	@Override

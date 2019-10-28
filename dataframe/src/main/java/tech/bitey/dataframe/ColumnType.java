@@ -26,51 +26,51 @@ public enum ColumnType {
 
 	BOOLEAN("B") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
+		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
 			BufferBitSetWrapper wrapper = readBufferBitSet(slice(buffer, offset, offset+length));
 			return new NonNullBooleanColumn(wrapper.bbs, wrapper.offset, wrapper.size);
 		}
 	},
 	DATE("DA") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
-			return new NonNullDateColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, isSorted);
+		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+			return new NonNullDateColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
 		}
 	},
 	DATETIME("DT") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
-			return new NonNullDateTimeColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, isSorted);
+		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+			return new NonNullDateTimeColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
 		}
 	},
 	DOUBLE("D") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
-			return new NonNullDoubleColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, isSorted);
+		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+			return new NonNullDoubleColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
 		}
 	},
 	FLOAT("F") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
-			return new NonNullFloatColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, isSorted);
+		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+			return new NonNullFloatColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
 		}
 	},
 	INT("I") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
-			return new NonNullIntColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, isSorted);
+		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+			return new NonNullIntColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
 		}
 	},
 	LONG("L") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
-			return new NonNullLongColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, isSorted);
+		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+			return new NonNullLongColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
 		}
 	},
 	STRING("S") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
-			return NonNullStringColumn.fromBuffer(buffer, offset, length, isSorted);
+		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+			return NonNullStringColumn.fromBuffer(buffer, offset, length, characteristics);
 		}
 	},
 	;
@@ -115,38 +115,42 @@ public enum ColumnType {
 		}
 	}
 	
-	public ColumnBuilder<?,?,?> builder(boolean sortedSet) {
+	public ColumnBuilder<?,?,?> builder() {
+		return builder(0);
+	}
+	
+	public ColumnBuilder<?,?,?> builder(int characteristics) {
 		switch(this) {
 		case BOOLEAN:
 			return BooleanColumn.builder();
 		case DATE:
-			return DateColumn.builder(sortedSet);
+			return DateColumn.builder(characteristics);
 		case DATETIME:
-			return DateTimeColumn.builder(sortedSet);
+			return DateTimeColumn.builder(characteristics);
 		case DOUBLE:
-			return DoubleColumn.builder(sortedSet);
+			return DoubleColumn.builder(characteristics);
 		case FLOAT:
-			return FloatColumn.builder(sortedSet);
+			return FloatColumn.builder(characteristics);
 		case INT:
-			return IntColumn.builder(sortedSet);
+			return IntColumn.builder(characteristics);
 		case LONG:
-			return LongColumn.builder(sortedSet);
+			return LongColumn.builder(characteristics);
 		case STRING:
-			return StringColumn.builder(sortedSet);
+			return StringColumn.builder(characteristics);
 		}
 		
 		throw new IllegalStateException();
 	}
 	
 	public Column<?> nullColumn(int size) {
-		return builder(false).addNulls(size).build();
+		return builder().addNulls(size).build();
 	}
 		
-	abstract Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted);
+	abstract Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics);
 	
-	Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted, boolean isNullable) {		
+	Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics, boolean isNullable) {		
 		if(!isNullable)
-			return fromBuffer(buffer, offset, length, isSorted);
+			return fromBuffer(buffer, offset, length, characteristics);
 		
 		int nonNullLength = buffer.getInt(offset);
 		offset += 4;
@@ -154,7 +158,7 @@ public enum ColumnType {
 		BufferBitSetWrapper wrapper = readBufferBitSet(slice(buffer, offset, offset+nonNullLength));
 	
 		int columnStart = offset+nonNullLength;
-		Column<?> column = fromBuffer(buffer, columnStart, length - columnStart, isSorted);
+		Column<?> column = fromBuffer(buffer, columnStart, length - columnStart, characteristics);
 		
 		switch(this) {
 		case BOOLEAN:

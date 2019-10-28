@@ -14,24 +14,32 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.LongArrayPacker.LONG;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 class NonNullLongColumn extends LongArrayColumn<Long, NonNullLongColumn> implements LongColumn {
 
-	static final NonNullLongColumn EMPTY_LIST = new NonNullLongColumn(ByteBuffer.allocate(0), 0, 0, false);
-	static final NonNullLongColumn EMPTY_SET = new NonNullLongColumn(ByteBuffer.allocate(0), 0, 0, false);
+	static final Map<Integer, NonNullLongColumn> EMPTY = new HashMap<>();
+	static {
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullLongColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullLongColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullLongColumn(ByteBuffer.allocate(0), 0, 0, c));
+	}
 	
-	NonNullLongColumn(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		super(buffer, LONG, offset, size, sortedSet);
+	NonNullLongColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
+		super(buffer, LONG, offset, size, characteristics);
 	}
 
 	@Override
-	NonNullLongColumn construct(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		return new NonNullLongColumn(buffer, offset, size, sortedSet);
+	NonNullLongColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
+		return new NonNullLongColumn(buffer, offset, size, characteristics);
 	}
 
 	@Override
@@ -44,7 +52,7 @@ class NonNullLongColumn extends LongArrayColumn<Long, NonNullLongColumn> impleme
 
 	@Override
 	protected NonNullLongColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return EMPTY.get(characteristics);
 	}
 	
 	@Override

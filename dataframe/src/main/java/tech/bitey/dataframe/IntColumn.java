@@ -29,17 +29,21 @@ public interface IntColumn extends NumericColumn<Integer> {
 
 	int getInt(int index);
 	
-	public static IntColumnBuilder builder(boolean sortedSet) {		
-		return new IntColumnBuilder(sortedSet);
+	public static IntColumnBuilder builder(int characteristics) {		
+		return new IntColumnBuilder(characteristics);
+	}
+	
+	public static IntColumnBuilder builder() {
+		return new IntColumnBuilder(0);
 	}
 	
 	public static IntColumn of(Integer... elements) {
-		return builder(false).addAll(elements).build();
+		return builder(0).addAll(elements).build();
 	}
 	
-	public static Collector<Integer,?,IntColumn> collector(boolean sortedSet) {		
+	public static Collector<Integer,?,IntColumn> collector(int characteristics) {		
 		return Collector.of(
-			() -> builder(sortedSet),
+			() -> builder(characteristics),
 			IntColumnBuilder::add,
 			IntColumnBuilder::append,
 			IntColumnBuilder::build

@@ -30,17 +30,21 @@ public interface DateColumn extends Column<LocalDate> {
 	
 	int yyyymmdd(int index);
 	
-	public static DateColumnBuilder builder(boolean sortedSet) {		
-		return new DateColumnBuilder(sortedSet);
+	public static DateColumnBuilder builder(int characteristics) {		
+		return new DateColumnBuilder(characteristics);
+	}
+	
+	public static DateColumnBuilder builder() {
+		return new DateColumnBuilder(0);
 	}
 	
 	public static DateColumn of(LocalDate... elements) {
-		return builder(false).addAll(elements).build();
+		return builder(0).addAll(elements).build();
 	}
 	
-	public static Collector<LocalDate,?,DateColumn> collector(boolean sortedSet) {		
+	public static Collector<LocalDate,?,DateColumn> collector(int characteristics) {		
 		return Collector.of(
-			() -> builder(sortedSet),
+			() -> builder(characteristics),
 			DateColumnBuilder::add,
 			DateColumnBuilder::append,
 			DateColumnBuilder::build

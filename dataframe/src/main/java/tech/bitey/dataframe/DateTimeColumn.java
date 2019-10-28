@@ -28,17 +28,21 @@ public interface DateTimeColumn extends Column<LocalDateTime> {
 	@Override DateTimeColumn tail(LocalDateTime fromElement, boolean inclusive);
 	@Override DateTimeColumn tail(LocalDateTime fromElement);
 	
-	public static DateTimeColumnBuilder builder(boolean sortedSet) {		
-		return new DateTimeColumnBuilder(sortedSet);
+	public static DateTimeColumnBuilder builder(int characteristics) {		
+		return new DateTimeColumnBuilder(characteristics);
+	}
+	
+	public static DateTimeColumnBuilder builder() {
+		return new DateTimeColumnBuilder(0);
 	}
 	
 	public static DateTimeColumn of(LocalDateTime... elements) {
-		return builder(false).addAll(elements).build();
+		return builder(0).addAll(elements).build();
 	}
 	
-	public static Collector<LocalDateTime,?,DateTimeColumn> collector(boolean sortedSet) {		
+	public static Collector<LocalDateTime,?,DateTimeColumn> collector(int characteristics) {		
 		return Collector.of(
-			() -> builder(sortedSet),
+			() -> builder(characteristics),
 			DateTimeColumnBuilder::add,
 			DateTimeColumnBuilder::append,
 			DateTimeColumnBuilder::build

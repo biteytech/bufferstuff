@@ -14,11 +14,13 @@
 
 package tech.bitey.dataframe;
 
+import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
+
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableDoubleColumn extends NullableColumn<Double, NonNullDoubleColumn, NullableDoubleColumn> implements DoubleColumn {
 	
-	static final NullableDoubleColumn EMPTY = new NullableDoubleColumn(NonNullDoubleColumn.EMPTY_LIST, EMPTY_NO_RESIZE, 0, 0);
+	static final NullableDoubleColumn EMPTY = new NullableDoubleColumn(NonNullDoubleColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
 
 	NullableDoubleColumn(NonNullDoubleColumn column, BufferBitSet nonNulls, int offset, int size) {
 		super(column, nonNulls, offset, size);

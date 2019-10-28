@@ -14,7 +14,11 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
+import static tech.bitey.dataframe.Column.BASE_CHARACTERISTICS;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 
 import java.util.Collection;
@@ -24,26 +28,34 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, C, B>> {
 
-	protected final boolean sortedSet;
+	protected final int characteristics;
 	
 	protected BufferBitSet nulls;
 	
 	protected int size = 0;
 	
-	protected ColumnBuilder(boolean sortedSet) {
-		this.sortedSet = sortedSet;
+	protected ColumnBuilder(int characteristics) {
+		
+		characteristics |= BASE_CHARACTERISTICS;
+		
+		if((characteristics & DISTINCT) != 0)
+			characteristics |= SORTED;
+		if((characteristics & SORTED) != 0)
+			characteristics |= NONNULL;
+		
+		this.characteristics = characteristics;
 	}
 	
 	public abstract ColumnType getType();
 	protected abstract C empty();
 	protected abstract int getNonNullSize();
-	protected abstract void checkSortedAndDistinct();
-	protected abstract C buildNonNullColumn();
+	protected abstract void checkCharacteristics();
+	protected abstract C buildNonNullColumn(int characteristics);
 	protected abstract C wrapNullableColumn(C column, BufferBitSet nonNulls);
 	protected abstract void append0(B tail);	
 	
 	protected B append(B tail) {
-		checkArgument(this.sortedSet == tail.sortedSet, "incompatible sortedSet");
+		checkArgument(this.characteristics == tail.characteristics, "incompatible characteristics");
 		
 		if(tail.nulls != null) {
 			BufferBitSet bothNulls = tail.nulls.shiftRight(this.size);
@@ -72,10 +84,10 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 			column = empty();
 		}
 		else {
-			if(sortedSet)
-				checkSortedAndDistinct();			
+			if(characteristics != Column.BASE_CHARACTERISTICS)
+				checkCharacteristics();			
 		
-			column = buildNonNullColumn();
+			column = buildNonNullColumn(characteristics | NONNULL);
 		}
 		
 		if(nulls == null)
@@ -95,8 +107,8 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 	protected abstract void addNonNull(E element);
 	
 	public B addNulls(int count) {
-		if(sortedSet)
-			throw new NullPointerException("sortedSet does not allow null elements");
+		if((characteristics & NONNULL) != 0)
+			throw new NullPointerException("cannot add null when NONNULL is set");
 		
 		if(nulls == null)
 			nulls = new BufferBitSet(ALLOCATE_DIRECT);

@@ -112,17 +112,23 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 	@Override
 	public Column<E> append(Column<E> tail) {		
 		checkArgument(getType() == tail.getType(), "columns must have the same type");
-		checkArgument(isSortedSet() == tail.isSortedSet(), "both columns must be unique indices or not");		
+		checkArgument(isSorted() == tail.isSorted() && isDistinct() == tail.isDistinct(),
+				"both columns must have same sorted & distinct characteristics");		
 		
 		if(isEmpty())
 			return tail;
 		else if(tail.isEmpty())
 			return this;
 		else {			
-			if(isSortedSet()) {
+			if(isDistinct()) {
 				checkArgument(
 					comparator().compare(last(), tail.first()) < 0,
 					"last item of this column must be less than first item of provided column");
+			}			
+			else if(isSorted()) {
+				checkArgument(
+					comparator().compare(last(), tail.first()) <= 0,
+					"last item of this column must be <= first item of provided column");
 			}
 			
 			return append0(tail);
@@ -206,14 +212,14 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 		if(o instanceof Column) {
 			
 			AbstractColumn<?,?> rhs = (AbstractColumn<?,?>)o;
-			if(getType() != rhs.getType() || size != rhs.size || isNullable() != rhs.isNullable())
+			if(getType() != rhs.getType() || size != rhs.size || isNonnull() != rhs.isNonnull())
 				return false;
 			
 			@SuppressWarnings("unchecked")
 			C cast = (C)o;
 			return equals0(cast);
 		}
-		if(isSortedSet() && o instanceof Set) {
+		if(isDistinct() && o instanceof Set) {
 			// from AbstractSet
 
 	        Collection<?> c = (Collection<?>) o;

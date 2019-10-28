@@ -14,9 +14,10 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
+import static tech.bitey.bufferstuff.BufferUtils.isSorted;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
-import static tech.bitey.dataframe.NonNullDoubleColumn.EMPTY_LIST;
-import static tech.bitey.dataframe.NonNullDoubleColumn.EMPTY_SET;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
 import java.nio.ByteBuffer;
@@ -27,8 +28,8 @@ import tech.bitey.bufferstuff.BufferBitSet;
 public class DoubleColumnBuilder
 		extends SingleBufferColumnBuilder<Double, DoubleBuffer, DoubleColumn, DoubleColumnBuilder> {
 
-	DoubleColumnBuilder(boolean sortedSet) {
-		super(sortedSet);
+	DoubleColumnBuilder(int characteristics) {
+		super(characteristics);
 	}
 
 	@Override
@@ -52,13 +53,19 @@ public class DoubleColumnBuilder
 
 	@Override
 	protected DoubleColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return NonNullDoubleColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	protected void checkSortedAndDistinct() {
-		checkState(isSortedAndDistinct(elements, 0, elements.position()),
+	protected void checkCharacteristics() {
+		if((characteristics & DISTINCT) != 0) {
+			checkState(isSortedAndDistinct(elements, 0, elements.position()),
 				"column elements must be sorted and distinct");
+		}
+		else if((characteristics & SORTED) != 0) {
+			checkState(isSorted(elements, 0, elements.position()),
+				"column elements must be sorted");
+		}
 	}
 
 	@Override
@@ -72,8 +79,8 @@ public class DoubleColumnBuilder
 	}
 
 	@Override
-	DoubleColumn buildNonNullColumn(ByteBuffer trim) {
-		return new NonNullDoubleColumn(trim, 0, getNonNullSize(), sortedSet);
+	DoubleColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+		return new NonNullDoubleColumn(trim, 0, getNonNullSize(), characteristics);
 	}
 
 	@Override

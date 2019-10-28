@@ -29,17 +29,21 @@ public interface DoubleColumn extends NumericColumn<Double> {
 
 	double getDouble(int index);
 	
-	public static DoubleColumnBuilder builder(boolean sortedSet) {		
-		return new DoubleColumnBuilder(sortedSet);
+	public static DoubleColumnBuilder builder(int characteristics) {		
+		return new DoubleColumnBuilder(characteristics);
+	}
+	
+	public static DoubleColumnBuilder builder() {
+		return new DoubleColumnBuilder(0);
 	}
 	
 	public static DoubleColumn of(Double... elements) {
-		return builder(false).addAll(elements).build();
+		return builder(0).addAll(elements).build();
 	}
 	
-	public static Collector<Double,?,DoubleColumn> collector(boolean sortedSet) {		
+	public static Collector<Double,?,DoubleColumn> collector(int characteristics) {		
 		return Collector.of(
-			() -> builder(sortedSet),
+			() -> builder(characteristics),
 			DoubleColumnBuilder::add,
 			DoubleColumnBuilder::append,
 			DoubleColumnBuilder::build

@@ -14,11 +14,15 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 
@@ -26,21 +30,25 @@ import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 
 class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubleColumn> implements DoubleColumn {
-
-	static final NonNullDoubleColumn EMPTY_LIST = new NonNullDoubleColumn(ByteBuffer.allocate(0), 0, 0, false);
-	static final NonNullDoubleColumn EMPTY_SET  = new NonNullDoubleColumn(ByteBuffer.allocate(0), 0, 0, true);
+	
+	static final Map<Integer, NonNullDoubleColumn> EMPTY = new HashMap<>();
+	static {
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDoubleColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDoubleColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDoubleColumn(ByteBuffer.allocate(0), 0, 0, c));
+	}
 	
 	private final DoubleBuffer elements;
 	
-	NonNullDoubleColumn(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		super(buffer, offset, size, sortedSet);
+	NonNullDoubleColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
+		super(buffer, offset, size, characteristics);
 		
 		this.elements = buffer.asDoubleBuffer();
 	}
 	
 	@Override
-	NonNullDoubleColumn construct(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		return new NonNullDoubleColumn(buffer, offset, size, sortedSet);
+	NonNullDoubleColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
+		return new NonNullDoubleColumn(buffer, offset, size, characteristics);
 	}
 	
 	private double at(int index) {
@@ -82,7 +90,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	
 	@Override
 	protected int search(Double value, boolean first) {
-		if(sortedSet)
+		if(isSorted())
 			return search(value);
 		else {
 			double d = value;
@@ -104,7 +112,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 
 	@Override
 	protected NonNullDoubleColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return EMPTY.get(characteristics);
 	}
 	
 	@Override
@@ -151,7 +159,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 				buffer.putDouble(at(i));
 		buffer.flip();
 		
-		return new NonNullDoubleColumn(buffer, 0, cardinality, sortedSet);
+		return new NonNullDoubleColumn(buffer, 0, cardinality, characteristics);
 	}
 
 	@Override
@@ -162,7 +170,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 			buffer.putDouble(at(indices[i]+offset));
 		buffer.flip();
 		
-		return new NonNullDoubleColumn(buffer, 0, indices.length, false);
+		return new NonNullDoubleColumn(buffer, 0, indices.length, 0);
 	}
 
 	@Override

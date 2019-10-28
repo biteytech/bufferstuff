@@ -14,9 +14,10 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
+import static tech.bitey.bufferstuff.BufferUtils.isSorted;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
-import static tech.bitey.dataframe.NonNullFloatColumn.EMPTY_LIST;
-import static tech.bitey.dataframe.NonNullFloatColumn.EMPTY_SET;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
 import java.nio.ByteBuffer;
@@ -26,8 +27,8 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBuffer, FloatColumn, FloatColumnBuilder> {
 
-	FloatColumnBuilder(boolean sortedSet) {
-		super(sortedSet);
+	FloatColumnBuilder(int characteristics) {
+		super(characteristics);
 	}
 
 	@Override
@@ -51,13 +52,19 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 
 	@Override
 	protected FloatColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return NonNullFloatColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	protected void checkSortedAndDistinct() {
-		checkState(isSortedAndDistinct(elements, 0, elements.position()),
+	protected void checkCharacteristics() {
+		if((characteristics & DISTINCT) != 0) {
+			checkState(isSortedAndDistinct(elements, 0, elements.position()),
 				"column elements must be sorted and distinct");
+		}
+		else if((characteristics & SORTED) != 0) {
+			checkState(isSorted(elements, 0, elements.position()),
+				"column elements must be sorted");
+		}
 	}
 
 	@Override
@@ -71,8 +78,8 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 	}
 
 	@Override
-	FloatColumn buildNonNullColumn(ByteBuffer trim) {
-		return new NonNullFloatColumn(trim, 0, getNonNullSize(), sortedSet);
+	FloatColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+		return new NonNullFloatColumn(trim, 0, getNonNullSize(), characteristics);
 	}
 
 	@Override

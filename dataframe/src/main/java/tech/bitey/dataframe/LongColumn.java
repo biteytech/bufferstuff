@@ -29,17 +29,21 @@ public interface LongColumn extends NumericColumn<Long> {
 
 	long getLong(int index);
 	
-	public static LongColumnBuilder builder(boolean sortedSet) {		
-		return new LongColumnBuilder(sortedSet);
+	public static LongColumnBuilder builder(int characteristics) {		
+		return new LongColumnBuilder(characteristics);
+	}
+	
+	public static LongColumnBuilder builder() {
+		return new LongColumnBuilder(0);
 	}
 	
 	public static LongColumn of(Long... elements) {
-		return builder(false).addAll(elements).build();
+		return builder(0).addAll(elements).build();
 	}
 	
-	public static Collector<Long,?,LongColumn> collector(boolean sortedSet) {		
+	public static Collector<Long,?,LongColumn> collector(int characteristics) {		
 		return Collector.of(
-			() -> builder(sortedSet),
+			() -> builder(characteristics),
 			LongColumnBuilder::add,
 			LongColumnBuilder::append,
 			LongColumnBuilder::build

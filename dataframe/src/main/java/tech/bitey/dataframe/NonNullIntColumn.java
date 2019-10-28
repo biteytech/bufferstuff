@@ -14,24 +14,32 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.IntArrayPacker.INTEGER;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 class NonNullIntColumn extends IntArrayColumn<Integer, NonNullIntColumn> implements IntColumn {
 
-	static final NonNullIntColumn EMPTY_LIST = new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, false);
-	static final NonNullIntColumn EMPTY_SET = new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, false);
+	static final Map<Integer, NonNullIntColumn> EMPTY = new HashMap<>();
+	static {
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, c));
+	}
 	
-	NonNullIntColumn(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		super(buffer, INTEGER, offset, size, sortedSet);
+	NonNullIntColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
+		super(buffer, INTEGER, offset, size, characteristics);
 	}
 
 	@Override
-	NonNullIntColumn construct(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		return new NonNullIntColumn(buffer, offset, size, sortedSet);
+	NonNullIntColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
+		return new NonNullIntColumn(buffer, offset, size, characteristics);
 	}
 
 	@Override
@@ -44,7 +52,7 @@ class NonNullIntColumn extends IntArrayColumn<Integer, NonNullIntColumn> impleme
 
 	@Override
 	protected NonNullIntColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return EMPTY.get(characteristics);
 	}
 	
 	@Override

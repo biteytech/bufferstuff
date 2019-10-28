@@ -102,7 +102,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		
 		if(keyColumnName != null) {
 			checkArgument(columnMap.containsKey(keyColumnName), "no such column name: "+keyColumnName);
-			checkArgument(columnMap.get(keyColumnName).isSortedSet(), "key column must be a unique index");
+			checkArgument(columnMap.get(keyColumnName).isDistinct(), "key column must be a unique index");
 		}
 			
 		this.columns = new Column[columnMap.size()];
@@ -521,7 +521,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	public <T> Column<T> deriveColumn(ColumnType type, Function<Row, T> function) {
 		
 		@SuppressWarnings("rawtypes")
-		ColumnBuilder builder = type.builder(false);
+		ColumnBuilder builder = type.builder(0);
 		
 		for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.apply(cursor));
@@ -532,7 +532,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public IntColumn deriveColumn(ToIntFunction<Row> function) {
 		
-		IntColumnBuilder builder = IntColumn.builder(false);
+		IntColumnBuilder builder = IntColumn.builder();
 		
 		for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.applyAsInt(cursor));
@@ -543,7 +543,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public LongColumn deriveColumn(ToLongFunction<Row> function) {
 		
-		LongColumnBuilder builder = LongColumn.builder(false);
+		LongColumnBuilder builder = LongColumn.builder();
 		
 		for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.applyAsLong(cursor));
@@ -554,7 +554,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public DoubleColumn deriveColumn(ToDoubleFunction<Row> function) {
 		
-		DoubleColumnBuilder builder = DoubleColumn.builder(false);
+		DoubleColumnBuilder builder = DoubleColumn.builder();
 		
 		for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.applyAsDouble(cursor));
@@ -565,7 +565,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public FloatColumn deriveColumn(ToFloatFunction<Row> function) {
 		
-		FloatColumnBuilder builder = FloatColumn.builder(false);
+		FloatColumnBuilder builder = FloatColumn.builder();
 		
 		for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.applyAsFloat(cursor));
@@ -699,7 +699,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 		
 		Integer keyIndex = this.keyIndex;
-		if(coerce && keyIndex != null && !columns[keyIndex].isSortedSet())
+		if(coerce && keyIndex != null && !columns[keyIndex].isDistinct())
 			keyIndex = null;
 		
 		return new DataFrameImpl(columns, columnNames, keyIndex, columnToIndexMap);
@@ -811,7 +811,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		
 		checkArgument(leftKey.getType() == rightColumn.getType(), "columns being joined on must have the same type");
 		
-		if(rightColumn.isNullable()) {
+		if(!rightColumn.isNonnull()) {
 			// remove nulls
 			rhs = rhs.filter(((NullableColumn)rightColumn).nonNulls);
 			rightColumn = (AbstractColumn)rhs.column(columnName);
@@ -1017,10 +1017,12 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 					
 					if(col.byteOrder() == BIG_ENDIAN)
 						flags |= BIG_ENDIAN_FLAG;
-					if(col.isNullable())
-						flags |= NULLABILITY_FLAG;
-					if(col.isSortedSet())
+					if(col.isNonnull())
+						flags |= NONNULL_FLAG;
+					if(col.isSorted())
 						flags |= SORTED_FLAG;
+					if(col.isDistinct())
+						flags |= DISTINCT_FLAG;
 					if((Integer.valueOf(i++)).equals(keyIndex))
 						flags |= KEY_COLUMN_FLAG;
 					
@@ -1032,7 +1034,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 					header.putInt(((AbstractColumn)column).byteLength());
 				
 				// column name length
-				columnNames = new StringColumnBuilder(false).addAll(this.columnNames).build();
+				columnNames = StringColumn.builder().addAll(this.columnNames).build();
 				header.putInt(((AbstractColumn)columnNames).byteLength());
 				
 				// column name byte order

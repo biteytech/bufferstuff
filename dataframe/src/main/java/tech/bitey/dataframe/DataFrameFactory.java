@@ -16,7 +16,15 @@ package tech.bitey.dataframe;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.SORTED;
+import static tech.bitey.dataframe.DataFrame.BIG_ENDIAN_FLAG;
+import static tech.bitey.dataframe.DataFrame.DISTINCT_FLAG;
+import static tech.bitey.dataframe.DataFrame.KEY_COLUMN_FLAG;
 import static tech.bitey.dataframe.DataFrame.MAGIC_NUMBER;
+import static tech.bitey.dataframe.DataFrame.NONNULL_FLAG;
+import static tech.bitey.dataframe.DataFrame.SORTED_FLAG;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
@@ -104,22 +112,22 @@ public enum DataFrameFactory {
 			header2.get(flags);
 
 			boolean[] isBigEndian = new boolean[cc];
-			boolean[] isNullable = new boolean[cc];
-			boolean[] isSortedSet = new boolean[cc];
+			int[] characteristics = new int[cc];
 			Integer keyColumn = null;
 			for(int i = 0; i < cc; i++) {
-				if((flags[i] & DataFrame.BIG_ENDIAN_FLAG) != 0)
+				if((flags[i] & BIG_ENDIAN_FLAG) != 0)
 					isBigEndian[i] = true;
-				if((flags[i] & DataFrame.NULLABILITY_FLAG) != 0)
-					isNullable[i] = true;
-				if((flags[i] & DataFrame.SORTED_FLAG) != 0)
-					isSortedSet[i] = true;
-				if((flags[i] & DataFrame.KEY_COLUMN_FLAG) != 0)
+				if((flags[i] & NONNULL_FLAG) != 0)
+					characteristics[i] |= NONNULL;
+				if((flags[i] & SORTED_FLAG) != 0)
+					characteristics[i] |= SORTED;
+				if((flags[i] & DISTINCT_FLAG) != 0)
+					characteristics[i] |= DISTINCT;
+				if((flags[i] & KEY_COLUMN_FLAG) != 0)
 					keyColumn = i;
 			}
 //			System.out.println("isBigEndian  : "+Arrays.toString(isBigEndian));
-//			System.out.println("isNullable   : "+Arrays.toString(isNullable));
-//			System.out.println("isSortedSet  : "+Arrays.toString(isSortedSet));
+//			System.out.println("characteristics   : "+Arrays.toString(characteristics));
 //			System.out.println("keyColumn    : "+keyColumn);
 			
 			// column lengths
@@ -139,7 +147,7 @@ public enum DataFrameFactory {
 			// column names
 			ByteBuffer names = ByteBuffer.allocate(colNameLength).order(nameOrder);
 			channel.read(names);
-			StringColumn columnNames = NonNullStringColumn.fromBuffer(names, 0, colNameLength, false);
+			StringColumn columnNames = NonNullStringColumn.fromBuffer(names, 0, colNameLength, 0);
 //			System.out.println("col names    : "+columnNames);
 			
 			// column data
@@ -148,7 +156,7 @@ public enum DataFrameFactory {
 				ByteBuffer data = ByteBuffer.allocate(lengths[i]).order(isBigEndian[i] ? BIG_ENDIAN : LITTLE_ENDIAN);
 				channel.read(data);
 				data.flip();
-				Column<?> column = types[i].fromBuffer(data, 0, lengths[i], isSortedSet[i], isNullable[i]);
+				Column<?> column = types[i].fromBuffer(data, 0, lengths[i], characteristics[i]);
 				columns[i] = column;
 			}
 			

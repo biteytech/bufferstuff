@@ -24,10 +24,10 @@ public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBuffer
 
 	final ByteBuffer buffer;
 	
-	abstract C construct(ByteBuffer buffer, int offset, int size, boolean sortedSet);
+	abstract C construct(ByteBuffer buffer, int offset, int size, int characteristics);
 	
-	protected NonNullSingleBufferColumn(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		super(offset, size, sortedSet);
+	protected NonNullSingleBufferColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
+		super(offset, size, characteristics);
 		
 		validateBuffer(buffer);
 		this.buffer = buffer;
@@ -41,12 +41,12 @@ public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBuffer
 
 	@Override
 	protected C toHeap0() {
-		return construct(buffer, offset, size, false);
+		return construct(buffer, offset, size, 0);
 	}
 
 	@Override
 	protected C subColumn0(int fromIndex, int toIndex) {
-		return construct(buffer, fromIndex+offset, toIndex-fromIndex, sortedSet);
+		return construct(buffer, fromIndex+offset, toIndex-fromIndex, characteristics);
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBuffer
 		
 		buffer.flip();
 			
-		return construct(buffer, 0, size, sortedSet);
+		return construct(buffer, 0, size, characteristics);
 	}
 
 	@Override

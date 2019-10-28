@@ -14,11 +14,15 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 
@@ -26,21 +30,25 @@ import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 
 class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatColumn> implements FloatColumn {
-
-	static final NonNullFloatColumn EMPTY_LIST = new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, false);
-	static final NonNullFloatColumn EMPTY_SET  = new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, true);
+	
+	static final Map<Integer, NonNullFloatColumn> EMPTY = new HashMap<>();
+	static {
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, c));
+	}
 	
 	private final FloatBuffer elements;
 	
-	NonNullFloatColumn(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		super(buffer, offset, size, sortedSet);
+	NonNullFloatColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
+		super(buffer, offset, size, characteristics);
 		
 		this.elements = buffer.asFloatBuffer();
 	}
 	
 	@Override
-	NonNullFloatColumn construct(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		return new NonNullFloatColumn(buffer, offset, size, sortedSet);
+	NonNullFloatColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
+		return new NonNullFloatColumn(buffer, offset, size, characteristics);
 	}
 	
 	private float at(int index) {
@@ -82,7 +90,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	
 	@Override
 	protected int search(Float value, boolean first) {
-		if(sortedSet)
+		if(isSorted())
 			return search(value);
 		else {
 			float d = value;
@@ -104,7 +112,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 
 	@Override
 	protected NonNullFloatColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return EMPTY.get(characteristics);
 	}
 	
 	@Override
@@ -151,7 +159,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 				buffer.putFloat(at(i));
 		buffer.flip();
 		
-		return new NonNullFloatColumn(buffer, 0, cardinality, sortedSet);
+		return new NonNullFloatColumn(buffer, 0, cardinality, characteristics);
 	}
 
 	@Override
@@ -162,7 +170,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 			buffer.putFloat(at(indices[i]+offset));
 		buffer.flip();
 		
-		return new NonNullFloatColumn(buffer, 0, indices.length, false);
+		return new NonNullFloatColumn(buffer, 0, indices.length, 0);
 	}
 
 	@Override

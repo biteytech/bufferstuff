@@ -27,8 +27,8 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 	protected final LongArrayPacker<E> packer;
 	protected final LongBuffer elements;
 	
-	protected LongArrayColumn(ByteBuffer buffer, LongArrayPacker<E> packer, int offset, int size, boolean sortedSet) {
-		super(buffer, offset, size, sortedSet);
+	protected LongArrayColumn(ByteBuffer buffer, LongArrayPacker<E> packer, int offset, int size, int characteristics) {
+		super(buffer, offset, size, characteristics);
 				
 		this.packer = packer;
 		this.elements = buffer.asLongBuffer();
@@ -56,7 +56,7 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 		
 		final long packed = packer.pack(value);
 		
-		if(sortedSet)
+		if(isSorted())
 			return search(packed);
 		else {
 			if(first) {
@@ -104,7 +104,7 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 				buffer.putLong(at(i));
 		buffer.flip();
 		
-		return construct(buffer, 0, cardinality, sortedSet);
+		return construct(buffer, 0, cardinality, characteristics);
 	}
 
 	@Override
@@ -115,7 +115,7 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 			buffer.putLong(at(indices[i]+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.length, false);
+		return construct(buffer, 0, indices.length, 0);
 	}
 
 	@Override

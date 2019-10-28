@@ -29,17 +29,21 @@ public interface FloatColumn extends NumericColumn<Float> {
 
 	float getFloat(int index);
 	
-	public static FloatColumnBuilder builder(boolean sortedSet) {		
-		return new FloatColumnBuilder(sortedSet);
+	public static FloatColumnBuilder builder(int characteristics) {		
+		return new FloatColumnBuilder(characteristics);
+	}
+	
+	public static FloatColumnBuilder builder() {
+		return new FloatColumnBuilder(0);
 	}
 	
 	public static FloatColumn of(Float... elements) {
-		return builder(false).addAll(elements).build();
+		return builder(0).addAll(elements).build();
 	}
 	
-	public static Collector<Float,?,FloatColumn> collector(boolean sortedSet) {		
+	public static Collector<Float,?,FloatColumn> collector(int characteristics) {		
 		return Collector.of(
-			() -> builder(sortedSet),
+			() -> builder(characteristics),
 			FloatColumnBuilder::add,
 			FloatColumnBuilder::append,
 			FloatColumnBuilder::build

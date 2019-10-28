@@ -14,13 +14,15 @@
 
 package tech.bitey.dataframe;
 
+import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
+
 import java.time.LocalDate;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableDateColumn extends NullableColumn<LocalDate, NonNullDateColumn, NullableDateColumn> implements DateColumn {
 	
-	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY_LIST, EMPTY_NO_RESIZE, 0, 0);
+	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
 
 	NullableDateColumn(NonNullDateColumn column, BufferBitSet nonNulls, int offset, int size) {
 		super(column, nonNulls, offset, size);

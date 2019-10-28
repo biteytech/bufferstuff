@@ -22,7 +22,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
 public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, BooleanColumnBuilder> {
 
 	protected BooleanColumnBuilder() { 
-		super(false);
+		super(0);
 	}
 
 	private int nonNullSize = 0;
@@ -70,12 +70,12 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 	}
 
 	@Override
-	protected void checkSortedAndDistinct() {
+	protected void checkCharacteristics() {
 		throw new IllegalStateException();
 	}
 
 	@Override
-	protected BooleanColumn buildNonNullColumn() {
+	protected BooleanColumn buildNonNullColumn(int characteristics) {
 		return new NonNullBooleanColumn(elements, 0, nonNullSize);
 	}
 

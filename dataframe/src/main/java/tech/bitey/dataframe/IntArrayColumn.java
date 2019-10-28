@@ -29,8 +29,8 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 	protected final IntArrayPacker<E> packer;
 	protected final IntBuffer elements;
 	
-	protected IntArrayColumn(ByteBuffer buffer, IntArrayPacker<E> packer, int offset, int size, boolean sortedSet) {
-		super(buffer, offset, size, sortedSet);
+	protected IntArrayColumn(ByteBuffer buffer, IntArrayPacker<E> packer, int offset, int size, int characteristics) {
+		super(buffer, offset, size, characteristics);
 		
 		this.packer = packer;
 		this.elements = buffer.asIntBuffer();
@@ -58,7 +58,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 		
 		final int packed = packer.pack(value);
 		
-		if(sortedSet)
+		if(isSorted())
 			return search(packed);
 		else {
 			if(first) {
@@ -103,7 +103,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 				buffer.putInt(at(i));
 		buffer.flip();
 		
-		return construct(buffer, 0, cardinality, sortedSet);
+		return construct(buffer, 0, cardinality, characteristics);
 	}
 
 	@Override
@@ -114,7 +114,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 			buffer.putInt(at(indices[i]+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.length, false);
+		return construct(buffer, 0, indices.length, 0);
 	}
 
 	@Override

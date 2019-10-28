@@ -14,8 +14,13 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.IMMUTABLE;
+import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
+import static java.util.Spliterator.SIZED;
+import static java.util.Spliterator.SORTED;
+import static java.util.Spliterator.SUBSIZED;
 
 import java.util.List;
 import java.util.NavigableSet;
@@ -29,9 +34,8 @@ import java.util.Spliterators;
  * primary interface, and all {@code List} methods are always available. There
  * are (up to) three concrete implementations of a {@code Column} for each
  * element type, with different tradeoffs between performance and functionality.
- * The methods {@link #isNullable()} and {@link #isSortedSet()} can be used to
+ * The methods {@link #isNullable()} and {@link #isSorted()} can be used to
  * determine the characteristics of a particular column:
- * <p>
  * <table border=1 cellpadding=3>
  * <caption><b>Column Implementation Overview</b></caption>
  * <tr>
@@ -39,7 +43,7 @@ import java.util.Spliterators;
  * Terminology</th>
  * <th>Implementation</th>
  * <th>isNullable</th>
- * <th>isSortedSet</th>
+ * <th>isSorted</th>
  * <th>{@link Spliterator}<br>
  * characteristics</th>
  * <th>Get by Index /<br>
@@ -62,7 +66,7 @@ import java.util.Spliterators;
  * <tr>
  * <td>Heap, NOT NULL</td>
  * <td>{@link NonNullColumn}<br>
- * sortedSet=FALSE</td>
+ * characteristics=FALSE</td>
  * <td>FALSE</td>
  * <td>FALSE</td>
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
@@ -75,7 +79,7 @@ import java.util.Spliterators;
  * <tr>
  * <td>Unique Index</td>
  * <td>{@link NonNullColumn}<br>
- * sortedSet=TRUE</td>
+ * characteristics=TRUE</td>
  * <td>FALSE</td>
  * <td>TRUE</td>
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
@@ -88,7 +92,7 @@ import java.util.Spliterators;
  * </table>
  * <p>
  * <b>Note:</b> <em>{@code NavigableSet} operations are only available for
- * unique indices</em> (i.e., when {@code isSortedSet() -> true})! They will
+ * unique indices</em> (i.e., when {@code isSorted() -> true})! They will
  * throw {@link UnsupportedOperationException} otherwise.
  * <p>
  * All concrete implementations of {@code Column} must be done via
@@ -100,26 +104,24 @@ import java.util.Spliterators;
  */
 public interface Column<E> extends List<E>, NavigableSet<E> {
 
-	/**
-	 * Indicates the nullability of this column.
-	 * 
-	 * @return true iff this column supports null values.
-	 */
-	boolean isNullable();
-
-	/**
-	 * The array organization of this column: either a free-form heap, or a unique
-	 * index.
-	 * 
-	 * @return true iff this column is a unique index. Meaning the elements are
-	 *         sorted and distinct.
-	 */
-	boolean isSortedSet();
+	static int BASE_CHARACTERISTICS = SIZED | SUBSIZED | IMMUTABLE | ORDERED;
+	
+	int characteristics();
+	
+	default boolean isNonnull() {
+		return (characteristics() & NONNULL) != 0;
+	}
+	default boolean isSorted() {
+		return (characteristics() & SORTED) != 0;
+	}
+	default boolean isDistinct() {
+		return (characteristics() & DISTINCT) != 0;
+	}
 
 	/**
 	 * Converts a unique index into a heap.
 	 * 
-	 * @return a column equal to this one, but which reports {@link #isSortedSet} as
+	 * @return a column equal to this one, but which reports {@link #isSorted} as
 	 *         false
 	 */
 	Column<E> toHeap();
@@ -160,7 +162,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 * fromInclusive} and {@code toInclusive} are both true. The returned column is
 	 * backed by this column.
 	 * <p>
-	 * <em>This method is only available when {@link #isSortedSet()} returns
+	 * <em>This method is only available when {@link #isDistinct()} returns
 	 * true.</em>
 	 *
 	 * @param fromElement   low endpoint of the returned column
@@ -171,7 +173,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 *                      returned view
 	 * @return a view of the portion of this column whose elements range from
 	 *         {@code fromElement} to {@code toElement}
-	 * @throws UnsupportedOperationException if {@link #isSortedSet()} return false
+	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
 	 * @throws ClassCastException            if {@code fromElement} and
 	 *                                       {@code toElement} do not match type
 	 *                                       {@code E}
@@ -186,7 +188,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 * Same behavior as {@code Column#subColumn(Object, boolean, Object, Boolean)},
 	 * with {@code fromInclusive} set to true and {@code toInclusive} set to false.
 	 * <p>
-	 * <em>This method is only available when {@link #isSortedSet()} returns
+	 * <em>This method is only available when {@link #isDistinct()} returns
 	 * true.</em>
 	 * 
 	 * @param fromElement low endpoint of the returned column, inclusive
@@ -202,7 +204,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 * equal to, if {@code inclusive} is true) {@code toElement}. The returned
 	 * column is backed by this column.
 	 * <p>
-	 * <em>This method is only available when {@link #isSortedSet()} returns
+	 * <em>This method is only available when {@link #isDistinct()} returns
 	 * true.</em>
 	 *
 	 * @param toElement high endpoint of the returned column
@@ -210,7 +212,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 *                  returned view
 	 * @return a view of the portion of this column whose elements are less than (or
 	 *         equal to, if {@code inclusive} is true) {@code toElement}
-	 * @throws UnsupportedOperationException if {@link #isSortedSet()} return false
+	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
 	 * @throws ClassCastException            if {@code toElement} is not compatible
 	 *                                       with this column's element type.
 	 * @throws NullPointerException          if {@code toElement} is null
@@ -221,7 +223,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 * Same behavior as {@link #head(Object, boolean)}, with {@code inclusive} set
 	 * to false.
 	 * <p>
-	 * <em>This method is only available when {@link #isSortedSet()} returns
+	 * <em>This method is only available when {@link #isDistinct()} returns
 	 * true.</em>
 	 * 
 	 * @param toElement high endpoint of the returned column
@@ -236,7 +238,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 * (or equal to, if {@code inclusive} is true) {@code fromElement}. The returned
 	 * column is backed by this column.
 	 * <p>
-	 * <em>This method is only available when {@link #isSortedSet()} returns
+	 * <em>This method is only available when {@link #isDistinct()} returns
 	 * true.</em>
 	 *
 	 * @param fromElement low endpoint of the returned column
@@ -244,7 +246,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 *                    returned view
 	 * @return a view of the portion of this column whose elements are greater than
 	 *         or equal to {@code fromElement}
-	 * @throws UnsupportedOperationException if {@link #isSortedSet()} return false
+	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
 	 * @throws ClassCastException            if {@code fromElement} is not
 	 *                                       compatible with this column's element
 	 *                                       type.
@@ -256,7 +258,7 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 * Same behavior as {@link #tail(Object, boolean)}, with {@code inclusive} set
 	 * to true.
 	 * <p>
-	 * <em>This method is only available when {@link #isSortedSet()} returns
+	 * <em>This method is only available when {@link #isDistinct()} returns
 	 * true.</em>
 	 * 
 	 * @param fromElement low endpoint of the returned column
@@ -308,9 +310,9 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 */
 	default Column<E> append(Column<E> tail, boolean coerce) {
 		if (coerce) {
-			if (isSortedSet() && !tail.isSortedSet())
+			if (isSorted() && !tail.isSorted())
 				return toHeap().append(tail);
-			else if (!isSortedSet() && tail.isSortedSet())
+			else if (!isSorted() && tail.isSorted())
 				return append(tail.toHeap());
 		}
 

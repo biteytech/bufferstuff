@@ -14,27 +14,24 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.NonNullIntColumn.EMPTY_LIST;
-import static tech.bitey.dataframe.NonNullIntColumn.EMPTY_SET;
-
 import java.nio.ByteBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
 public class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, IntColumnBuilder> {
 
-	protected IntColumnBuilder(boolean sortedSet) {
-		super(sortedSet, IntArrayPacker.INTEGER);
+	protected IntColumnBuilder(int characteristics) {
+		super(characteristics, IntArrayPacker.INTEGER);
 	}
 
 	@Override
 	protected IntColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return NonNullIntColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	protected IntColumn buildNonNullColumn(ByteBuffer trim) {
-		return new NonNullIntColumn(trim, 0, getNonNullSize(), sortedSet);
+	protected IntColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+		return new NonNullIntColumn(trim, 0, getNonNullSize(), characteristics);
 	}
 
 	@Override

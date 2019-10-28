@@ -14,6 +14,9 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
+import static tech.bitey.bufferstuff.BufferUtils.isSorted;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
@@ -24,8 +27,8 @@ abstract class IntArrayColumnBuilder<E, C extends Column<E>, B extends IntArrayC
 
 	private final IntArrayPacker<E> packer;
 	
-	protected IntArrayColumnBuilder(boolean sortedSet, IntArrayPacker<E> packer) {
-		super(sortedSet);
+	protected IntArrayColumnBuilder(int characteristics, IntArrayPacker<E> packer) {
+		super(characteristics);
 		this.packer = packer;
 	}
 
@@ -37,9 +40,15 @@ abstract class IntArrayColumnBuilder<E, C extends Column<E>, B extends IntArrayC
 	}
 
 	@Override
-	protected void checkSortedAndDistinct() {
-		checkState(isSortedAndDistinct(elements, 0, elements.position()),
+	protected void checkCharacteristics() {
+		if((characteristics & DISTINCT) != 0) {
+			checkState(isSortedAndDistinct(elements, 0, elements.position()),
 				"column elements must be sorted and distinct");
+		}
+		else if((characteristics & SORTED) != 0) {
+			checkState(isSorted(elements, 0, elements.position()),
+				"column elements must be sorted");
+		}
 	}
 
 	@Override

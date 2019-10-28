@@ -33,7 +33,7 @@ public class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 		
 		checkNotNull(keyColumn, "key column cannot be null");
 		checkNotNull(valueColumn, "value column cannot be null");
-		checkArgument(keyColumn.isSortedSet(), "key column must be a unique index");
+		checkArgument(keyColumn.isDistinct(), "key column must be a unique index");
 		checkArgument(keyColumn.size() == valueColumn.size(), "key and value columns must have the same size");
 		
 		this.keyColumn = keyColumn;

@@ -14,8 +14,8 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.NonNullStringColumn.EMPTY_LIST;
-import static tech.bitey.dataframe.NonNullStringColumn.EMPTY_SET;
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.StringColumn.UTF_8;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 
@@ -27,8 +27,8 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, StringColumnBuilder> {
 
-	protected StringColumnBuilder(boolean sortedSet) {
-		super(sortedSet);
+	protected StringColumnBuilder(int characteristics) {
+		super(characteristics);
 	}
 
 	private final ArrayList<String> elements = new ArrayList<>();
@@ -46,7 +46,7 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 
 	@Override
 	protected StringColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return NonNullStringColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
@@ -55,19 +55,29 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 	}
 
 	@Override
-	protected void checkSortedAndDistinct() {
+	protected void checkCharacteristics() {
 		if(elements.size() >= 2) {
 			String prev = elements.get(0);
-			for(int i = 1; i < elements.size(); i++) {
-				String e = elements.get(i);
-				checkArgument(prev.compareTo(e) < 0, "column elements are not sorted and distinct");
-				prev = e;
+		
+			if((characteristics & DISTINCT) != 0) {
+				for(int i = 1; i < elements.size(); i++) {
+					String e = elements.get(i);
+					checkArgument(prev.compareTo(e) < 0, "column elements must be sorted and distinct");
+					prev = e;
+				}
+			}		
+			else if((characteristics & SORTED) != 0) {			
+				for(int i = 1; i < elements.size(); i++) {
+					String e = elements.get(i);
+					checkArgument(prev.compareTo(e) <= 0, "column elements must be sorted");
+					prev = e;
+				}
 			}
 		}
 	}
 
 	@Override
-	protected StringColumn buildNonNullColumn() {
+	protected StringColumn buildNonNullColumn(int characteristics) {
 		
 		int byteLength = 0;
 		for(int i = 0; i < elements.size(); i++)
@@ -86,7 +96,7 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 		pointers.flip();
 		elements.flip();
 	
-		return new NonNullStringColumn(elements, pointers, 0, this.elements.size(), sortedSet);
+		return new NonNullStringColumn(elements, pointers, 0, this.elements.size(), characteristics);
 	}
 
 	@Override

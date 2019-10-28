@@ -39,10 +39,11 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	static final long MAGIC_NUMBER = ((long)'d') << 56 | ((long)'a') << 48 | ((long)'t') << 40
 			| ((long)'a') << 32 | 'f' << 24 | 'r' << 16 | 'a' << 8 | 'm';
 	
-	static final int BIG_ENDIAN_FLAG  = 1 << 0;
-	static final int NULLABILITY_FLAG = 1 << 1;
-	static final int SORTED_FLAG      = 1 << 2;
-	static final int KEY_COLUMN_FLAG  = 1 << 3;
+	static final int BIG_ENDIAN_FLAG = 1 << 0;
+	static final int NONNULL_FLAG    = 1 << 1;
+	static final int SORTED_FLAG     = 1 << 2;
+	static final int DISTINCT_FLAG   = 1 << 3;
+	static final int KEY_COLUMN_FLAG = 1 << 4;
 	
 	
 	/*--------------------------------------------------------------------------------

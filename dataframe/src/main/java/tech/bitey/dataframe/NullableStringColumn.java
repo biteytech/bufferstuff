@@ -14,11 +14,13 @@
 
 package tech.bitey.dataframe;
 
+import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
+
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableStringColumn extends NullableColumn<String, NonNullStringColumn, NullableStringColumn> implements StringColumn {
 	
-	static final NullableStringColumn EMPTY = new NullableStringColumn(NonNullStringColumn.EMPTY_LIST, EMPTY_NO_RESIZE, 0, 0); 
+	static final NullableStringColumn EMPTY = new NullableStringColumn(NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
 
 	NullableStringColumn(NonNullStringColumn column, BufferBitSet nonNulls, int offset, int size) {
 		super(column, nonNulls, offset, size);

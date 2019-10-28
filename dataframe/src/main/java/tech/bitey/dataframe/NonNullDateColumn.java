@@ -14,30 +14,38 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.IntArrayPacker.LOCAL_DATE;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 class NonNullDateColumn extends IntArrayColumn<LocalDate, NonNullDateColumn> implements DateColumn {
-
-	static final NonNullDateColumn EMPTY_LIST = new NonNullDateColumn(ByteBuffer.allocate(0), 0, 0, false);
-	static final NonNullDateColumn EMPTY_SET = new NonNullDateColumn(ByteBuffer.allocate(0), 0, 0, true);
 	
-	NonNullDateColumn(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		super(buffer, LOCAL_DATE, offset, size, sortedSet);
+	static final Map<Integer, NonNullDateColumn> EMPTY = new HashMap<>();
+	static {
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateColumn(ByteBuffer.allocate(0), 0, 0, c));
+	}
+	
+	NonNullDateColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
+		super(buffer, LOCAL_DATE, offset, size, characteristics);
 	}
 
 	@Override
-	NonNullDateColumn construct(ByteBuffer buffer, int offset, int size, boolean sortedSet) {
-		return new NonNullDateColumn(buffer, offset, size, sortedSet);
+	NonNullDateColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
+		return new NonNullDateColumn(buffer, offset, size, characteristics);
 	}
 
 	@Override
 	protected NonNullDateColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return EMPTY.get(characteristics);
 	}
 	
 	@Override

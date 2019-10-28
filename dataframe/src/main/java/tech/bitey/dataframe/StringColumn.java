@@ -30,17 +30,21 @@ public interface StringColumn extends Column<String> {
 	@Override StringColumn tail(String fromElement, boolean inclusive);
 	@Override StringColumn tail(String fromElement);
 	
-	public static StringColumnBuilder builder(boolean sortedSet) {		
-		return new StringColumnBuilder(sortedSet);
+	public static StringColumnBuilder builder(int characteristics) {		
+		return new StringColumnBuilder(characteristics);
+	}
+	
+	public static StringColumnBuilder builder() {
+		return new StringColumnBuilder(0);
 	}
 	
 	public static StringColumn of(String... elements) {
-		return builder(false).addAll(elements).build();
+		return builder(0).addAll(elements).build();
 	}
 	
-	public static Collector<String,?,StringColumn> collector(boolean sortedSet) {		
+	public static Collector<String,?,StringColumn> collector(int characteristics) {		
 		return Collector.of(
-			() -> builder(sortedSet),
+			() -> builder(characteristics),
 			StringColumnBuilder::add,
 			StringColumnBuilder::append,
 			StringColumnBuilder::build

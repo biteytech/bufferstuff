@@ -41,13 +41,8 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 	}
 	
 	@Override
-	public boolean isNullable() {
-		return true;
-	}
-	
-	@Override
-	public boolean isSortedSet() {
-		return false;
+	public int characteristics() {
+		return BASE_CHARACTERISTICS;
 	}
 	
 	@Override
@@ -356,7 +351,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 		
 		final int size = this.size() + tail.size();
 		
-		if(tail.isNullable()) {			
+		if(!tail.isNonnull()) {			
 			// append nullable column
 			N rhs = (N)tail;
 			

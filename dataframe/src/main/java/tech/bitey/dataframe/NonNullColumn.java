@@ -14,11 +14,7 @@
 
 package tech.bitey.dataframe;
 
-import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
-import static java.util.Spliterator.ORDERED;
-import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
@@ -38,22 +34,20 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractColumn<E, C> implements RandomAccess
 {	
-	protected final boolean sortedSet;
+	static final int NONNULL_CHARACTERISTICS = BASE_CHARACTERISTICS | NONNULL;
 	
-	protected NonNullColumn(int offset, int size, boolean sortedSet) {
+	protected final int characteristics;
+	
+	protected NonNullColumn(int offset, int size, int characteristics) {
 		super(offset, size);
 
-		this.sortedSet = sortedSet;
+		checkArgument((characteristics & NONNULL) != 0, "NonNullColumn must have NONNULL flag set");
+		this.characteristics = characteristics;
 	}
 	
 	@Override
-	public boolean isNullable() {
-		return false;
-	}
-	
-	@Override
-	public boolean isSortedSet() {
-		return sortedSet;
+	public int characteristics() {
+		return characteristics;
 	}
 	
 	@Override
@@ -66,7 +60,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	
 	@Override
 	public C toHeap() {
-		if(isSortedSet())
+		if(isSorted())
 			return toHeap0();
 		else {
 			@SuppressWarnings("unchecked")
@@ -96,7 +90,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	@Override
 	protected Column<E> append0(Column<E> tail) {				
 				
-		if(tail.isNullable()) {
+		if(!tail.isNonnull()) {
 			NullableColumn<E,C,?> rhs = (NullableColumn<E,C,?>)tail;
 			C lhs = (C)this;
 			return rhs.prependNonNull(lhs);
@@ -156,13 +150,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	
 	@Override
 	public Spliterator<E> spliterator() {
-		
-		int flags = ORDERED | IMMUTABLE | NONNULL;
-		
-		if(sortedSet)
-			flags |= DISTINCT | SORTED;
-		
-		return Spliterators.spliterator(this, flags);
+		return Spliterators.spliterator(this, characteristics);
 	}
 	
 	@Override
@@ -250,8 +238,8 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	/*------------------------------------------------------------
 	 *                ImmutableNavigableSet methods
 	 *------------------------------------------------------------*/
-	protected void checkSortedSet() {
-		if(!sortedSet)
+	protected void checkDistinct() {
+		if(!isDistinct())
 			throw new UnsupportedOperationException("not a unique index");
 	}
 	
@@ -259,7 +247,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	public E lower(E value) {
 		if(value == null)
 			return null;
-		checkSortedSet();
+		checkDistinct();
 		
 		int idx = lowerIndex(value);
 		return idx == -1 ? null : getNoOffset(idx);
@@ -269,7 +257,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	public E higher(E value) {
 		if(value == null)
 			return null;
-		checkSortedSet();
+		checkDistinct();
 		
 		int idx = higherIndex(value);
 		return idx == -1 ? null : getNoOffset(idx);
@@ -279,7 +267,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	public E floor(E value) {
 		if(value == null)
 			return null;
-		checkSortedSet();
+		checkDistinct();
 		
 		int idx = floorIndex(value);
 		return idx == -1 ? null : getNoOffset(idx);
@@ -289,7 +277,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	public E ceiling(E value) {
 		if(value == null)
 			return null;
-		checkSortedSet();
+		checkDistinct();
 		
 		int idx = ceilingIndex(value);
 		return idx == -1 ? null : getNoOffset(idx);
@@ -379,7 +367,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	 *                subColumn methods
 	 *------------------------------------------------------------*/	
 	public C subColumn(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
-		checkSortedSet();
+		checkDistinct();
 		
 		int direction = comparator().compare(fromElement, toElement);
 		

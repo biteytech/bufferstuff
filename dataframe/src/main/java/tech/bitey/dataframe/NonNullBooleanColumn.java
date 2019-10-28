@@ -34,7 +34,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	private final BufferBitSet elements;
 	
 	NonNullBooleanColumn(BufferBitSet elements, int offset, int size) {
-		super(offset, size, false);
+		super(offset, size, 0);
 		this.elements = elements;
 	}
 
@@ -55,7 +55,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 
 	@Override
 	protected int search(Boolean value, boolean first) {
-		if(sortedSet)
+		if(isSorted())
 			throw new IllegalStateException();
 		else if(first) {
 			if(value)

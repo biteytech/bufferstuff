@@ -14,9 +14,6 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.NonNullDateTimeColumn.EMPTY_LIST;
-import static tech.bitey.dataframe.NonNullDateTimeColumn.EMPTY_SET;
-
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 
@@ -24,18 +21,18 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class DateTimeColumnBuilder extends LongArrayColumnBuilder<LocalDateTime, DateTimeColumn, DateTimeColumnBuilder> {
 
-	protected DateTimeColumnBuilder(boolean sortedSet) {
-		super(sortedSet, LongArrayPacker.LOCAL_DATE_TIME);
+	protected DateTimeColumnBuilder(int characteristics) {
+		super(characteristics, LongArrayPacker.LOCAL_DATE_TIME);
 	}
 
 	@Override
 	protected DateTimeColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return NonNullDateTimeColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	DateTimeColumn buildNonNullColumn(ByteBuffer trim) {
-		return new NonNullDateTimeColumn(trim, 0, getNonNullSize(), sortedSet);
+	DateTimeColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+		return new NonNullDateTimeColumn(trim, 0, getNonNullSize(), characteristics);
 	}
 
 	@Override

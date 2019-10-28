@@ -14,6 +14,8 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
 
@@ -21,6 +23,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 
@@ -32,18 +36,20 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 		return ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
 	}
 	
-	static final NonNullStringColumn EMPTY_LIST =
-			new NonNullStringColumn(allocate(0), allocate(0), 0, 0, false);
-	static final NonNullStringColumn EMPTY_SET =
-			new NonNullStringColumn(allocate(0), allocate(0), 0, 0, true);
+	static final Map<Integer, NonNullStringColumn> EMPTY = new HashMap<>();
+	static {
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, c));
+	}
 	
 	private final ByteBuffer elements;
 	
 	private final ByteBuffer rawPointers;
 	private final IntBuffer pointers; // pointers[0] is always 0 - it's just easier that way :P
 	
-	NonNullStringColumn(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, boolean sortedSet) {
-		super(offset, size, sortedSet);
+	NonNullStringColumn(ByteBuffer elements, ByteBuffer rawPointers, int offset, int size, int characteristics) {
+		super(offset, size, characteristics);
 		
 		validateBuffer(elements);
 		validateBuffer(rawPointers);
@@ -66,7 +72,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	
 	@Override
 	protected NonNullStringColumn toHeap0() {
-		return new NonNullStringColumn(elements, rawPointers, offset, size, false);
+		return new NonNullStringColumn(elements, rawPointers, offset, size, 0);
 	}
 	
 	private int end(int index) {
@@ -92,12 +98,12 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 
 	@Override
 	protected NonNullStringColumn subColumn0(int fromIndex, int toIndex) {
-		return new NonNullStringColumn(elements, rawPointers, fromIndex+offset, toIndex-fromIndex, sortedSet);
+		return new NonNullStringColumn(elements, rawPointers, fromIndex+offset, toIndex-fromIndex, characteristics);
 	}
 
 	@Override
 	protected NonNullStringColumn empty() {
-		return sortedSet ? EMPTY_SET : EMPTY_LIST;
+		return EMPTY.get(characteristics);
 	}
 	
 	protected int search(String value) {
@@ -106,7 +112,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	
 	@Override	
 	protected int search(String value, boolean first) {
-		if(sortedSet)
+		if(isSorted())
 			return search(value);
 		else
 			return indexOf(value, first) + offset;
@@ -211,7 +217,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 				copyElement(i, elements);
 		elements.flip();
 		
-		return new NonNullStringColumn(elements, rawPointers, 0, cardinality, sortedSet);
+		return new NonNullStringColumn(elements, rawPointers, 0, cardinality, characteristics);
 	}
 
 	@Override
@@ -232,7 +238,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 		}
 		elements.flip();
 		
-		return new NonNullStringColumn(elements, rawPointers, 0, indices.length, false);
+		return new NonNullStringColumn(elements, rawPointers, 0, indices.length, 0);
 	}
 	
 	@Override
@@ -266,7 +272,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 		for(int i = this.size(); i < size; i++)
 			pointers.put(i, pointers.get(i) + thisByteLength);
 			
-		return new NonNullStringColumn(elements, rawPointers, 0, size, sortedSet);
+		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics);
 	}
 
 	@Override
@@ -317,7 +323,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 		return buffers;
 	}
 	
-	static NonNullStringColumn fromBuffer(ByteBuffer buffer, int offset, int length, boolean isSorted) {
+	static NonNullStringColumn fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
 		final int size = buffer.getInt(offset);
 		
 		ByteBuffer rawPointers = slice(buffer, offset + 4, offset + 4 + size*4);
@@ -331,6 +337,6 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 		
 		ByteBuffer elements = slice(buffer, offset + 4 + size*4, offset+length);
 		
-		return new NonNullStringColumn(elements, rawPointers, 0, size, isSorted);
+		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics);
 	}
 }
