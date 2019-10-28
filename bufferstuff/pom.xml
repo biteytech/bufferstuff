@@ -31,9 +31,9 @@
 	</developers>
 
 	<scm>
-		<connection>https://github.com/strangecharm2/strangecharm.git</connection>
-		<developerConnection>https://github.com/strangecharm2/strangecharm.git</developerConnection>
-		<url>https://github.com/strangecharm2/strangecharm</url>
+		<connection>https://github.com/biteytech/strangecharm.git</connection>
+		<developerConnection>https://github.com/biteytech/strangecharm.git</developerConnection>
+		<url>https://github.com/biteytech/strangecharm</url>
 	</scm>
 
 	<properties>
