@@ -28,22 +28,20 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 
 /**
- * An immutable collection backed by a primitive array. Elements of type
- * {@code E} are packed/unpacked to and from the backing array. Columns
- * implement both {@link List} and {@link NavigableSet}. {@code List} is the
- * primary interface, and all {@code List} methods are always available. There
- * are (up to) three concrete implementations of a {@code Column} for each
+ * An immutable collection backed by nio buffers. Elements of type {@code E} are
+ * packed/unpacked to and from the buffers. There are four variants for each
  * element type, with different tradeoffs between performance and functionality.
- * The methods {@link #isNullable()} and {@link #isSorted()} can be used to
- * determine the characteristics of a particular column:
+ * The methods {@link #isNonnull()}, {@link #isSorted()}, and
+ * {@link #isDistinct()} can be used to query the {@link #characteristics()} of
+ * a column:
  * <table border=1 cellpadding=3>
  * <caption><b>Column Implementation Overview</b></caption>
  * <tr>
  * <th>Database<br>
  * Terminology</th>
- * <th>Implementation</th>
- * <th>isNullable</th>
+ * <th>isNonnull</th>
  * <th>isSorted</th>
+ * <th>isDistinct</th>
  * <th>{@link Spliterator}<br>
  * characteristics</th>
  * <th>Get by Index /<br>
@@ -54,8 +52,8 @@ import java.util.Spliterators;
  * 
  * <tr>
  * <td>Heap, NULL</td>
- * <td>{@link NullableColumn}</td>
- * <td>TRUE</td>
+ * <td>FALSE</td>
+ * <td>FALSE</td>
  * <td>FALSE</td>
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
  * IMMUTABLE}</td>
@@ -65,8 +63,7 @@ import java.util.Spliterators;
  * 
  * <tr>
  * <td>Heap, NOT NULL</td>
- * <td>{@link NonNullColumn}<br>
- * characteristics=FALSE</td>
+ * <td>TRUE</td>
  * <td>FALSE</td>
  * <td>FALSE</td>
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
@@ -77,26 +74,44 @@ import java.util.Spliterators;
  * </tr>
  * 
  * <tr>
- * <td>Unique Index</td>
- * <td>{@link NonNullColumn}<br>
- * characteristics=TRUE</td>
+ * <td>Index</td>
+ * <td>TRUE</td>
+ * <td>TRUE</td>
  * <td>FALSE</td>
+ * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
+ * IMMUTABLE},<br>
+ * {@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED}</td>
+ * <td>O(1) / TRUE</td>
+ * <td>O(log(n)) / TRUE</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>Unique Index</td>
+ * <td>TRUE</td>
+ * <td>TRUE</td>
  * <td>TRUE</td>
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
  * IMMUTABLE},<br>
- * {@link Spliterator#NONNULL NONNULL},<br>
- * {@link Spliterator#SORTED SORTED}, {@link Spliterator#DISTINCT DISTINCT}</td>
+ * {@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED},<br>
+ * {@link Spliterator#DISTINCT DISTINCT}</td>
  * <td>O(1) / TRUE</td>
  * <td>O(log(n)) / TRUE</td>
  * </tr>
  * </table>
  * <p>
- * <b>Note:</b> <em>{@code NavigableSet} operations are only available for
- * unique indices</em> (i.e., when {@code isSorted() -> true})! They will throw
- * {@link UnsupportedOperationException} otherwise.
- * <p>
- * All concrete implementations of {@code Column} must be done via
- * {@link AbstractColumn}. It is not enough to simply implement this interface.
+ * <u>Additional Notes</u>
+ * <ul>
+ * <li>The characteristics cannot be mixed and matched arbitrarily. Rather:
+ * {@code DISTINCT} implies {@code SORTED} implies {@code NONNULL}.
+ * <li>All columns report {@link Spliterator#SIZED SIZED},
+ * {@link Spliterator#SIZED SUBSIZED}, and {@link Spliterator#SIZED IMMUTABLE}
+ * in addition to the ones listed above.
+ * <li>Columns implement both {@link List} and {@link NavigableSet}.
+ * {@code List} is the primary interface, and all {@code List} methods are
+ * always available. <em>{@code NavigableSet} operations are only available for
+ * unique indices</em> (i.e., when {@code isDistinct() -> true}). They will
+ * throw {@link UnsupportedOperationException} otherwise.
+ * </ul>
  * 
  * @author Lior Privman
  *
@@ -106,16 +121,36 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 
 	static int BASE_CHARACTERISTICS = SIZED | SUBSIZED | IMMUTABLE | ORDERED;
 
+	/**
+	 * Returns the {@link Spliterator#characteristics()} for this column.
+	 * 
+	 * @return the characteristics for this column
+	 */
 	int characteristics();
 
+	/**
+	 * Returns true if the {@link Spliterator#NONNULL} flag is set.
+	 * 
+	 * @return true if the {@code NONNULL} flag is set.
+	 */
 	default boolean isNonnull() {
 		return (characteristics() & NONNULL) != 0;
 	}
 
+	/**
+	 * Returns true if the {@link Spliterator#SORTED} flag is set.
+	 * 
+	 * @return true if the {@code SORTED} flag is set.
+	 */
 	default boolean isSorted() {
 		return (characteristics() & SORTED) != 0;
 	}
 
+	/**
+	 * Returns true if the {@link Spliterator#DISTINCT} flag is set.
+	 * 
+	 * @return true if the {@code DISTINCT} flag is set.
+	 */
 	default boolean isDistinct() {
 		return (characteristics() & DISTINCT) != 0;
 	}
