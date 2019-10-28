@@ -96,8 +96,10 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 			return rhs.prependNonNull(lhs);
 		}
 		else {
-			C cast = (C)tail;
-			return appendNonNull(cast);
+			checkArgument(characteristics == tail.characteristics(),
+					"both columns must have the same characteristics");
+			
+			return appendNonNull((C)tail);
 		}
 	}
 	

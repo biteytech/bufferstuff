@@ -92,8 +92,8 @@ import java.util.Spliterators;
  * </table>
  * <p>
  * <b>Note:</b> <em>{@code NavigableSet} operations are only available for
- * unique indices</em> (i.e., when {@code isSorted() -> true})! They will
- * throw {@link UnsupportedOperationException} otherwise.
+ * unique indices</em> (i.e., when {@code isSorted() -> true})! They will throw
+ * {@link UnsupportedOperationException} otherwise.
  * <p>
  * All concrete implementations of {@code Column} must be done via
  * {@link AbstractColumn}. It is not enough to simply implement this interface.
@@ -105,15 +105,17 @@ import java.util.Spliterators;
 public interface Column<E> extends List<E>, NavigableSet<E> {
 
 	static int BASE_CHARACTERISTICS = SIZED | SUBSIZED | IMMUTABLE | ORDERED;
-	
+
 	int characteristics();
-	
+
 	default boolean isNonnull() {
 		return (characteristics() & NONNULL) != 0;
 	}
+
 	default boolean isSorted() {
 		return (characteristics() & SORTED) != 0;
 	}
+
 	default boolean isDistinct() {
 		return (characteristics() & DISTINCT) != 0;
 	}
@@ -272,20 +274,20 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 * Creates a {@link Spliterator} over the elements in this list.
 	 * <p>
 	 * The {@code Spliterator} reports {@link Spliterator#SIZED SIZED},
-	 * {@link Spliterator#ORDERED ORDERED}, and {@link Spliterator#IMMUTABLE
-	 * IMMUTABLE}.
+	 * {@link Spliterator#SUBSIZED SUBSIZED}, {@link Spliterator#ORDERED ORDERED},
+	 * and {@link Spliterator#IMMUTABLE IMMUTABLE}.
 	 *
 	 * @return a {@code Spliterator} over the elements in this column
 	 */
 	@Override
 	default Spliterator<E> spliterator() {
-		return Spliterators.spliterator(this, ORDERED | IMMUTABLE);
+		return Spliterators.spliterator(this, BASE_CHARACTERISTICS);
 	}
 
 	/**
 	 * Appends two columns with the same element type.
 	 * <p>
-	 * Both columns must either be unique indices or not. If they're both unique
+	 * Both columns must have the same characteristics. If they're both unique
 	 * indices then the first value of the provided column must be greater than the
 	 * last value of this column.
 	 * 
@@ -298,12 +300,12 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	/**
 	 * Appends two columns with the same element type.
 	 * <p>
-	 * If coerce is true and exactly one of the columns is a unique index, the
-	 * unique index will be converted to a heap before appending. Otherwise this
-	 * method behaves like {@link #append(Column)}
+	 * If coerce is true and one of the columns is sorted, the sorted column will be
+	 * converted to a heap before appending. Otherwise this method behaves like
+	 * {@link #append(Column)}
 	 * 
 	 * @param tail   - the column to be appended to the end of this column
-	 * @param coerce - specifies if the sole unique index should be converted to a
+	 * @param coerce - specifies if a sole sorted column should be converted to a
 	 *               heap
 	 * 
 	 * @return the provided column appended to the end of this column
