@@ -1,6 +1,7 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,5 +43,13 @@ public class TestDataFrame {
 		
 		DataFrame expected = DataFrameFactory.$.create(new Column<?>[] {c11, c22, c12, c32}, new String[] {"C1", "C2", "C1_2", "C3"});		
 		Assertions.assertEquals(expected, joint);
+	}
+	
+	@Test
+	public void sortedStringIndexOf() {
+		
+		StringColumn col = StringColumn.builder(SORTED).addAll(new String[] {"a", "b", "b", "b", "b", "b", "b", "b", "c"}).build();
+		Assertions.assertEquals(1, col.indexOf("b"));
+		Assertions.assertEquals(7, col.lastIndexOf("b"));
 	}
 }

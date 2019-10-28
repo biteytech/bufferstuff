@@ -15,6 +15,7 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
@@ -72,7 +73,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	
 	@Override
 	protected NonNullStringColumn toHeap0() {
-		return new NonNullStringColumn(elements, rawPointers, offset, size, 0);
+		return new NonNullStringColumn(elements, rawPointers, offset, size, NONNULL);
 	}
 	
 	private int end(int index) {
@@ -112,10 +113,49 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	
 	@Override	
 	protected int search(String value, boolean first) {
-		if(isSorted())
-			return search(value);
+		if(isSorted()) {
+			int index = search(value);
+			if(isDistinct() || index < 0)
+				return index;			
+			else if(first)
+				return binaryFindFirst(index, value);
+			else
+				return binaryFindLast(index, value);
+		}
 		else
 			return indexOf(value, first) + offset;
+	}
+	
+	private int binaryFindFirst(int fromIndex, String key) {
+		
+		while (offset != fromIndex && getNoOffset(fromIndex - 1).equals(key)) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex - range;
+			} while (offset <= rangeIndex && getNoOffset(rangeIndex).equals(key));
+
+			fromIndex -= range >> 1;
+		}
+
+		return fromIndex;
+	}
+	
+	private int binaryFindLast(int fromIndex, String key) {
+
+		while (fromIndex != lastIndex() && getNoOffset(fromIndex + 1).equals(key)) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex + range;
+			} while (rangeIndex <= lastIndex() && getNoOffset(rangeIndex).equals(key));
+
+			fromIndex += range >> 1;
+		}
+
+		return fromIndex;
 	}
 	
 	/**
@@ -238,7 +278,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 		}
 		elements.flip();
 		
-		return new NonNullStringColumn(elements, rawPointers, 0, indices.length, 0);
+		return new NonNullStringColumn(elements, rawPointers, 0, indices.length, NONNULL);
 	}
 	
 	@Override

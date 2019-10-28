@@ -15,6 +15,7 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
@@ -81,17 +82,20 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 
 	private int search(float value) {
-		return binarySearch(offset, offset+size, value); 
-	}
-	
-	private int binarySearch(int fromIndex, int toIndex, float key) {
-		return BufferSearch.binarySearch(elements, fromIndex, toIndex, key);		
+		return BufferSearch.binarySearch(elements, offset, offset+size, value);
 	}
 	
 	@Override
 	protected int search(Float value, boolean first) {
-		if(isSorted())
-			return search(value);
+		if(isSorted()) {
+			int index = search(value);
+			if(isDistinct() || index < 0)
+				return index;			
+			else if(first)
+				return BufferSearch.binaryFindFirst(elements, offset, index);
+			else
+				return BufferSearch.binaryFindLast(elements, offset+size, index);
+		}
 		else {
 			float d = value;
 			
@@ -170,7 +174,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 			buffer.putFloat(at(indices[i]+offset));
 		buffer.flip();
 		
-		return new NonNullFloatColumn(buffer, 0, indices.length, 0);
+		return new NonNullFloatColumn(buffer, 0, indices.length, NONNULL);
 	}
 
 	@Override

@@ -14,6 +14,8 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.NONNULL;
+
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
@@ -43,12 +45,8 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 		return packer.unpack(at(index));
 	}
 	
-	protected int search(long packed) {
-		return binarySearch(offset, offset+size, packed);
-	}
-	
-	private int binarySearch(int fromIndex, int toIndex, long key) {
-		return BufferSearch.binarySearch(elements, fromIndex, toIndex, key);		
+	private int search(long packed) {
+		return BufferSearch.binarySearch(elements, offset, offset+size, packed);		
 	}
 	
 	@Override
@@ -56,8 +54,15 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 		
 		final long packed = packer.pack(value);
 		
-		if(isSorted())
-			return search(packed);
+		if(isSorted()) {
+			int index = search(packed);
+			if(isDistinct() || index < 0)
+				return index;			
+			else if(first)
+				return BufferSearch.binaryFindFirst(elements, offset, index);
+			else
+				return BufferSearch.binaryFindLast(elements, offset+size, index);
+		}
 		else {
 			if(first) {
 				for(int i = offset; i <= lastIndex(); i++)
@@ -115,7 +120,7 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 			buffer.putLong(at(indices[i]+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.length, 0);
+		return construct(buffer, 0, indices.length, NONNULL);
 	}
 
 	@Override

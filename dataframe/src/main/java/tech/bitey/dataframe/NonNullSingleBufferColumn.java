@@ -14,6 +14,7 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
 
@@ -41,7 +42,7 @@ public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBuffer
 
 	@Override
 	protected C toHeap0() {
-		return construct(buffer, offset, size, 0);
+		return construct(buffer, offset, size, NONNULL);
 	}
 
 	@Override

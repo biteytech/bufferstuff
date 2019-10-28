@@ -15,6 +15,7 @@
 package tech.bitey.dataframe;
 
 import static java.lang.Integer.compare;
+import static java.util.Spliterator.NONNULL;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -45,12 +46,8 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 		return packer.unpack(at(index));
 	}
 	
-	protected int search(int packed) {
-		return binarySearch(offset, offset+size, packed);
-	}
-	
-	private int binarySearch(int fromIndex, int toIndex, int key) {
-		return BufferSearch.binarySearch(elements, fromIndex, toIndex, key);		
+	private int search(int packed) {
+		return BufferSearch.binarySearch(elements, offset, offset+size, packed);		
 	}
 	
 	@Override
@@ -58,8 +55,15 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 		
 		final int packed = packer.pack(value);
 		
-		if(isSorted())
-			return search(packed);
+		if(isSorted()) {
+			int index = search(packed);
+			if(isDistinct() || index < 0)
+				return index;			
+			else if(first)
+				return BufferSearch.binaryFindFirst(elements, offset, index);
+			else
+				return BufferSearch.binaryFindLast(elements, offset+size, index);
+		}
 		else {
 			if(first) {
 				for(int i = offset; i <= lastIndex(); i++)
@@ -114,7 +118,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 			buffer.putInt(at(indices[i]+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.length, 0);
+		return construct(buffer, 0, indices.length, NONNULL);
 	}
 
 	@Override
