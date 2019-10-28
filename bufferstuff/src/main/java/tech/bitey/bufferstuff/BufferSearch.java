@@ -1,6 +1,7 @@
 package tech.bitey.bufferstuff;
 
 import static tech.bitey.bufferstuff.BufferUtils.rangeCheck;
+import static tech.bitey.bufferstuff.BufferUtils.rangeCheckInclusive;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -8,9 +9,12 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 /**
- * The primitive-array binary search implementations from
+ * Provides the primitive array binary search implementations from
  * {@code java.util.Arrays}, modified with minimal changes to support nio
  * buffers.
+ * <p>
+ * Also provides methods for finding the first or last index of a sequence of
+ * duplicate values.
  * <p>
  * <u>Supported Buffer Types</u>
  * <ul>
@@ -241,5 +245,349 @@ public enum BufferSearch {
 			}
 		}
 		return -(low + 1); // key not found.
+	}
+
+	/**
+	 * Searches a range of the specified {@link IntBuffer} for the first occurrence
+	 * of the value at the given {@code keyIndex}. The range must be sorted in
+	 * ascending order prior to making this call. If it is not sorted, the results
+	 * are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a binary search on a
+	 * buffer which contains duplicate elements.
+	 *
+	 * @param b        the buffer to be searched
+	 * @param minIndex the lowest index to be searched
+	 * @param keyIndex an index of the value for which to find the first occurrence
+	 *                 (inclusive)
+	 * 
+	 * @return index of the first occurrence of the value at {@code keyIndex}
+	 * 
+	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
+	 */
+	public static int binaryFindFirst(IntBuffer b, int minIndex, int keyIndex) {
+		rangeCheckInclusive(b.capacity(), minIndex, keyIndex);
+		return binaryFindFirst(b, minIndex, keyIndex, b.get(keyIndex));
+	}
+
+	private static int binaryFindFirst(IntBuffer b, int minIndex, int fromIndex, int key) {
+
+		while (minIndex != fromIndex && b.get(fromIndex - 1) == key) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex - range;
+			} while (minIndex <= rangeIndex && b.get(rangeIndex) == key);
+
+			fromIndex -= range >> 1;
+		}
+
+		return fromIndex;
+	}
+
+	/**
+	 * Searches a range of the specified {@link IntBuffer} for the last occurrence
+	 * of the value at the given {@code keyIndex}. The range must be sorted in
+	 * ascending order prior to making this call. If it is not sorted, the results
+	 * are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a binary search on a
+	 * buffer which contains duplicate elements.
+	 *
+	 * @param b        the buffer to be searched
+	 * @param maxIndex the highest index to be searched (exclusive)
+	 * @param keyIndex an index of the value for which to find the first occurrence
+	 *                 (inclusive)
+	 * 
+	 * @return index of the last occurrence of the value at {@code keyIndex}
+	 * 
+	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
+	 */
+	public static int binaryFindLast(IntBuffer b, int maxIndex, int keyIndex) {
+		rangeCheck(b.capacity(), keyIndex, maxIndex);
+		if (keyIndex == maxIndex)
+			return keyIndex;
+		else
+			return binaryFindLast(b, keyIndex, maxIndex - 1, b.get(keyIndex));
+	}
+
+	private static int binaryFindLast(IntBuffer b, int fromIndex, int maxIndex, int key) {
+
+		while (fromIndex != maxIndex && b.get(fromIndex + 1) == key) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex + range;
+			} while (rangeIndex <= maxIndex && b.get(rangeIndex) == key);
+
+			fromIndex += range >> 1;
+		}
+
+		return fromIndex;
+	}
+
+	/**
+	 * Searches a range of the specified {@link LongBuffer} for the first occurrence
+	 * of the value at the given {@code keyIndex}. The range must be sorted in
+	 * ascending order prior to making this call. If it is not sorted, the results
+	 * are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a binary search on a
+	 * buffer which contains duplicate elements.
+	 *
+	 * @param b        the buffer to be searched
+	 * @param minIndex the lowest index to be searched
+	 * @param keyIndex an index of the value for which to find the first occurrence
+	 *                 (inclusive)
+	 * 
+	 * @return index of the first occurrence of the value at {@code keyIndex}
+	 * 
+	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
+	 */
+	public static int binaryFindFirst(LongBuffer b, int minIndex, int keyIndex) {
+		rangeCheckInclusive(b.capacity(), minIndex, keyIndex);
+		return binaryFindFirst(b, minIndex, keyIndex, b.get(keyIndex));
+	}
+
+	private static int binaryFindFirst(LongBuffer b, int minIndex, int fromIndex, long key) {
+
+		while (minIndex != fromIndex && b.get(fromIndex - 1) == key) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex - range;
+			} while (minIndex <= rangeIndex && b.get(rangeIndex) == key);
+
+			fromIndex -= range >> 1;
+		}
+
+		return fromIndex;
+	}
+
+	/**
+	 * Searches a range of the specified {@link LongBuffer} for the last occurrence
+	 * of the value at the given {@code keyIndex}. The range must be sorted in
+	 * ascending order prior to making this call. If it is not sorted, the results
+	 * are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a binary search on a
+	 * buffer which contains duplicate elements.
+	 *
+	 * @param b        the buffer to be searched
+	 * @param maxIndex the highest index to be searched (exclusive)
+	 * @param keyIndex an index of the value for which to find the first occurrence
+	 *                 (inclusive)
+	 * 
+	 * @return index of the last occurrence of the value at {@code keyIndex}
+	 * 
+	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
+	 */
+	public static int binaryFindLast(LongBuffer b, int maxIndex, int keyIndex) {
+		rangeCheck(b.capacity(), keyIndex, maxIndex);
+		if (keyIndex == maxIndex)
+			return keyIndex;
+		else
+			return binaryFindLast(b, keyIndex, maxIndex - 1, b.get(keyIndex));
+	}
+
+	private static int binaryFindLast(LongBuffer b, int fromIndex, int maxIndex, long key) {
+
+		while (fromIndex != maxIndex && b.get(fromIndex + 1) == key) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex + range;
+			} while (rangeIndex <= maxIndex && b.get(rangeIndex) == key);
+
+			fromIndex += range >> 1;
+		}
+
+		return fromIndex;
+	}
+
+	/**
+	 * Searches a range of the specified {@link FloatBuffer} for the first
+	 * occurrence of the value at the given {@code keyIndex}. The range must be
+	 * sorted in ascending order prior to making this call. If it is not sorted, the
+	 * results are undefined. This method considers all NaN values to be equivalent
+	 * and equal.
+	 * <p>
+	 * This method is useful as a post-processing step after a binary search on a
+	 * buffer which contains duplicate elements.
+	 *
+	 * @param b        the buffer to be searched
+	 * @param minIndex the lowest index to be searched
+	 * @param keyIndex an index of the value for which to find the first occurrence
+	 *                 (inclusive)
+	 * 
+	 * @return index of the first occurrence of the value at {@code keyIndex}
+	 * 
+	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
+	 */
+	public static int binaryFindFirst(FloatBuffer b, int minIndex, int keyIndex) {
+		rangeCheckInclusive(b.capacity(), minIndex, keyIndex);
+		return binaryFindFirst(b, minIndex, keyIndex, b.get(keyIndex));
+	}
+
+	private static int binaryFindFirst(FloatBuffer b, int minIndex, int fromIndex, float key) {
+
+		while (minIndex != fromIndex && Float.compare(b.get(fromIndex - 1), key) == 0) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex - range;
+			} while (minIndex <= rangeIndex && Float.compare(b.get(rangeIndex), key) == 0);
+
+			fromIndex -= range >> 1;
+		}
+
+		return fromIndex;
+	}
+
+	/**
+	 * Searches a range of the specified {@link FloatBuffer} for the last occurrence
+	 * of the value at the given {@code keyIndex}. The range must be sorted in
+	 * ascending order prior to making this call. If it is not sorted, the results
+	 * are undefined. This method considers all NaN values to be equivalent and
+	 * equal.
+	 * <p>
+	 * This method is useful as a post-processing step after a binary search on a
+	 * buffer which contains duplicate elements.
+	 *
+	 * @param b        the buffer to be searched
+	 * @param maxIndex the highest index to be searched (exclusive)
+	 * @param keyIndex an index of the value for which to find the first occurrence
+	 *                 (inclusive)
+	 * 
+	 * @return index of the last occurrence of the value at {@code keyIndex}
+	 * 
+	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
+	 */
+	public static int binaryFindLast(FloatBuffer b, int maxIndex, int keyIndex) {
+		rangeCheck(b.capacity(), keyIndex, maxIndex);
+		if (keyIndex == maxIndex)
+			return keyIndex;
+		else
+			return binaryFindLast(b, keyIndex, maxIndex - 1, b.get(keyIndex));
+	}
+
+	private static int binaryFindLast(FloatBuffer b, int fromIndex, int maxIndex, float key) {
+
+		while (fromIndex != maxIndex && Float.compare(b.get(fromIndex + 1), key) == 0) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex + range;
+			} while (rangeIndex <= maxIndex && Float.compare(b.get(rangeIndex), key) == 0);
+
+			fromIndex += range >> 1;
+		}
+
+		return fromIndex;
+	}
+
+	/**
+	 * Searches a range of the specified {@link DoubleBuffer} for the first
+	 * occurrence of the value at the given {@code keyIndex}. The range must be
+	 * sorted in ascending order prior to making this call. If it is not sorted, the
+	 * results are undefined. This method considers all NaN values to be equivalent
+	 * and equal.
+	 * <p>
+	 * This method is useful as a post-processing step after a binary search on a
+	 * buffer which contains duplicate elements.
+	 *
+	 * @param b        the buffer to be searched
+	 * @param minIndex the lowest index to be searched
+	 * @param keyIndex an index of the value for which to find the first occurrence
+	 *                 (inclusive)
+	 * 
+	 * @return index of the first occurrence of the value at {@code keyIndex}
+	 * 
+	 * @throws IllegalArgumentException  if {@code minIndex > keyIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code minIndex < 0 or keyIndex >= b.capacity()}
+	 */
+	public static int binaryFindFirst(DoubleBuffer b, int minIndex, int keyIndex) {
+		rangeCheckInclusive(b.capacity(), minIndex, keyIndex);
+		return binaryFindFirst(b, minIndex, keyIndex, b.get(keyIndex));
+	}
+
+	private static int binaryFindFirst(DoubleBuffer b, int minIndex, int fromIndex, double key) {
+
+		while (minIndex != fromIndex && Double.compare(b.get(fromIndex - 1), key) == 0) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex - range;
+			} while (minIndex <= rangeIndex && Double.compare(b.get(rangeIndex), key) == 0);
+
+			fromIndex -= range >> 1;
+		}
+
+		return fromIndex;
+	}
+
+	/**
+	 * Searches a range of the specified {@link DoubleBuffer} for the last
+	 * occurrence of the value at the given {@code keyIndex}. The range must be
+	 * sorted in ascending order prior to making this call. If it is not sorted, the
+	 * results are undefined. This method considers all NaN values to be equivalent
+	 * and equal.
+	 * <p>
+	 * This method is useful as a post-processing step after a binary search on a
+	 * buffer which contains duplicate elements.
+	 *
+	 * @param b        the buffer to be searched
+	 * @param maxIndex the highest index to be searched (exclusive)
+	 * @param keyIndex an index of the value for which to find the first occurrence
+	 *                 (inclusive)
+	 * 
+	 * @return index of the last occurrence of the value at {@code keyIndex}
+	 * 
+	 * @throws IllegalArgumentException  if {@code maxIndex < keyIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code keyIndex < 0 or maxIndex > b.capacity()}
+	 */
+	public static int binaryFindLast(DoubleBuffer b, int maxIndex, int keyIndex) {
+		rangeCheck(b.capacity(), keyIndex, maxIndex);
+		if (keyIndex == maxIndex)
+			return keyIndex;
+		else
+			return binaryFindLast(b, keyIndex, maxIndex - 1, b.get(keyIndex));
+	}
+
+	private static int binaryFindLast(DoubleBuffer b, int fromIndex, int maxIndex, double key) {
+
+		while (fromIndex != maxIndex && Double.compare(b.get(fromIndex + 1), key) == 0) {
+
+			int range = 1, rangeIndex;
+			do {
+				range <<= 1;
+				rangeIndex = fromIndex + range;
+			} while (rangeIndex <= maxIndex && Double.compare(b.get(rangeIndex), key) == 0);
+
+			fromIndex += range >> 1;
+		}
+
+		return fromIndex;
 	}
 }

@@ -361,4 +361,26 @@ public enum BufferUtils {
 			throw new IndexOutOfBoundsException("toIndex(" + toIndex + ") > " + bufferCapacity);
 		}
 	}
+
+	/**
+	 * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws
+	 * an exception if they aren't.
+	 * 
+	 * @param bufferCapacity - capacity of the buffer being checked
+	 * @param fromIndex      - the index of the first element (inclusive) to be
+	 *                       checked
+	 * @param toIndex        - the index of the last element (inclusive) to be
+	 *                       checked
+	 */
+	static void rangeCheckInclusive(int bufferCapacity, int fromIndex, int toIndex) {
+		if (fromIndex > toIndex) {
+			throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
+		}
+		if (fromIndex < 0) {
+			throw new IndexOutOfBoundsException("fromIndex(" + fromIndex + ") < 0");
+		}
+		if (toIndex >= bufferCapacity) {
+			throw new IndexOutOfBoundsException("toIndex(" + toIndex + ") >= " + bufferCapacity);
+		}
+	}
 }

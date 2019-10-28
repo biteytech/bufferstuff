@@ -164,4 +164,96 @@ public class TestBufferSearch {
 			}
 		}
 	}
+	
+	@Test
+	public void binaryFindFirstInt() {
+		
+		for(int i = 0; i < 100; i++) {
+			for(int j = 1; j < 100; j++) {
+				
+				int[] array = new int[i + j];
+				Arrays.fill(array, 0, i, 888);
+				Arrays.fill(array, i, i+j, 999);
+				
+				Assertions.assertEquals(i, BufferSearch.binaryFindFirst(IntBuffer.wrap(array), 0, array.length-1));
+			}
+		}
+	}
+	
+	@Test
+	public void binaryFindLastInt() {
+		
+		for(int i = 1; i < 100; i++) {
+			for(int j = 0; j < 100; j++) {
+				
+				int[] array = new int[i + j];
+				Arrays.fill(array, 0, i, 888);
+				Arrays.fill(array, i, i+j, 999);
+				
+				Assertions.assertEquals(i-1, BufferSearch.binaryFindLast(IntBuffer.wrap(array), array.length, 0));
+			}
+		}
+	}
+	
+	@Test
+	public void binaryFindFirstLong() {
+		
+		for(int i = 0; i < 100; i++) {
+			for(int j = 1; j < 100; j++) {
+				
+				long[] array = new long[i + j];
+				Arrays.fill(array, 0, i, 888);
+				Arrays.fill(array, i, i+j, 999);
+				
+				Assertions.assertEquals(i, BufferSearch.binaryFindFirst(LongBuffer.wrap(array), 0, array.length-1));
+			}
+		}
+	}
+	
+	@Test
+	public void binaryFindLastLong() {
+		
+		for(int i = 1; i < 100; i++) {
+			for(int j = 0; j < 100; j++) {
+				
+				long[] array = new long[i + j];
+				Arrays.fill(array, 0, i, 888);
+				Arrays.fill(array, i, i+j, 999);
+				
+				Assertions.assertEquals(i-1, BufferSearch.binaryFindLast(LongBuffer.wrap(array), array.length, 0));
+			}
+		}
+	}
+	
+	@Test
+	public void binaryFindFirstFloat() {
+		
+		for(int i = 0; i < 100; i++) {
+			for(int j = 1; j < 100; j++) {
+				
+				float[] array = new float[i + j];
+				Arrays.fill(array, 0, i, 888);
+				Arrays.fill(array, i, i+j, 999);
+				
+				Assertions.assertEquals(i, BufferSearch.binaryFindFirst(FloatBuffer.wrap(array), 0, array.length-1));
+			}
+		}
+		
+		
+	}
+	
+	@Test
+	public void binaryFindLastFloat() {
+		
+		for(int i = 1; i < 100; i++) {
+			for(int j = 0; j < 100; j++) {
+				
+				float[] array = new float[i + j];
+				Arrays.fill(array, 0, i, 888);
+				Arrays.fill(array, i, i+j, 999);
+				
+				Assertions.assertEquals(i-1, BufferSearch.binaryFindLast(FloatBuffer.wrap(array), array.length, 0));
+			}
+		}
+	}
 }
