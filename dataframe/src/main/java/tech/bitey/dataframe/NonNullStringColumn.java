@@ -72,7 +72,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 	
 	@Override
-	protected NonNullStringColumn toHeap0() {
+	NonNullStringColumn toHeap0() {
 		return new NonNullStringColumn(elements, rawPointers, offset, size, NONNULL);
 	}
 	
@@ -85,7 +85,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 	
 	@Override
-	protected String getNoOffset(int index) {
+	String getNoOffset(int index) {
 		
 		ByteBuffer element = duplicate(elements);
 		element.position(pat(index));
@@ -98,21 +98,21 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 
 	@Override
-	protected NonNullStringColumn subColumn0(int fromIndex, int toIndex) {
+	NonNullStringColumn subColumn0(int fromIndex, int toIndex) {
 		return new NonNullStringColumn(elements, rawPointers, fromIndex+offset, toIndex-fromIndex, characteristics);
 	}
 
 	@Override
-	protected NonNullStringColumn empty() {
+	NonNullStringColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 	
-	protected int search(String value) {
+	int search(String value) {
 		return binarySearch(offset, offset+size, value);
 	}
 	
 	@Override	
-	protected int search(String value, boolean first) {
+	int search(String value, boolean first) {
 		if(isSorted()) {
 			int index = search(value);
 			if(isDistinct() || index < 0)
@@ -219,7 +219,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 
 	@Override
-	protected boolean equals0(NonNullStringColumn rhs, int lStart, int rStart, int length) {
+	boolean equals0(NonNullStringColumn rhs, int lStart, int rStart, int length) {
 		
 		for(int i = 0; i < length; i++)
 			if(length(lStart+i) != rhs.length(rStart+i))
@@ -239,7 +239,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 	
 	@Override
-	protected NonNullStringColumn applyFilter0(BufferBitSet keep, int cardinality) {
+	NonNullStringColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
 		ByteBuffer rawPointers = allocate(cardinality*4);
 		int byteLength = 0;		
@@ -261,7 +261,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 
 	@Override
-	protected NonNullStringColumn select0(int[] indices) {
+	NonNullStringColumn select0(int[] indices) {
 		
 		ByteBuffer rawPointers = allocate(indices.length*4);
 		int byteLength = 0;		
@@ -282,7 +282,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 	
 	@Override
-	protected NonNullStringColumn appendNonNull(NonNullStringColumn tail) {
+	NonNullStringColumn appendNonNull(NonNullStringColumn tail) {
 		
 		final int thisByteLength = this.end(this.lastIndex()) - this.pat(this.offset);
 		final int tailByteLength = tail.end(tail.lastIndex()) - tail.pat(tail.offset);
@@ -316,12 +316,12 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 
 	@Override
-	protected int compareValuesAt(NonNullStringColumn rhs, int l, int r) {
+	int compareValuesAt(NonNullStringColumn rhs, int l, int r) {
 		return getNoOffset(l+offset).compareTo(rhs.getNoOffset(r+rhs.offset));
 	}
 
 	@Override
-	protected void intersectLeftSorted(NonNullStringColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullStringColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
 		
 		for(int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 			
@@ -335,7 +335,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof String;
 	}
 

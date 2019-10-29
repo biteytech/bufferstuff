@@ -27,7 +27,7 @@ public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBuffer
 	
 	abstract C construct(ByteBuffer buffer, int offset, int size, int characteristics);
 	
-	protected NonNullSingleBufferColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
+	NonNullSingleBufferColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
 		super(offset, size, characteristics);
 		
 		validateBuffer(buffer);
@@ -41,17 +41,17 @@ public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBuffer
 	}
 
 	@Override
-	protected C toHeap0() {
+	C toHeap0() {
 		return construct(buffer, offset, size, NONNULL);
 	}
 
 	@Override
-	protected C subColumn0(int fromIndex, int toIndex) {
+	C subColumn0(int fromIndex, int toIndex) {
 		return construct(buffer, fromIndex+offset, toIndex-fromIndex, characteristics);
 	}
 
 	@Override
-	protected C appendNonNull(C tail) {
+	C appendNonNull(C tail) {
 		
 		final int size = size() + tail.size();
 		

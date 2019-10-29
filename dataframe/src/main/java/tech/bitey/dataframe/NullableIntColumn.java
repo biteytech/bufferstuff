@@ -27,12 +27,12 @@ class NullableIntColumn extends NullableColumn<Integer, NonNullIntColumn, Nullab
 	}
 
 	@Override
-	protected NullableIntColumn subColumn0(int fromIndex, int toIndex) {
+	NullableIntColumn subColumn0(int fromIndex, int toIndex) {
 		return new NullableIntColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected NullableIntColumn empty() {
+	NullableIntColumn empty() {
 		return EMPTY;
 	}
 
@@ -48,12 +48,12 @@ class NullableIntColumn extends NullableColumn<Integer, NonNullIntColumn, Nullab
 	}
 
 	@Override
-	protected NullableIntColumn construct(NonNullIntColumn column, BufferBitSet nonNulls, int size) {
+	NullableIntColumn construct(NonNullIntColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableIntColumn(column, nonNulls, 0, size);
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Integer;
 	}
 }

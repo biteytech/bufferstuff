@@ -51,7 +51,7 @@ class NonNullIntColumn extends IntArrayColumn<Integer, NonNullIntColumn> impleme
 	}
 
 	@Override
-	protected NonNullIntColumn empty() {
+	NonNullIntColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 	
@@ -72,7 +72,7 @@ class NonNullIntColumn extends IntArrayColumn<Integer, NonNullIntColumn> impleme
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Integer;
 	}
 }

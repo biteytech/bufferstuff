@@ -20,22 +20,22 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, IntColumnBuilder> {
 
-	protected IntColumnBuilder(int characteristics) {
+	IntColumnBuilder(int characteristics) {
 		super(characteristics, IntArrayPacker.INTEGER);
 	}
 
 	@Override
-	protected IntColumn empty() {
+	IntColumn empty() {
 		return NonNullIntColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	protected IntColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	IntColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
 		return new NonNullIntColumn(trim, 0, getNonNullSize(), characteristics);
 	}
 
 	@Override
-	protected IntColumn wrapNullableColumn(IntColumn column, BufferBitSet nonNulls) {
+	IntColumn wrapNullableColumn(IntColumn column, BufferBitSet nonNulls) {
 		return new NullableIntColumn((NonNullIntColumn)column, nonNulls, 0, size);
 	}
 	

@@ -30,10 +30,10 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends NullableColumn<E, C, N>> extends AbstractColumn<E, N> {
 
-	protected final C column;
-	protected final BufferBitSet nonNulls;
+	final C column;
+	final BufferBitSet nonNulls;
 	
-	protected NullableColumn(C column, BufferBitSet nonNulls, int offset, int size) {
+	NullableColumn(C column, BufferBitSet nonNulls, int offset, int size) {
 		super(offset, size);
 		
 		this.column = column;
@@ -87,7 +87,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 	}
 	
 	@Override
-	protected E getNoOffset(int index) {
+	E getNoOffset(int index) {
 		if(nonNulls.get(index))
 			return column.getNoOffset(nonNullIndex(index));
 		else
@@ -99,7 +99,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 		return !nonNulls.get(index);
 	}
 	
-	protected int nonNullIndex(int index) {
+	int nonNullIndex(int index) {
 		
 		// if value at index is null, jump to next non-null value 
 		if(!nonNulls.get(index)) {
@@ -127,7 +127,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 		return nullIndex;
 	}
 	
-	protected void checkGetPrimitive(int index) {
+	void checkGetPrimitive(int index) {
 		checkElementIndex(index, size);
 		
 		if(isNullNoOffset(index+offset))
@@ -228,7 +228,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 	}
 		
 	@Override
-	protected boolean equals0(@SuppressWarnings("rawtypes") NullableColumn rhs) {
+	boolean equals0(@SuppressWarnings("rawtypes") NullableColumn rhs) {
 		
 		// check that values and nulls are in the same place
 		int count = 0;
@@ -269,10 +269,10 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 		return result;
 	}
 
-	protected abstract N construct(C column, BufferBitSet nonNulls, int size);
+	abstract N construct(C column, BufferBitSet nonNulls, int size);
 	
 	@Override
-	protected Column<E> applyFilter0(BufferBitSet keep, int cardinality) {
+	Column<E> applyFilter0(BufferBitSet keep, int cardinality) {
 		
 		if(keep.equals(nonNulls))
 			return column;
@@ -303,7 +303,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 	}
 	
 	@Override
-	protected Column<E> select0(int[] indices) {
+	Column<E> select0(int[] indices) {
 		
 		BufferBitSet decodedNonNulls = new BufferBitSet(ALLOCATE_DIRECT);
 		int cardinality = 0;
@@ -330,7 +330,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 			return construct(column, decodedNonNulls, indices.length);
 	}
 		
-	protected N prependNonNull(C head) {
+	N prependNonNull(C head) {
 		
 		BufferBitSet nonNulls = this.nonNulls.get(offset, offset+this.size());
 		nonNulls = nonNulls.shiftRight(head.size());
@@ -347,7 +347,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected N append0(Column<E> tail) {
+	N append0(Column<E> tail) {
 		
 		final int size = this.size() + tail.size();
 		
@@ -379,12 +379,12 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 	}
 	
 	@Override
-	protected int intersectBothSorted(N rhs, BufferBitSet keepLeft, BufferBitSet keepRight) {
+	int intersectBothSorted(N rhs, BufferBitSet keepLeft, BufferBitSet keepRight) {
 		throw new UnsupportedOperationException("intersectBothSorted");
 	}
 	
 	@Override
-	protected int[] intersectLeftSorted(N rhs, BufferBitSet keepRight) {
+	int[] intersectLeftSorted(N rhs, BufferBitSet keepRight) {
 		throw new UnsupportedOperationException("intersectLeftSorted");
 	}
 	

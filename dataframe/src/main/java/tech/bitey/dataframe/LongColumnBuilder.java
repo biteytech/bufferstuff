@@ -20,12 +20,12 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongColumn, LongColumnBuilder> {
 
-	protected LongColumnBuilder(int characteristics) {
+	LongColumnBuilder(int characteristics) {
 		super(characteristics, LongArrayPacker.LONG);
 	}
 
 	@Override
-	protected LongColumn empty() {
+	LongColumn empty() {
 		return NonNullLongColumn.EMPTY.get(characteristics);
 	}
 
@@ -35,7 +35,7 @@ public class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongColumn, 
 	}
 
 	@Override
-	protected LongColumn wrapNullableColumn(LongColumn column, BufferBitSet nonNulls) {
+	LongColumn wrapNullableColumn(LongColumn column, BufferBitSet nonNulls) {
 		return new NullableLongColumn((NonNullLongColumn)column, nonNulls, 0, size);
 	}
 	

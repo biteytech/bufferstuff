@@ -39,22 +39,22 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	protected NonNullBooleanColumn toHeap0() {
+	NonNullBooleanColumn toHeap0() {
 		throw new IllegalStateException();
 	}
 	
 	@Override
-	protected Boolean getNoOffset(int index) {
+	Boolean getNoOffset(int index) {
 		return elements.get(index) ? TRUE : FALSE;
 	}
 
 	@Override
-	protected NonNullBooleanColumn subColumn0(int fromIndex, int toIndex) {
+	NonNullBooleanColumn subColumn0(int fromIndex, int toIndex) {
 		return new NonNullBooleanColumn(elements, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected int search(Boolean value, boolean first) {
+	int search(Boolean value, boolean first) {
 		if(isSorted())
 			throw new IllegalStateException();
 		else if(first) {
@@ -75,7 +75,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	protected NonNullBooleanColumn empty() {
+	NonNullBooleanColumn empty() {
 		return EMPTY;
 	}
 
@@ -105,7 +105,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	protected boolean equals0(NonNullBooleanColumn rhs, int lStart, int rStart, int length) {
+	boolean equals0(NonNullBooleanColumn rhs, int lStart, int rStart, int length) {
 		for(int i = 0; i < length; i++)
 			if(elements.get(lStart+i) != rhs.elements.get(rStart+i))
 				return false;
@@ -113,7 +113,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	protected NonNullBooleanColumn applyFilter0(BufferBitSet keep, int cardinality) {
+	NonNullBooleanColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
 		BufferBitSet elements = new BufferBitSet(ALLOCATE_DIRECT);
 		for(int i = offset, j = 0; i <= lastIndex(); i++) {
@@ -128,7 +128,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	protected NonNullBooleanColumn select0(int[] indices) {
+	NonNullBooleanColumn select0(int[] indices) {
 		
 		BufferBitSet elements = new BufferBitSet(ALLOCATE_DIRECT);
 		for(int i = 0; i < indices.length; i++)
@@ -139,7 +139,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	protected NonNullBooleanColumn appendNonNull(NonNullBooleanColumn tail) {
+	NonNullBooleanColumn appendNonNull(NonNullBooleanColumn tail) {
 		
 		BufferBitSet elements = tail.elements.shiftRight(size());
 		elements.or(this.elements);
@@ -148,22 +148,22 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	protected int intersectBothSorted(NonNullBooleanColumn rhs, BufferBitSet keepLeft, BufferBitSet keepRight) {
+	int intersectBothSorted(NonNullBooleanColumn rhs, BufferBitSet keepLeft, BufferBitSet keepRight) {
 		throw new UnsupportedOperationException("intersectBothSorted");
 	}
 
 	@Override
-	protected void intersectLeftSorted(NonNullBooleanColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullBooleanColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
 		throw new UnsupportedOperationException("intersectLeftSorted");	
 	}
 
 	@Override
-	protected int compareValuesAt(NonNullBooleanColumn rhs, int l, int r) {
+	int compareValuesAt(NonNullBooleanColumn rhs, int l, int r) {
 		throw new UnsupportedOperationException("compareValuesAt");
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Boolean;
 	}
 

@@ -27,10 +27,10 @@ import tech.bitey.bufferstuff.BufferSearch;
 
 abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNullSingleBufferColumn<E, C> {
 
-	protected final IntArrayPacker<E> packer;
-	protected final IntBuffer elements;
+	final IntArrayPacker<E> packer;
+	final IntBuffer elements;
 	
-	protected IntArrayColumn(ByteBuffer buffer, IntArrayPacker<E> packer, int offset, int size, int characteristics) {
+	IntArrayColumn(ByteBuffer buffer, IntArrayPacker<E> packer, int offset, int size, int characteristics) {
 		super(buffer, offset, size, characteristics);
 		
 		this.packer = packer;
@@ -42,7 +42,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 	}
 	
 	@Override
-	protected E getNoOffset(int index) {
+	E getNoOffset(int index) {
 		return packer.unpack(at(index));
 	}
 	
@@ -51,7 +51,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 	}
 	
 	@Override
-	protected int search(E value, boolean first) {
+	int search(E value, boolean first) {
 		
 		final int packed = packer.pack(value);
 		
@@ -91,7 +91,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	protected boolean equals0(IntArrayColumn rhs, int lStart, int rStart, int length) {
+	boolean equals0(IntArrayColumn rhs, int lStart, int rStart, int length) {
 		for(int i = 0; i < length; i++)
 			if(at(lStart+i) != at(rStart+i))
 				return false;
@@ -99,7 +99,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 	}
 	
 	@Override
-	protected C applyFilter0(BufferBitSet keep, int cardinality) {
+	C applyFilter0(BufferBitSet keep, int cardinality) {
 		
 		ByteBuffer buffer = allocate(cardinality);
 		for(int i = offset; i <= lastIndex(); i++)
@@ -111,7 +111,7 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 	}
 
 	@Override
-	protected C select0(int[] indices) {
+	C select0(int[] indices) {
 		
 		ByteBuffer buffer = allocate(indices.length);
 		for(int i = 0; i < indices.length; i++)
@@ -122,12 +122,12 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 	}
 
 	@Override
-	protected int compareValuesAt(C rhs, int l, int r) {
+	int compareValuesAt(C rhs, int l, int r) {
 		return compare(at(l + offset), rhs.at(r + rhs.offset));
 	}
 
 	@Override
-	protected void intersectLeftSorted(C rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(C rhs, MutableIntList indices, BufferBitSet keepRight) {
 		
 		for(int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 			

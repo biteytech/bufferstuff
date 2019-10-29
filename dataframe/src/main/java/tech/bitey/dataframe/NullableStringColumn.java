@@ -27,22 +27,22 @@ class NullableStringColumn extends NullableColumn<String, NonNullStringColumn, N
 	}
 
 	@Override
-	protected NullableStringColumn subColumn0(int fromIndex, int toIndex) {
+	NullableStringColumn subColumn0(int fromIndex, int toIndex) {
 		return new NullableStringColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected NullableStringColumn empty() {
+	NullableStringColumn empty() {
 		return EMPTY;
 	}
 
 	@Override
-	protected NullableStringColumn construct(NonNullStringColumn column, BufferBitSet nonNulls, int size) {		
+	NullableStringColumn construct(NonNullStringColumn column, BufferBitSet nonNulls, int size) {		
 		return new NullableStringColumn(column, nonNulls, 0, size);
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof String;
 	}
 }

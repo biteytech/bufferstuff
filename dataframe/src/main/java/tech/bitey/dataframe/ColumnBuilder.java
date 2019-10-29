@@ -28,13 +28,13 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, C, B>> {
 
-	protected final int characteristics;
+	final int characteristics;
 	
-	protected BufferBitSet nulls;
+	BufferBitSet nulls;
 	
-	protected int size = 0;
+	int size = 0;
 	
-	protected ColumnBuilder(int characteristics) {
+	ColumnBuilder(int characteristics) {
 		
 		characteristics |= BASE_CHARACTERISTICS;
 		
@@ -47,14 +47,14 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 	}
 	
 	public abstract ColumnType getType();
-	protected abstract C empty();
-	protected abstract int getNonNullSize();
-	protected abstract void checkCharacteristics();
-	protected abstract C buildNonNullColumn(int characteristics);
-	protected abstract C wrapNullableColumn(C column, BufferBitSet nonNulls);
-	protected abstract void append0(B tail);	
+	abstract C empty();
+	abstract int getNonNullSize();
+	abstract void checkCharacteristics();
+	abstract C buildNonNullColumn(int characteristics);
+	abstract C wrapNullableColumn(C column, BufferBitSet nonNulls);
+	abstract void append0(B tail);	
 	
-	protected B append(B tail) {
+	B append(B tail) {
 		checkArgument(this.characteristics == tail.characteristics, "incompatible characteristics");
 		
 		if(tail.nulls != null) {
@@ -104,7 +104,7 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 		}
 	}
 	
-	protected abstract void addNonNull(E element);
+	abstract void addNonNull(E element);
 	
 	public B addNulls(int count) {
 		if((characteristics & NONNULL) != 0)
@@ -142,7 +142,7 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 		return addAll(rest);
 	}
 	
-	protected abstract void ensureAdditionalCapacity(int required);
+	abstract void ensureAdditionalCapacity(int required);
 	
 	public B addAll(E[] elements) {
 		

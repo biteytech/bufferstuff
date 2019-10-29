@@ -25,12 +25,12 @@ class NullableBooleanColumn extends NullableColumn<Boolean, NonNullBooleanColumn
 	}
 
 	@Override
-	protected NullableBooleanColumn subColumn0(int fromIndex, int toIndex) {
+	NullableBooleanColumn subColumn0(int fromIndex, int toIndex) {
 		return new NullableBooleanColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected NullableBooleanColumn empty() {
+	NullableBooleanColumn empty() {
 		return EMPTY;
 	}
 
@@ -41,12 +41,12 @@ class NullableBooleanColumn extends NullableColumn<Boolean, NonNullBooleanColumn
 	}
 
 	@Override
-	protected NullableBooleanColumn construct(NonNullBooleanColumn column, BufferBitSet nonNulls, int size) {
+	NullableBooleanColumn construct(NonNullBooleanColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableBooleanColumn(column, nonNulls, 0, size);
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Boolean;
 	}
 }

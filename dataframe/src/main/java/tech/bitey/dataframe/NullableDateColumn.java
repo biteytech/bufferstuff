@@ -29,12 +29,12 @@ class NullableDateColumn extends NullableColumn<LocalDate, NonNullDateColumn, Nu
 	}
 
 	@Override
-	protected NullableDateColumn subColumn0(int fromIndex, int toIndex) {
+	NullableDateColumn subColumn0(int fromIndex, int toIndex) {
 		return new NullableDateColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected NullableDateColumn empty() {
+	NullableDateColumn empty() {
 		return EMPTY;
 	}
 
@@ -45,12 +45,12 @@ class NullableDateColumn extends NullableColumn<LocalDate, NonNullDateColumn, Nu
 	}
 
 	@Override
-	protected NullableDateColumn construct(NonNullDateColumn column, BufferBitSet nonNulls, int size) {
+	NullableDateColumn construct(NonNullDateColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableDateColumn(column, nonNulls, 0, size);
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof LocalDate;
 	}
 }

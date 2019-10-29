@@ -32,7 +32,7 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 	}
 
 	@Override
-	protected void addNonNull(Float element) {
+	void addNonNull(Float element) {
 		add(element.floatValue());
 	}
 	
@@ -51,12 +51,12 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 	}
 
 	@Override
-	protected FloatColumn empty() {
+	FloatColumn empty() {
 		return NonNullFloatColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	protected void checkCharacteristics() {
+	void checkCharacteristics() {
 		if((characteristics & DISTINCT) != 0) {
 			checkState(isSortedAndDistinct(elements, 0, elements.position()),
 				"column elements must be sorted and distinct");
@@ -68,7 +68,7 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 	}
 
 	@Override
-	protected FloatColumn wrapNullableColumn(FloatColumn column, BufferBitSet nonNulls) {
+	FloatColumn wrapNullableColumn(FloatColumn column, BufferBitSet nonNulls) {
 		return new NullableFloatColumn((NonNullFloatColumn)column, nonNulls, 0, size);
 	}
 

@@ -21,22 +21,22 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, DateColumn, DateColumnBuilder> {
 
-	protected DateColumnBuilder(int characteristics) {
+	DateColumnBuilder(int characteristics) {
 		super(characteristics, IntArrayPacker.LOCAL_DATE);
 	}
 
 	@Override
-	protected DateColumn empty() {
+	DateColumn empty() {
 		return NonNullDateColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	protected DateColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
+	DateColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
 		return new NonNullDateColumn(trim, 0, getNonNullSize(), characteristics);
 	}
 
 	@Override
-	protected DateColumn wrapNullableColumn(DateColumn column, BufferBitSet nonNulls) {
+	DateColumn wrapNullableColumn(DateColumn column, BufferBitSet nonNulls) {
 		return new NullableDateColumn((NonNullDateColumn)column, nonNulls, 0, size);
 	}
 

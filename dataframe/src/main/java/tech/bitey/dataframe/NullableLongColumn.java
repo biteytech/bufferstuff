@@ -27,12 +27,12 @@ class NullableLongColumn extends NullableColumn<Long, NonNullLongColumn, Nullabl
 	}
 
 	@Override
-	protected NullableLongColumn subColumn0(int fromIndex, int toIndex) {
+	NullableLongColumn subColumn0(int fromIndex, int toIndex) {
 		return new NullableLongColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected NullableLongColumn empty() {
+	NullableLongColumn empty() {
 		return EMPTY;
 	}
 
@@ -48,12 +48,12 @@ class NullableLongColumn extends NullableColumn<Long, NonNullLongColumn, Nullabl
 	}
 
 	@Override
-	protected NullableLongColumn construct(NonNullLongColumn column, BufferBitSet nonNulls, int size) {
+	NullableLongColumn construct(NonNullLongColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableLongColumn(column, nonNulls, 0, size);
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Long;
 	}
 }

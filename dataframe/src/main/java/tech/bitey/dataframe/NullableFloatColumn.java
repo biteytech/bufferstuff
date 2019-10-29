@@ -27,12 +27,12 @@ class NullableFloatColumn extends NullableColumn<Float, NonNullFloatColumn, Null
 	}
 
 	@Override
-	protected NullableFloatColumn subColumn0(int fromIndex, int toIndex) {
+	NullableFloatColumn subColumn0(int fromIndex, int toIndex) {
 		return new NullableFloatColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected NullableFloatColumn empty() {
+	NullableFloatColumn empty() {
 		return EMPTY;
 	}
 
@@ -48,12 +48,12 @@ class NullableFloatColumn extends NullableColumn<Float, NonNullFloatColumn, Null
 	}
 
 	@Override
-	protected NullableFloatColumn construct(NonNullFloatColumn column, BufferBitSet nonNulls, int size) {
+	NullableFloatColumn construct(NonNullFloatColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableFloatColumn(column, nonNulls, 0, size);
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Float;
 	}
 }

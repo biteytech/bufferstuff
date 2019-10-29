@@ -57,7 +57,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 	
 	@Override
-	protected Double getNoOffset(int index) {
+	Double getNoOffset(int index) {
 		return at(index);
 	}
 
@@ -86,7 +86,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 	
 	@Override
-	protected int search(Double value, boolean first) {
+	int search(Double value, boolean first) {
 		if(isSorted()) {
 			int index = search(value);
 			if(isDistinct() || index < 0)
@@ -115,7 +115,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 
 	@Override
-	protected NonNullDoubleColumn empty() {
+	NonNullDoubleColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 	
@@ -147,7 +147,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 
 	@Override
-	protected boolean equals0(NonNullDoubleColumn rhs, int lStart, int rStart, int length) {
+	boolean equals0(NonNullDoubleColumn rhs, int lStart, int rStart, int length) {
 		for(int i = 0; i < length; i++)
 			if(Double.compare(at(lStart+i), rhs.at(rStart+i)) != 0)
 				return false;
@@ -155,7 +155,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 
 	@Override
-	protected NonNullDoubleColumn applyFilter0(BufferBitSet keep, int cardinality) {
+	NonNullDoubleColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
 		ByteBuffer buffer = allocate(cardinality);
 		for(int i = offset; i <= lastIndex(); i++)
@@ -167,7 +167,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 
 	@Override
-	protected NonNullDoubleColumn select0(int[] indices) {
+	NonNullDoubleColumn select0(int[] indices) {
 		
 		ByteBuffer buffer = allocate(indices.length);
 		for(int i = 0; i < indices.length; i++)
@@ -178,12 +178,12 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 
 	@Override
-	protected int compareValuesAt(NonNullDoubleColumn rhs, int l, int r) {
+	int compareValuesAt(NonNullDoubleColumn rhs, int l, int r) {
 		return Double.compare(at(l + offset), rhs.at(r + rhs.offset));
 	}
 
 	@Override
-	protected void intersectLeftSorted(NonNullDoubleColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullDoubleColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
 		
 		for(int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 			
@@ -197,7 +197,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Double;
 	}
 

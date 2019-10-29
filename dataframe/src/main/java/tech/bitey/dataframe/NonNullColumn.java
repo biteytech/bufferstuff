@@ -36,9 +36,9 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 {	
 	static final int NONNULL_CHARACTERISTICS = BASE_CHARACTERISTICS | NONNULL;
 	
-	protected final int characteristics;
+	final int characteristics;
 	
-	protected NonNullColumn(int offset, int size, int characteristics) {
+	NonNullColumn(int offset, int size, int characteristics) {
 		super(offset, size);
 
 		checkArgument((characteristics & NONNULL) != 0, "NonNullColumn must have NONNULL flag set");
@@ -55,8 +55,8 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 		return false;
 	}
 	
-	protected abstract int search(E value, boolean first);
-	protected abstract C toHeap0();
+	abstract int search(E value, boolean first);
+	abstract C toHeap0();
 	
 	@Override
 	public C toHeap() {
@@ -75,20 +75,20 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	 * @param toIndex - inclusive
 	 * @return
 	 */
-	protected abstract int hashCode(int fromIndex, int toIndex);
+	abstract int hashCode(int fromIndex, int toIndex);
 	
-	protected abstract boolean equals0(C rhs, int lStart, int rStart, int length);
+	abstract boolean equals0(C rhs, int lStart, int rStart, int length);
 	
 	@Override
-	protected boolean equals0(C rhs) {
+	boolean equals0(C rhs) {
 		return equals0(rhs, offset, rhs.offset, size);
 	}
 	
-	protected abstract C appendNonNull(C tail);
+	abstract C appendNonNull(C tail);
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Column<E> append0(Column<E> tail) {				
+	Column<E> append0(Column<E> tail) {				
 				
 		if(!tail.isNonnull()) {
 			NullableColumn<E,C,?> rhs = (NullableColumn<E,C,?>)tail;
@@ -103,10 +103,10 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 		}
 	}
 	
-	protected abstract int compareValuesAt(C rhs, int l, int r);
+	abstract int compareValuesAt(C rhs, int l, int r);
 	
 	@Override
-	protected int intersectBothSorted(C rhs, BufferBitSet keepLeft, BufferBitSet keepRight) {
+	int intersectBothSorted(C rhs, BufferBitSet keepLeft, BufferBitSet keepRight) {
 
 		int l = 0;
 		int r = 0;
@@ -133,10 +133,10 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 		return cardinality;
 	}
 	
-	protected abstract void intersectLeftSorted(C rhs, MutableIntList indices, BufferBitSet keepRight);
+	abstract void intersectLeftSorted(C rhs, MutableIntList indices, BufferBitSet keepRight);
 	
 	@Override
-	protected int[] intersectLeftSorted(C rhs, BufferBitSet keepRight) {		
+	int[] intersectLeftSorted(C rhs, BufferBitSet keepRight) {		
 		MutableIntList indices = MutableIntListFactoryImpl.INSTANCE.empty();
 		intersectLeftSorted(rhs, indices, keepRight);		
 		return indices.toArray();
@@ -240,7 +240,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	/*------------------------------------------------------------
 	 *                ImmutableNavigableSet methods
 	 *------------------------------------------------------------*/
-	protected void checkDistinct() {
+	void checkDistinct() {
 		if(!isDistinct())
 			throw new UnsupportedOperationException("not a unique index");
 	}
@@ -285,7 +285,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 		return idx == -1 ? null : getNoOffset(idx);
 	}
 	
-	protected int lowerIndex(E value) {
+	int lowerIndex(E value) {
 		int idx = search(value, true);
 
 		if (idx < 0)
@@ -299,7 +299,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 			return idx - 1;
 	}
 
-	protected int higherIndex(E value) {
+	int higherIndex(E value) {
 		int idx = search(value, true);
 
 		if (idx < 0)
@@ -316,7 +316,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 			return idx + 1;
 	}
 
-	protected int floorIndex(E value) {
+	int floorIndex(E value) {
 		int idx = search(value, true);
 
 		if (idx >= 0)
@@ -332,7 +332,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 			return idx - 1;
 	}
 
-	protected int ceilingIndex(E value) {
+	int ceilingIndex(E value) {
 		int idx = search(value, true);
 
 		if (idx >= 0)

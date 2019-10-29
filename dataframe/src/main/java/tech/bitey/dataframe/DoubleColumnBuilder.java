@@ -33,7 +33,7 @@ public class DoubleColumnBuilder
 	}
 
 	@Override
-	protected void addNonNull(Double element) {
+	void addNonNull(Double element) {
 		add(element.doubleValue());
 	}
 
@@ -52,12 +52,12 @@ public class DoubleColumnBuilder
 	}
 
 	@Override
-	protected DoubleColumn empty() {
+	DoubleColumn empty() {
 		return NonNullDoubleColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	protected void checkCharacteristics() {
+	void checkCharacteristics() {
 		if((characteristics & DISTINCT) != 0) {
 			checkState(isSortedAndDistinct(elements, 0, elements.position()),
 				"column elements must be sorted and distinct");
@@ -69,7 +69,7 @@ public class DoubleColumnBuilder
 	}
 
 	@Override
-	protected DoubleColumn wrapNullableColumn(DoubleColumn column, BufferBitSet nonNulls) {
+	DoubleColumn wrapNullableColumn(DoubleColumn column, BufferBitSet nonNulls) {
 		return new NullableDoubleColumn((NonNullDoubleColumn) column, nonNulls, 0, size);
 	}
 

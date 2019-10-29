@@ -21,12 +21,12 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class DateTimeColumnBuilder extends LongArrayColumnBuilder<LocalDateTime, DateTimeColumn, DateTimeColumnBuilder> {
 
-	protected DateTimeColumnBuilder(int characteristics) {
+	DateTimeColumnBuilder(int characteristics) {
 		super(characteristics, LongArrayPacker.LOCAL_DATE_TIME);
 	}
 
 	@Override
-	protected DateTimeColumn empty() {
+	DateTimeColumn empty() {
 		return NonNullDateTimeColumn.EMPTY.get(characteristics);
 	}
 
@@ -36,7 +36,7 @@ public class DateTimeColumnBuilder extends LongArrayColumnBuilder<LocalDateTime,
 	}
 
 	@Override
-	protected DateTimeColumn wrapNullableColumn(DateTimeColumn column, BufferBitSet nonNulls) {
+	DateTimeColumn wrapNullableColumn(DateTimeColumn column, BufferBitSet nonNulls) {
 		return new NullableDateTimeColumn((NonNullDateTimeColumn)column, nonNulls, 0, size);
 	}
 

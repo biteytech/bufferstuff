@@ -45,7 +45,7 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 	}
 	
 	@Override
-	protected void ensureAdditionalCapacity(int required) {
+	void ensureAdditionalCapacity(int required) {
 		if(elements.remaining() < required) {
 			elements.flip();
 			
@@ -63,12 +63,12 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 	}
 
 	@Override
-	protected int getNonNullSize() {
+	int getNonNullSize() {
 		return elements.position();
 	}
 
 	@Override
-	protected C buildNonNullColumn(int characteristics) {
+	C buildNonNullColumn(int characteristics) {
 		ByteBuffer full = duplicate(buffer);
 		full.flip();
 		full.limit(elements.position() * elementSize());
@@ -81,7 +81,7 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 	}
 
 	@Override
-	protected void append0(B tail) {
+	void append0(B tail) {
 		ensureAdditionalCapacity(tail.getNonNullSize());
 		
 		ByteBuffer tailBuffer = duplicate(tail.buffer);

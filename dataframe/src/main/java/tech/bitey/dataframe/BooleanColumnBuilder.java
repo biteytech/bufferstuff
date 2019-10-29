@@ -21,7 +21,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, BooleanColumnBuilder> {
 
-	protected BooleanColumnBuilder() { 
+	BooleanColumnBuilder() { 
 		super(0);
 	}
 
@@ -29,7 +29,7 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 	private BufferBitSet elements = new BufferBitSet(ALLOCATE_DIRECT);
 
 	@Override
-	protected void addNonNull(Boolean element) {
+	void addNonNull(Boolean element) {
 		if(element)
 			elements.set(size);
 		size++;
@@ -55,32 +55,32 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 	}
 
 	@Override
-	protected void ensureAdditionalCapacity(int size) {
+	void ensureAdditionalCapacity(int size) {
 		// noop
 	}
 
 	@Override
-	protected BooleanColumn empty() {
+	BooleanColumn empty() {
 		return EMPTY;
 	}
 
 	@Override
-	protected int getNonNullSize() {
+	int getNonNullSize() {
 		return nonNullSize;
 	}
 
 	@Override
-	protected void checkCharacteristics() {
+	void checkCharacteristics() {
 		throw new IllegalStateException();
 	}
 
 	@Override
-	protected BooleanColumn buildNonNullColumn(int characteristics) {
+	BooleanColumn buildNonNullColumn(int characteristics) {
 		return new NonNullBooleanColumn(elements, 0, nonNullSize);
 	}
 
 	@Override
-	protected BooleanColumn wrapNullableColumn(BooleanColumn column, BufferBitSet nonNulls) {
+	BooleanColumn wrapNullableColumn(BooleanColumn column, BufferBitSet nonNulls) {
 		return new NullableBooleanColumn((NonNullBooleanColumn)column, nonNulls, 0, size);
 	}
 
@@ -90,7 +90,7 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 	}
 
 	@Override
-	protected void append0(BooleanColumnBuilder tail) {
+	void append0(BooleanColumnBuilder tail) {
 		
 		BufferBitSet elements = tail.elements.shiftRight(this.nonNullSize);				
 		elements.or(this.elements);

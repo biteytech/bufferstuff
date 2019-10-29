@@ -29,22 +29,22 @@ class NullableDateTimeColumn extends NullableColumn<LocalDateTime, NonNullDateTi
 	}
 
 	@Override
-	protected NullableDateTimeColumn subColumn0(int fromIndex, int toIndex) {
+	NullableDateTimeColumn subColumn0(int fromIndex, int toIndex) {
 		return new NullableDateTimeColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected NullableDateTimeColumn empty() {
+	NullableDateTimeColumn empty() {
 		return EMPTY;
 	}
 
 	@Override
-	protected NullableDateTimeColumn construct(NonNullDateTimeColumn column, BufferBitSet nonNulls, int size) {
+	NullableDateTimeColumn construct(NonNullDateTimeColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableDateTimeColumn(column, nonNulls, 0, size);
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof LocalDateTime;
 	}
 }

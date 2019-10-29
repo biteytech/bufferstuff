@@ -40,10 +40,10 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 	
 	static final BufferBitSet EMPTY_NO_RESIZE = new BufferBitSet(NO_RESIZE);
 	
-	protected final int offset;
-	protected final int size;
+	final int offset;
+	final int size;
 	
-	protected AbstractColumn(int offset, int size) {
+	AbstractColumn(int offset, int size) {
 		this.offset = offset;
 		this.size = size;
 	}
@@ -69,14 +69,14 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 			return subColumn0(fromIndex, toIndex);
 	}
 	
-	protected abstract C empty();
+	abstract C empty();
 	
-	protected abstract C subColumn0(int fromIndex, int toIndex);
+	abstract C subColumn0(int fromIndex, int toIndex);
 	
-	protected abstract E getNoOffset(int index);
-	protected abstract boolean isNullNoOffset(int index);	
+	abstract E getNoOffset(int index);
+	abstract boolean isNullNoOffset(int index);	
 	
-	protected abstract boolean checkType(Object o);
+	abstract boolean checkType(Object o);
 	
 	abstract ByteOrder byteOrder();
 	abstract int byteLength();
@@ -87,7 +87,7 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 		return subColumn(fromIndex, toIndex);
 	}
 	
-	protected abstract Column<E> applyFilter0(BufferBitSet keep, int cardinality);
+	abstract Column<E> applyFilter0(BufferBitSet keep, int cardinality);
 		
 	Column<E> applyFilter(BufferBitSet keep, int cardinality) {
 		if(cardinality == 0)
@@ -98,16 +98,16 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 			return applyFilter0(keep, cardinality);
 	}
 	
-	protected abstract Column<E> select0(int[] indices);
+	abstract Column<E> select0(int[] indices);
 	
-	protected Column<E> select(int[] indices) {
+	Column<E> select(int[] indices) {
 		if(indices.length == 0)
 			return empty();
 		else
 			return select0(indices);
 	}
 	
-	protected abstract Column<E> append0(Column<E> tail);
+	abstract Column<E> append0(Column<E> tail);
 	
 	@Override
 	public Column<E> append(Column<E> tail) {		
@@ -135,8 +135,8 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 		}
 	}
 	
-	protected abstract int intersectBothSorted(C rhs, BufferBitSet keepLeft, BufferBitSet keepRight);
-	protected abstract int[] intersectLeftSorted(C rhs, BufferBitSet keepRight);
+	abstract int intersectBothSorted(C rhs, BufferBitSet keepLeft, BufferBitSet keepRight);
+	abstract int[] intersectLeftSorted(C rhs, BufferBitSet keepRight);
 	
 	@Override
 	public int size() {
@@ -157,13 +157,13 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 		return isNullNoOffset(index+offset);
 	}
 	
-	protected int lastIndex() {
+	int lastIndex() {
 		return offset + size - 1;
 	}
 	
 	
 	
-	protected int indexOf(Object o, boolean first) {
+	int indexOf(Object o, boolean first) {
 		if(first) {
 			Iterator<E> iter = iterator();
 
@@ -202,7 +202,7 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 		return listIterator();
 	}
 	
-	protected abstract boolean equals0(C rhs);
+	abstract boolean equals0(C rhs);
 	
 	@Override
 	public boolean equals(Object o) {

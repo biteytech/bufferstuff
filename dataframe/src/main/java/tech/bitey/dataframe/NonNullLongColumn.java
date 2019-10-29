@@ -51,7 +51,7 @@ class NonNullLongColumn extends LongArrayColumn<Long, NonNullLongColumn> impleme
 	}
 
 	@Override
-	protected NonNullLongColumn empty() {
+	NonNullLongColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 	
@@ -72,7 +72,7 @@ class NonNullLongColumn extends LongArrayColumn<Long, NonNullLongColumn> impleme
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Long;
 	}
 }

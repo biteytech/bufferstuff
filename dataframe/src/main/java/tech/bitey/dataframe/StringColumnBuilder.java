@@ -27,35 +27,35 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, StringColumnBuilder> {
 
-	protected StringColumnBuilder(int characteristics) {
+	StringColumnBuilder(int characteristics) {
 		super(characteristics);
 	}
 
 	private final ArrayList<String> elements = new ArrayList<>();
 
 	@Override
-	protected void addNonNull(String element) {		
+	void addNonNull(String element) {		
 		elements.add(element);
 		size++;
 	}
 
 	@Override
-	protected void ensureAdditionalCapacity(int size) {
+	void ensureAdditionalCapacity(int size) {
 		elements.ensureCapacity(elements.size() + size);
 	}
 
 	@Override
-	protected StringColumn empty() {
+	StringColumn empty() {
 		return NonNullStringColumn.EMPTY.get(characteristics);
 	}
 
 	@Override
-	protected int getNonNullSize() {
+	int getNonNullSize() {
 		return elements.size();
 	}
 
 	@Override
-	protected void checkCharacteristics() {
+	void checkCharacteristics() {
 		if(elements.size() >= 2) {
 			String prev = elements.get(0);
 		
@@ -77,7 +77,7 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 	}
 
 	@Override
-	protected StringColumn buildNonNullColumn(int characteristics) {
+	StringColumn buildNonNullColumn(int characteristics) {
 		
 		int byteLength = 0;
 		for(int i = 0; i < elements.size(); i++)
@@ -100,7 +100,7 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 	}
 
 	@Override
-	protected StringColumn wrapNullableColumn(StringColumn column, BufferBitSet nonNulls) {
+	StringColumn wrapNullableColumn(StringColumn column, BufferBitSet nonNulls) {
 		
 		NullableStringColumn nullable = new NullableStringColumn((NonNullStringColumn)column, nonNulls, 0, size);
 		return nullable;
@@ -112,7 +112,7 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 	}
 
 	@Override
-	protected void append0(StringColumnBuilder tail) {
+	void append0(StringColumnBuilder tail) {
 		this.elements.addAll(tail.elements);
 	}
 }

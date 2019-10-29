@@ -27,12 +27,12 @@ class NullableDoubleColumn extends NullableColumn<Double, NonNullDoubleColumn, N
 	}
 
 	@Override
-	protected NullableDoubleColumn subColumn0(int fromIndex, int toIndex) {
+	NullableDoubleColumn subColumn0(int fromIndex, int toIndex) {
 		return new NullableDoubleColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
-	protected NullableDoubleColumn empty() {
+	NullableDoubleColumn empty() {
 		return EMPTY;
 	}
 
@@ -48,12 +48,12 @@ class NullableDoubleColumn extends NullableColumn<Double, NonNullDoubleColumn, N
 	}
 
 	@Override
-	protected NullableDoubleColumn construct(NonNullDoubleColumn column, BufferBitSet nonNulls, int size) {
+	NullableDoubleColumn construct(NonNullDoubleColumn column, BufferBitSet nonNulls, int size) {
 		return new NullableDoubleColumn(column, nonNulls, 0, size);
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Double;
 	}
 }

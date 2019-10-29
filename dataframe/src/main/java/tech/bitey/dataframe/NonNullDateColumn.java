@@ -44,7 +44,7 @@ class NonNullDateColumn extends IntArrayColumn<LocalDate, NonNullDateColumn> imp
 	}
 
 	@Override
-	protected NonNullDateColumn empty() {
+	NonNullDateColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 	
@@ -66,7 +66,7 @@ class NonNullDateColumn extends IntArrayColumn<LocalDate, NonNullDateColumn> imp
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof LocalDate;
 	}
 }

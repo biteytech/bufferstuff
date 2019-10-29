@@ -27,20 +27,20 @@ abstract class LongArrayColumnBuilder<E, C extends Column<E>, B extends LongArra
 
 	private final LongArrayPacker<E> packer;
 	
-	protected LongArrayColumnBuilder(int characteristics, LongArrayPacker<E> packer) {
+	LongArrayColumnBuilder(int characteristics, LongArrayPacker<E> packer) {
 		super(characteristics);
 		this.packer = packer;
 	}
 
 	@Override
-	protected void addNonNull(E element) {
+	void addNonNull(E element) {
 		ensureAdditionalCapacity(1);
 		elements.put(packer.pack(element));
 		size++;
 	}
 
 	@Override
-	protected void checkCharacteristics() {
+	void checkCharacteristics() {
 		if((characteristics & DISTINCT) != 0) {
 			checkState(isSortedAndDistinct(elements, 0, elements.position()),
 				"column elements must be sorted and distinct");

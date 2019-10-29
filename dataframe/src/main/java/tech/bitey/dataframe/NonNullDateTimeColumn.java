@@ -43,7 +43,7 @@ class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, NonNullDateTi
 	}
 
 	@Override
-	protected NonNullDateTimeColumn empty() {
+	NonNullDateTimeColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 	
@@ -58,7 +58,7 @@ class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, NonNullDateTi
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof LocalDateTime;
 	}
 }

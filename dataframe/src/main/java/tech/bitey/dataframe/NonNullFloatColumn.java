@@ -57,7 +57,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 	
 	@Override
-	protected Float getNoOffset(int index) {
+	Float getNoOffset(int index) {
 		return at(index);
 	}
 
@@ -86,7 +86,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 	
 	@Override
-	protected int search(Float value, boolean first) {
+	int search(Float value, boolean first) {
 		if(isSorted()) {
 			int index = search(value);
 			if(isDistinct() || index < 0)
@@ -115,7 +115,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 
 	@Override
-	protected NonNullFloatColumn empty() {
+	NonNullFloatColumn empty() {
 		return EMPTY.get(characteristics);
 	}
 	
@@ -147,7 +147,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 
 	@Override
-	protected boolean equals0(NonNullFloatColumn rhs, int lStart, int rStart, int length) {
+	boolean equals0(NonNullFloatColumn rhs, int lStart, int rStart, int length) {
 		for(int i = 0; i < length; i++)
 			if(Float.compare(at(lStart+i), rhs.at(rStart+i)) != 0)
 				return false;
@@ -155,7 +155,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 
 	@Override
-	protected NonNullFloatColumn applyFilter0(BufferBitSet keep, int cardinality) {
+	NonNullFloatColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
 		ByteBuffer buffer = allocate(cardinality);
 		for(int i = offset; i <= lastIndex(); i++)
@@ -167,7 +167,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 
 	@Override
-	protected NonNullFloatColumn select0(int[] indices) {
+	NonNullFloatColumn select0(int[] indices) {
 		
 		ByteBuffer buffer = allocate(indices.length);
 		for(int i = 0; i < indices.length; i++)
@@ -178,12 +178,12 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 
 	@Override
-	protected int compareValuesAt(NonNullFloatColumn rhs, int l, int r) {
+	int compareValuesAt(NonNullFloatColumn rhs, int l, int r) {
 		return Float.compare(at(l + offset), rhs.at(r + rhs.offset));
 	}
 
 	@Override
-	protected void intersectLeftSorted(NonNullFloatColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullFloatColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
 		
 		for(int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 			
@@ -197,7 +197,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 
 	@Override
-	protected boolean checkType(Object o) {
+	boolean checkType(Object o) {
 		return o instanceof Float;
 	}
 
