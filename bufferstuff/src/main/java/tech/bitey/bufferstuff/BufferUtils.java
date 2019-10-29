@@ -341,6 +341,172 @@ public enum BufferUtils {
 	}
 
 	/**
+	 * Returns a copy of a range from the specified buffer. The new buffer will be
+	 * direct iff the specified buffer is direct, and will have the same byte order.
+	 * The capacity will be equal to the size of the specified range. The limit will
+	 * be set to the capacity, and the position will be set to zero.
+	 * 
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 * 
+	 * @return a copy of a range of data from the specified buffer
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static ByteBuffer copy(ByteBuffer b, int fromIndex, int toIndex) {
+
+		ByteBuffer slice = slice(b, fromIndex, toIndex);
+
+		ByteBuffer copy = b.isDirect() ? ByteBuffer.allocateDirect(slice.capacity())
+				: ByteBuffer.allocate(slice.capacity());
+		copy.order(b.order());
+
+		copy.put(slice);
+		copy.flip();
+
+		return copy;
+	}
+
+	/**
+	 * Returns a copy of a range from the specified buffer. The new buffer will be
+	 * direct iff the specified buffer is direct, and will have the same byte order.
+	 * The capacity will be equal to the size of the specified range. The limit will
+	 * be set to the capacity, and the position will be set to zero.
+	 * 
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 * 
+	 * @return a copy of a range of data from the specified buffer
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static IntBuffer copy(IntBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		IntBuffer dup = b.duplicate();
+		dup.limit(toIndex);
+		dup.position(fromIndex);
+
+		ByteBuffer copy = b.isDirect() ? ByteBuffer.allocateDirect(dup.remaining() * 4)
+				: ByteBuffer.allocate(dup.remaining() * 4);
+		copy.order(b.order());
+
+		IntBuffer view = copy.asIntBuffer();
+		view.put(dup);
+		view.flip();
+
+		return view;
+	}
+
+	/**
+	 * Returns a copy of a range from the specified buffer. The new buffer will be
+	 * direct iff the specified buffer is direct, and will have the same byte order.
+	 * The capacity will be equal to the size of the specified range. The limit will
+	 * be set to the capacity, and the position will be set to zero.
+	 * 
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 * 
+	 * @return a copy of a range of data from the specified buffer
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static LongBuffer copy(LongBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		LongBuffer dup = b.duplicate();
+		dup.limit(toIndex);
+		dup.position(fromIndex);
+
+		ByteBuffer copy = b.isDirect() ? ByteBuffer.allocateDirect(dup.remaining() * 8)
+				: ByteBuffer.allocate(dup.remaining() * 8);
+		copy.order(b.order());
+
+		LongBuffer view = copy.asLongBuffer();
+		view.put(dup);
+		view.flip();
+
+		return view;
+	}
+
+	/**
+	 * Returns a copy of a range from the specified buffer. The new buffer will be
+	 * direct iff the specified buffer is direct, and will have the same byte order.
+	 * The capacity will be equal to the size of the specified range. The limit will
+	 * be set to the capacity, and the position will be set to zero.
+	 * 
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 * 
+	 * @return a copy of a range of data from the specified buffer
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static FloatBuffer copy(FloatBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		FloatBuffer dup = b.duplicate();
+		dup.limit(toIndex);
+		dup.position(fromIndex);
+
+		ByteBuffer copy = b.isDirect() ? ByteBuffer.allocateDirect(dup.remaining() * 4)
+				: ByteBuffer.allocate(dup.remaining() * 4);
+		copy.order(b.order());
+
+		FloatBuffer view = copy.asFloatBuffer();
+		view.put(dup);
+		view.flip();
+
+		return view;
+	}
+
+	/**
+	 * Returns a copy of a range from the specified buffer. The new buffer will be
+	 * direct iff the specified buffer is direct, and will have the same byte order.
+	 * The capacity will be equal to the size of the specified range. The limit will
+	 * be set to the capacity, and the position will be set to zero.
+	 * 
+	 * @param b         - the buffer to be checked
+	 * @param fromIndex - the index of the first element (inclusive) to be checked
+	 * @param toIndex   - the index of the last element (exclusive) to be checked
+	 * 
+	 * @return a copy of a range of data from the specified buffer
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static DoubleBuffer copy(DoubleBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		DoubleBuffer dup = b.duplicate();
+		dup.limit(toIndex);
+		dup.position(fromIndex);
+
+		ByteBuffer copy = b.isDirect() ? ByteBuffer.allocateDirect(dup.remaining() * 8)
+				: ByteBuffer.allocate(dup.remaining() * 8);
+		copy.order(b.order());
+
+		DoubleBuffer view = copy.asDoubleBuffer();
+		view.put(dup);
+		view.flip();
+
+		return view;
+	}
+
+	/**
 	 * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws
 	 * an exception if they aren't.
 	 * 

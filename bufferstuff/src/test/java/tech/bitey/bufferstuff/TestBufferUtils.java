@@ -243,6 +243,70 @@ public class TestBufferUtils {
 		Assertions.assertEquals(3, b3.get(3));
 		Assertions.assertEquals(b.order(), b3.order());
 	}
+	
+	@Test
+	public void testCopyByte() {
+		ByteBuffer b = ByteBuffer.wrap(new byte[] {(byte)-1, (byte)0, (byte)1, (byte)2, (byte)3});
+		ByteBuffer b2 = BufferUtils.copy(b, 0, b.capacity());		
+		Assertions.assertArrayEquals(b.array(), b2.array());
+		Assertions.assertArrayEquals(new byte[] {(byte)0, (byte)1, (byte)2}, BufferUtils.copy(b, 1, 4).array());
+	}
+	
+	@Test
+	public void testCopyInt() {
+		int[] a = new int[] {-1, 0, 1, 2, 3};
+		IntBuffer b = IntBuffer.wrap(a);
+		IntBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
+		int[] a2 = new int[a.length];		
+		b2.get(a2);
+		Assertions.assertArrayEquals(a, a2);
+		
+		int[] a3 = new int[3];
+		BufferUtils.copy(b, 1, 4).get(a3);
+		Assertions.assertArrayEquals(new int[] {0, 1, 2}, a3);
+	}
+	
+	@Test
+	public void testCopyLong() {
+		long[] a = new long[] {-1, 0, 1, 2, 3};
+		LongBuffer b = LongBuffer.wrap(a);
+		LongBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
+		long[] a2 = new long[a.length];		
+		b2.get(a2);
+		Assertions.assertArrayEquals(a, a2);
+		
+		long[] a3 = new long[3];
+		BufferUtils.copy(b, 1, 4).get(a3);
+		Assertions.assertArrayEquals(new long[] {0, 1, 2}, a3);
+	}
+	
+	@Test
+	public void testCopyFloat() {
+		float[] a = new float[] {-1, 0, 1, 2, 3};
+		FloatBuffer b = FloatBuffer.wrap(a);
+		FloatBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
+		float[] a2 = new float[a.length];		
+		b2.get(a2);
+		Assertions.assertArrayEquals(a, a2);
+		
+		float[] a3 = new float[3];
+		BufferUtils.copy(b, 1, 4).get(a3);
+		Assertions.assertArrayEquals(new float[] {0, 1, 2}, a3);
+	}
+	
+	@Test
+	public void testCopyDouble() {
+		double[] a = new double[] {-1, 0, 1, 2, 3};
+		DoubleBuffer b = DoubleBuffer.wrap(a);
+		DoubleBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
+		double[] a2 = new double[a.length];		
+		b2.get(a2);
+		Assertions.assertArrayEquals(a, a2);
+		
+		double[] a3 = new double[3];
+		BufferUtils.copy(b, 1, 4).get(a3);
+		Assertions.assertArrayEquals(new double[] {0, 1, 2}, a3);
+	}
 
 	@Test
 	public void rangeCheck() {

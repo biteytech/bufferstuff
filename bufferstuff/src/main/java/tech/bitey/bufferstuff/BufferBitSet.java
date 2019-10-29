@@ -972,14 +972,10 @@ public class BufferBitSet implements Cloneable {
 	 */
 	public BufferBitSet copy() {
 
-		ByteBuffer dup = buffer.duplicate();
-		dup.flip();
+		ByteBuffer copy = BufferUtils.copy(buffer, 0, buffer.position());
+		copy.position(buffer.position());
 
-		ByteBuffer b = buffer.isDirect() ? ByteBuffer.allocateDirect(dup.limit()) : ByteBuffer.allocate(dup.limit());
-		b.order(buffer.order());
-		b.put(dup);
-
-		return new BufferBitSet(b, resizeBehavior, false);
+		return new BufferBitSet(copy, resizeBehavior, false);
 	}
 
 	/*--------------------------------------------------------------------------------
