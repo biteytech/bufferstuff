@@ -1,5 +1,6 @@
 package tech.bitey.bufferstuff;
 
+import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE;
 import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.bufferstuff.ResizeBehavior.NO_RESIZE;
@@ -14,7 +15,7 @@ import java.util.BitSet;
  * <p>
  * {@code BufferBitSet}
  * <ul>
- * <li>... is neither {@code Cloneable} nor {@code Serializable}.
+ * <li>... is not {@code Serializable}.
  * <li>... does not hide the backing buffer, and offers copy-free methods for
  * wrapping an existing buffer.
  * <li>... allows for specifying the {@link ResizeBehavior resize} behavior.
@@ -30,7 +31,7 @@ import java.util.BitSet;
  * @see java.util.BitSet
  * @see java.nio.ByteBuffer
  */
-public class BufferBitSet {
+public class BufferBitSet implements Cloneable {
 
 	private static final int DEFAULT_INITIAL_SIZE = 8;
 
@@ -213,7 +214,7 @@ public class BufferBitSet {
 	 * @return a new bitset with the specified resize behavior
 	 */
 	public BufferBitSet withResizeBehavior(ResizeBehavior resizeBehavior) {
-		return new BufferBitSet(buffer.duplicate(), resizeBehavior, false);
+		return new BufferBitSet(duplicate(buffer), resizeBehavior, false);
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -788,6 +789,7 @@ public class BufferBitSet {
 
 		ByteBuffer buffer = resizeBehavior == ALLOCATE_DIRECT ? ByteBuffer.allocateDirect(totalBytes)
 				: ByteBuffer.allocate(totalBytes);
+		buffer.order(this.buffer.order());
 
 		buffer.position(offsetBytes);
 		ByteBuffer from = this.buffer.duplicate();
@@ -950,11 +952,41 @@ public class BufferBitSet {
 		return true;
 	}
 
+	/**
+	 * Cloning this bitset produces a new bitset that is equal to it.
+	 *
+	 * @return another bitset that has exactly the same bits set to {@code true} as
+	 *         this one
+	 */
+	@Override
+	public Object clone() {
+		return copy();
+	}
+
+	/**
+	 * Identical to {@link #clone()}, except returns a {@code BufferBitSet} instead
+	 * of {@code Object}.
+	 * 
+	 * @return another bitset that has exactly the same bits set to {@code true} as
+	 *         this one
+	 */
+	public BufferBitSet copy() {
+
+		ByteBuffer dup = buffer.duplicate();
+		dup.flip();
+
+		ByteBuffer b = buffer.isDirect() ? ByteBuffer.allocateDirect(dup.limit()) : ByteBuffer.allocate(dup.limit());
+		b.order(buffer.order());
+		b.put(dup);
+
+		return new BufferBitSet(b, resizeBehavior, false);
+	}
+
 	/*--------------------------------------------------------------------------------
 	 *  Methods related to resizing
 	 *-------------------------------------------------------------------------------*/
 	/**
-	 * Ensures that the BitSet can accommodate a given wordIndex.
+	 * Ensures that the bitset can accommodate a given wordIndex.
 	 */
 	private void expandTo(int byteIndex) {
 

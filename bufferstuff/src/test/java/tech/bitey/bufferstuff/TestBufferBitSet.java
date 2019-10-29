@@ -443,6 +443,22 @@ public class TestBufferBitSet {
 			Assertions.assertEquals(expected.toString(), bs.shiftRight(shift).toString());
 		}
 	}
+	
+	@Test
+	public void testClone() {
+		BufferBitSet bs1 = new BufferBitSet();
+		populateWithSampleIndices(bs1);
+		
+		BufferBitSet clone1 = (BufferBitSet)bs1.clone();
+		Assertions.assertEquals(bs1, clone1);
+		
+		BufferBitSet bs2 = new BufferBitSet();
+		populateWithSampleIndices(bs2);
+		bs2.set(9010);
+		
+		BufferBitSet clone2 = (BufferBitSet)bs2.clone();
+		Assertions.assertEquals(bs2, clone2);
+	}
 
 	@Test
 	public void badIndices() {
