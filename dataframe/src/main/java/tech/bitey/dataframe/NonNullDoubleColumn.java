@@ -147,14 +147,6 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 	}
 
 	@Override
-	boolean equals0(NonNullDoubleColumn rhs, int lStart, int rStart, int length) {
-		for(int i = 0; i < length; i++)
-			if(Double.compare(at(lStart+i), rhs.at(rStart+i)) != 0)
-				return false;
-		return true;
-	}
-
-	@Override
 	NonNullDoubleColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
 		ByteBuffer buffer = allocate(cardinality);

@@ -90,15 +90,6 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 		}
 		return result;
 	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	boolean equals0(LongArrayColumn rhs, int lStart, int rStart, int length) {
-		for(int i = 0; i < length; i++)
-			if(at(lStart+i) != at(rStart+i))
-				return false;
-		return true;
-	}
 	
 	@Override
 	C applyFilter0(BufferBitSet keep, int cardinality) {

@@ -52,4 +52,18 @@ public class TestDataFrame {
 		Assertions.assertEquals(1, col.indexOf("b"));
 		Assertions.assertEquals(7, col.lastIndexOf("b"));
 	}
+	
+	@Test
+	public void testCopy() {
+		StringColumn c1 = StringColumn.of("A", "B", null, "C", "D");
+		IntColumn c2 = IntColumn.of(1, 2, null, 3, 4);
+		BooleanColumn c3 = BooleanColumn.of(true, false, null, true, false);
+		
+		DataFrame df = DataFrameFactory.$.create(new Column<?>[] {c1, c2, c3}, new String[] {"C1", "C2", "C3"});
+		
+		Assertions.assertEquals(df, df.copy());
+		
+		DataFrame df2 = df.subFrame(1, 4);
+		Assertions.assertEquals(df2, df2.copy());
+	}
 }

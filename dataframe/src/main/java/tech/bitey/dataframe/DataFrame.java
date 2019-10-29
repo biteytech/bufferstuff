@@ -47,10 +47,11 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	
 	
 	/*--------------------------------------------------------------------------------
-	 *	Object, Collection, and List Methods
+	 *	Object, Collection, and List style Methods
 	 *--------------------------------------------------------------------------------*/
 	boolean equals(DataFrame df, boolean dataOnly);
 	
+	DataFrame copy();
 	
 	/*--------------------------------------------------------------------------------
 	 *	Miscellaneous Methods

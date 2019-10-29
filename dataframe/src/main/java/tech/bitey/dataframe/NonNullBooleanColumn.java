@@ -16,6 +16,7 @@ package tech.bitey.dataframe;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
@@ -34,7 +35,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	private final BufferBitSet elements;
 	
 	NonNullBooleanColumn(BufferBitSet elements, int offset, int size) {
-		super(offset, size, 0);
+		super(offset, size, NONNULL);
 		this.elements = elements;
 	}
 
@@ -180,5 +181,10 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	@Override
 	ByteBuffer[] asBuffers() {
 		return writeBufferBitSet(elements);
+	}
+
+	@Override
+	public NonNullBooleanColumn copy() {		
+		return new NonNullBooleanColumn(elements.get(offset, offset+size), 0, size);
 	}
 }

@@ -21,6 +21,8 @@ import static tech.bitey.bufferstuff.BufferUtils.slice;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import tech.bitey.bufferstuff.BufferUtils;
+
 public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBufferColumn<E, C>> extends NonNullColumn<E, C> {
 
 	final ByteBuffer buffer;
@@ -48,6 +50,18 @@ public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBuffer
 	@Override
 	C subColumn0(int fromIndex, int toIndex) {
 		return construct(buffer, fromIndex+offset, toIndex-fromIndex, characteristics);
+	}
+
+	@Override
+	public C copy() {
+		ByteBuffer copy = BufferUtils.copy(buffer, offset * elementSize(), (offset+size) * elementSize());
+		return construct(copy, 0, size, characteristics);
+	}
+	
+	@Override	
+	boolean equals0(C rhs, int lStart, int rStart, int length) {
+		return slice(buffer, lStart*elementSize(), (lStart + length)*elementSize())
+				.equals(slice(rhs.buffer, rStart*elementSize(), (rStart + length)*elementSize()));
 	}
 
 	@Override

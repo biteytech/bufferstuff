@@ -30,6 +30,7 @@ import java.util.Map;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.BufferUtils;
 
 class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> implements StringColumn {
 
@@ -220,17 +221,13 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 
 	@Override
 	boolean equals0(NonNullStringColumn rhs, int lStart, int rStart, int length) {
-		
-		for(int i = 0; i < length; i++)
-			if(length(lStart+i) != rhs.length(rStart+i))
+
+		for (int i = 0; i < length; i++)
+			if (length(lStart + i) != rhs.length(rStart + i))
 				return false;
-		
-		final int end = end(lStart+length-1);
-		for(int i = pat(lStart), j = rhs.pat(rStart); i < end; i++, j++)
-			if(bat(i) != rhs.bat(j))
-				return false;
-		
-		return true;
+
+		return slice(elements, pat(lStart), end(lStart + length - 1))
+				.equals(slice(rhs.elements, pat(rStart), end(rStart + length - 1)));
 	}
 
 	private void copyElement(int i, ByteBuffer dest) {
@@ -367,16 +364,30 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 		final int size = buffer.getInt(offset);
 		
 		ByteBuffer rawPointers = slice(buffer, offset + 4, offset + 4 + size*4);
+		zero(rawPointers, size);		
 		
+		ByteBuffer elements = slice(buffer, offset + 4 + size*4, offset+length);
+		
+		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics);
+	}
+
+	@Override
+	public NonNullStringColumn copy() {
+		
+		ByteBuffer rawPointers = BufferUtils.copy(this.rawPointers, offset*4, (offset+size)*4);
+		zero(rawPointers, size);
+		
+		ByteBuffer elements = BufferUtils.copy(this.elements, pat(offset), end(lastIndex()));
+		
+		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics);
+	}
+	
+	private static void zero(ByteBuffer rawPointers, int size) {
 		if(size > 0) {
 			IntBuffer pointers = rawPointers.asIntBuffer();
 			int first = pointers.get(0);
 			for(int i = 0; i < size; i++)
 				pointers.put(i, pointers.get(i) - first);
 		}
-		
-		ByteBuffer elements = slice(buffer, offset + 4 + size*4, offset+length);
-		
-		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics);
 	}
 }

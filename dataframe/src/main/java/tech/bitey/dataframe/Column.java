@@ -355,4 +355,13 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 
 		return append(tail);
 	}
+
+	/**
+	 * Returns a column equal to this one, but with elements stored in a newly
+	 * allocated buffer.
+	 * 
+	 * @return a column equal to this one, but with elements stored in a newly
+	 *         allocated buffer.
+	 */
+	Column<E> copy();
 }

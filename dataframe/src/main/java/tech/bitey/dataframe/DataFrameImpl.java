@@ -210,6 +210,15 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return equals((DataFrame)o, false);
 	}
 	
+	@Override
+	public DataFrame copy() {
+		
+		Column<?>[] columns = Arrays.stream(this.columns)
+				.map(Column::copy)
+				.toArray(Column<?>[]::new);
+		
+		return new DataFrameImpl(columns, columnNames, keyIndex);
+	}
 	
 	/*--------------------------------------------------------------------------------
 	 *	Miscellaneous Methods

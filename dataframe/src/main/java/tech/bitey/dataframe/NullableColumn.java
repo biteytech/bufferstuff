@@ -233,7 +233,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 		// check that values and nulls are in the same place
 		int count = 0;
 		for(int i = offset, j = rhs.offset; i <= lastIndex(); i++, j++) {
-			if(nonNulls.get(i) != nonNulls.get(j))
+			if(nonNulls.get(i) != rhs.nonNulls.get(j))
 				return false;
 			count += nonNulls.get(i) ? 1 : 0;
 		}
@@ -376,6 +376,14 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 			
 			return construct(column, nonNulls, size);
 		}
+	}
+	
+	@Override
+	public N copy() {		
+		@SuppressWarnings("unchecked")
+		C column = (C)nonNullSubColumn().copy();
+		
+		return construct(column, nonNulls.get(offset, offset+size), size);
 	}
 	
 	@Override

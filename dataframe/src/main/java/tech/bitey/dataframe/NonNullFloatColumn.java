@@ -147,14 +147,6 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, NonNullFloatCo
 	}
 
 	@Override
-	boolean equals0(NonNullFloatColumn rhs, int lStart, int rStart, int length) {
-		for(int i = 0; i < length; i++)
-			if(Float.compare(at(lStart+i), rhs.at(rStart+i)) != 0)
-				return false;
-		return true;
-	}
-
-	@Override
 	NonNullFloatColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
 		ByteBuffer buffer = allocate(cardinality);
