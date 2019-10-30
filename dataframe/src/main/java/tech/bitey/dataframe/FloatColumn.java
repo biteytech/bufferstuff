@@ -26,6 +26,12 @@ public interface FloatColumn extends NumericColumn<Float> {
 	@Override FloatColumn head(Float toElement);	
 	@Override FloatColumn tail(Float fromElement, boolean inclusive);
 	@Override FloatColumn tail(Float fromElement);
+	
+	@Override FloatColumn toHeap();
+	@Override FloatColumn toSorted();
+	
+	@Override FloatColumn append(Column<Float> tail);
+	@Override FloatColumn copy();
 
 	float getFloat(int index);
 	

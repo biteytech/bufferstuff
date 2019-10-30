@@ -30,6 +30,12 @@ public interface StringColumn extends Column<String> {
 	@Override StringColumn tail(String fromElement, boolean inclusive);
 	@Override StringColumn tail(String fromElement);
 	
+	@Override StringColumn toHeap();
+	@Override StringColumn toSorted();
+	
+	@Override StringColumn append(Column<String> tail);
+	@Override StringColumn copy();
+	
 	public static StringColumnBuilder builder(int characteristics) {		
 		return new StringColumnBuilder(characteristics);
 	}

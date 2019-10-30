@@ -17,6 +17,7 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
+import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
@@ -30,7 +31,7 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 
-class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubleColumn> implements DoubleColumn {
+class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn, NonNullDoubleColumn> implements DoubleColumn {
 	
 	static final Map<Integer, NonNullDoubleColumn> EMPTY = new HashMap<>();
 	static {
@@ -112,6 +113,10 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, NonNullDoubl
 			
 			return -1;
 		}
+	}
+	
+	void sort() {
+		inplaceSort(elements, offset, offset+size);
 	}
 
 	@Override

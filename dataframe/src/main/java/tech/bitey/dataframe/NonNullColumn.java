@@ -14,6 +14,7 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
@@ -32,7 +33,7 @@ import org.eclipse.collections.impl.list.mutable.primitive.MutableIntListFactory
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractColumn<E, C> implements RandomAccess
+abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>> extends AbstractColumn<E, I, C> implements RandomAccess
 {	
 	static final int NONNULL_CHARACTERISTICS = BASE_CHARACTERISTICS | NONNULL;
 	
@@ -55,17 +56,29 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	}
 	
 	abstract int search(E value, boolean first);
-	abstract C toHeap0();
+	abstract C withCharacteristics(int characteristics);
+	abstract C toSorted0();
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public C toHeap() {
 		if(isSorted())
-			return toHeap0();
+			return withCharacteristics(NONNULL_CHARACTERISTICS);
 		else {
-			@SuppressWarnings("unchecked")
-			C cast = (C)this;
-			return cast;
+			return (C)this;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public C toSorted() {
+		if(isDistinct())
+			return withCharacteristics(characteristics & ~DISTINCT);
+		else if(isSorted()) {
+			return (C)this;
+		}
+		else
+			return ((C)copy()).toSorted0();
 	}
 	
 	/*
@@ -85,20 +98,20 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	
 	abstract C appendNonNull(C tail);
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	Column<E> append0(Column<E> tail) {				
+	I append0(Column<E> tail) {				
 				
 		if(!tail.isNonnull()) {
-			NullableColumn<E,C,?> rhs = (NullableColumn<E,C,?>)tail;
+			NullableColumn rhs = (NullableColumn)tail;
 			C lhs = (C)this;
-			return rhs.prependNonNull(lhs);
+			return (I)rhs.prependNonNull(lhs);
 		}
 		else {
 			checkArgument(characteristics == tail.characteristics(),
 					"both columns must have the same characteristics");
 			
-			return appendNonNull((C)tail);
+			return (I)appendNonNull((C)tail);
 		}
 	}
 	

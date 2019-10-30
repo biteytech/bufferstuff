@@ -26,6 +26,12 @@ public interface LongColumn extends NumericColumn<Long> {
 	@Override LongColumn head(Long toElement);	
 	@Override LongColumn tail(Long fromElement, boolean inclusive);
 	@Override LongColumn tail(Long fromElement);
+	
+	@Override LongColumn toHeap();
+	@Override LongColumn toSorted();
+	
+	@Override LongColumn append(Column<Long> tail);
+	@Override LongColumn copy();
 
 	long getLong(int index);
 	

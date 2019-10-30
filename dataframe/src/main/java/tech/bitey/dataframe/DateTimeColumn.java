@@ -28,6 +28,12 @@ public interface DateTimeColumn extends Column<LocalDateTime> {
 	@Override DateTimeColumn tail(LocalDateTime fromElement, boolean inclusive);
 	@Override DateTimeColumn tail(LocalDateTime fromElement);
 	
+	@Override DateTimeColumn toHeap();
+	@Override DateTimeColumn toSorted();
+	
+	@Override DateTimeColumn append(Column<LocalDateTime> tail);
+	@Override DateTimeColumn copy();
+	
 	public static DateTimeColumnBuilder builder(int characteristics) {		
 		return new DateTimeColumnBuilder(characteristics);
 	}

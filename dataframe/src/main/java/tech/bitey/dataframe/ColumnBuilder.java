@@ -28,7 +28,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, C, B>> {
 
-	final int characteristics;
+	int characteristics;
 	
 	BufferBitSet nulls;
 	

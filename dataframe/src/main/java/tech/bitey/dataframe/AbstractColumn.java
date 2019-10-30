@@ -36,7 +36,7 @@ import java.util.Set;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends AbstractCollection<E> implements Column<E> {
+abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E> implements Column<E> {
 	
 	static final BufferBitSet EMPTY_NO_RESIZE = new BufferBitSet(NO_RESIZE);
 	
@@ -107,18 +107,24 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 			return select0(indices);
 	}
 	
-	abstract Column<E> append0(Column<E> tail);
+	abstract I append0(Column<E> tail);
 	
 	@Override
-	public Column<E> append(Column<E> tail) {		
+	public I append(Column<E> tail) {		
 		checkArgument(getType() == tail.getType(), "columns must have the same type");
 		checkArgument(isSorted() == tail.isSorted() && isDistinct() == tail.isDistinct(),
 				"both columns must have same sorted & distinct characteristics");		
 		
-		if(isEmpty())
-			return tail;
-		else if(tail.isEmpty())
-			return this;
+		if(isEmpty()) {
+			@SuppressWarnings("unchecked")
+			I cast = (I)tail;
+			return cast;
+		}
+		else if(tail.isEmpty()) {
+			@SuppressWarnings("unchecked")
+			I cast = (I)this;
+			return cast;
+		}
 		else {			
 			if(isDistinct()) {
 				checkArgument(
@@ -210,8 +216,8 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
             return true;
 		
 		if(o instanceof Column) {
-			
-			AbstractColumn<?,?> rhs = (AbstractColumn<?,?>)o;
+			@SuppressWarnings("rawtypes")
+			AbstractColumn rhs = (AbstractColumn)o;
 			if(getType() != rhs.getType() || size != rhs.size || isNonnull() != rhs.isNonnull())
 				return false;
 			
@@ -382,7 +388,7 @@ abstract class AbstractColumn<E, C extends AbstractColumn<E, C>> extends Abstrac
 		if(offset > 0)
 			bbs.clear(0, offset);
 		if(size < bbs.size())
-			bbs.clear(size, bbs.size());
+			bbs.clear(size+1, bbs.size());
 		
 		return new BufferBitSetWrapper(offset, size, bbs);
 	}

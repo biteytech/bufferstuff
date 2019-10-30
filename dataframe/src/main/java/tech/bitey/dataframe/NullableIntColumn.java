@@ -18,7 +18,7 @@ import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-class NullableIntColumn extends NullableColumn<Integer, NonNullIntColumn, NullableIntColumn> implements IntColumn {
+class NullableIntColumn extends NullableColumn<Integer, IntColumn, NonNullIntColumn, NullableIntColumn> implements IntColumn {
 	
 	static final NullableIntColumn EMPTY = new NullableIntColumn(NonNullIntColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
 

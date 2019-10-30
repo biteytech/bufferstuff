@@ -15,6 +15,7 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.NONNULL;
+import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
 
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
@@ -24,7 +25,7 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 
-abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNullSingleBufferColumn<E, C> {
+abstract class LongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn<E, I, C>> extends NonNullSingleBufferColumn<E, I, C> {
 
 	final LongArrayPacker<E> packer;
 	final LongBuffer elements;
@@ -77,6 +78,10 @@ abstract class LongArrayColumn<E, C extends LongArrayColumn<E, C>> extends NonNu
 			
 			return -1;
 		}
+	}
+	
+	void sort() {
+		inplaceSort(elements, offset, offset+size);
 	}
 	
 	@Override

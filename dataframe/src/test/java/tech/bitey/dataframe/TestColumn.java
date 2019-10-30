@@ -15,8 +15,10 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.SORTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -226,5 +228,33 @@ public class TestColumn {
 		assertEquals(sub1, sub2);
 		
 		assertEquals(column, list.stream().collect(LongColumn.collector()));
+	}
+	
+	@Test
+	public void toSorted() {
+		IntColumn iunsorted = IntColumn.of(2, 3, 2, 1);
+		IntColumn iunsortedCopy = iunsorted.copy();
+		IntColumn isorted = IntColumn.builder(SORTED).addAll(1, 2, 2, 3).build();		
+		assertEquals(isorted, iunsorted.toSorted());
+		assertSame(isorted, isorted.toSorted());
+		assertEquals(iunsortedCopy, iunsorted);
+		
+		IntColumn idistinct = IntColumn.builder(DISTINCT).addAll(1, 2, 3).build();
+		IntColumn isorted2 = idistinct.toSorted();
+		assertEquals(idistinct, isorted2);
+		Assertions.assertNotSame(idistinct, isorted2);
+		
+		
+		StringColumn sunsorted = StringColumn.of("b", "c", "b", "a");
+		StringColumn sunsortedCopy = sunsorted.copy();
+		StringColumn ssorted = StringColumn.builder(SORTED).add("a", "b", "b", "c").build();		
+		assertEquals(ssorted, sunsorted.toSorted());
+		assertSame(ssorted, ssorted.toSorted());
+		assertEquals(sunsortedCopy, sunsorted);
+		
+		StringColumn sdistinct = StringColumn.builder(DISTINCT).add("a", "b", "c").build();
+		StringColumn ssorted2 = sdistinct.toSorted();
+		assertEquals(sdistinct, ssorted2);
+		Assertions.assertNotSame(sdistinct, ssorted2);
 	}
 }

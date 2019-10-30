@@ -28,6 +28,12 @@ public interface DateColumn extends Column<LocalDate> {
 	@Override DateColumn tail(LocalDate fromElement, boolean inclusive);
 	@Override DateColumn tail(LocalDate fromElement);
 	
+	@Override DateColumn toHeap();
+	@Override DateColumn toSorted();
+	
+	@Override DateColumn append(Column<LocalDate> tail);
+	@Override DateColumn copy();
+	
 	int yyyymmdd(int index);
 	
 	public static DateColumnBuilder builder(int characteristics) {		

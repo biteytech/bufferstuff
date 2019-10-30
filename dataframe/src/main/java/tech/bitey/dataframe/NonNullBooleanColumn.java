@@ -28,7 +28,7 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> implements BooleanColumn {
+class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn> implements BooleanColumn {
 
 	static final NonNullBooleanColumn EMPTY = new NonNullBooleanColumn(EMPTY_NO_RESIZE, 0, 0);
 	
@@ -40,8 +40,13 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, NonNullBooleanColumn> 
 	}
 
 	@Override
-	NonNullBooleanColumn toHeap0() {
+	NonNullBooleanColumn withCharacteristics(int characteristics) {
 		throw new IllegalStateException();
+	}
+
+	@Override
+	NonNullBooleanColumn toSorted0() {
+		throw new UnsupportedOperationException("toSorted");
 	}
 	
 	@Override

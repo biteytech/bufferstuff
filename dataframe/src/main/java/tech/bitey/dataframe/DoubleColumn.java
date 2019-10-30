@@ -26,6 +26,12 @@ public interface DoubleColumn extends NumericColumn<Double> {
 	@Override DoubleColumn head(Double toElement);	
 	@Override DoubleColumn tail(Double fromElement, boolean inclusive);
 	@Override DoubleColumn tail(Double fromElement);
+	
+	@Override DoubleColumn toHeap();
+	@Override DoubleColumn toSorted();
+	
+	@Override DoubleColumn append(Column<Double> tail);
+	@Override DoubleColumn copy();
 
 	double getDouble(int index);
 	

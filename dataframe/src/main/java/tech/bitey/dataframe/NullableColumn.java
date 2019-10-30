@@ -28,7 +28,7 @@ import java.util.SortedSet;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends NullableColumn<E, C, N>> extends AbstractColumn<E, N> {
+abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>> extends AbstractColumn<E, I, N> {
 
 	final C column;
 	final BufferBitSet nonNulls;
@@ -84,6 +84,11 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 		@SuppressWarnings("unchecked")
 		N cast = (N)this;
 		return cast;
+	}
+
+	@Override
+	public N toSorted() {
+		throw new UnsupportedOperationException("columns with null values cannot be sorted");
 	}
 	
 	@Override
@@ -330,7 +335,8 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 			return construct(column, decodedNonNulls, indices.length);
 	}
 		
-	N prependNonNull(C head) {
+	@SuppressWarnings("unchecked")
+	I prependNonNull(C head) {
 		
 		BufferBitSet nonNulls = this.nonNulls.get(offset, offset+this.size());
 		nonNulls = nonNulls.shiftRight(head.size());
@@ -342,12 +348,12 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 		else
 			column = head.appendNonNull(this.column);
 		
-		return construct(column, nonNulls, head.size() + this.size());
+		return (I)construct(column, nonNulls, head.size() + this.size());
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	N append0(Column<E> tail) {
+	I append0(Column<E> tail) {
 		
 		final int size = this.size() + tail.size();
 		
@@ -363,7 +369,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 			bothNonNulls = bothNonNulls.shiftRight(size());
 			bothNonNulls.or(nonNulls);
 			
-			return construct(column, bothNonNulls, size);
+			return (I)construct(column, bothNonNulls, size);
 		}
 		else {
 			// append non-null column
@@ -374,7 +380,7 @@ abstract class NullableColumn<E, C extends NonNullColumn<E, C>, N extends Nullab
 			BufferBitSet nonNulls = this.nonNulls.get(offset, offset+this.size());
 			nonNulls.set(this.size(), size);
 			
-			return construct(column, nonNulls, size);
+			return (I)construct(column, nonNulls, size);
 		}
 	}
 	

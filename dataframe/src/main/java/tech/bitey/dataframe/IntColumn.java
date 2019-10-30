@@ -26,6 +26,12 @@ public interface IntColumn extends NumericColumn<Integer> {
 	@Override IntColumn head(Integer toElement);	
 	@Override IntColumn tail(Integer fromElement, boolean inclusive);
 	@Override IntColumn tail(Integer fromElement);
+	
+	@Override IntColumn toHeap();
+	@Override IntColumn toSorted();
+	
+	@Override IntColumn append(Column<Integer> tail);
+	@Override IntColumn copy();
 
 	int getInt(int index);
 	

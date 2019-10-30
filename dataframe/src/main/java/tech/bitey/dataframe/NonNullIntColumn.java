@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-class NonNullIntColumn extends IntArrayColumn<Integer, NonNullIntColumn> implements IntColumn {
+class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullIntColumn> implements IntColumn {
 
 	static final Map<Integer, NonNullIntColumn> EMPTY = new HashMap<>();
 	static {

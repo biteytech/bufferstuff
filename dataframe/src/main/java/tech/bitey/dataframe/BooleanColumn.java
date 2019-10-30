@@ -19,6 +19,9 @@ import java.util.stream.Collector;
 public interface BooleanColumn extends Column<Boolean> {
 	
 	@Override BooleanColumn subColumn(int fromIndex, int toIndex);
+	
+	@Override BooleanColumn append(Column<Boolean> tail);
+	@Override BooleanColumn copy();
 
 	public static BooleanColumnBuilder builder() {		
 		return new BooleanColumnBuilder();

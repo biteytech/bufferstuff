@@ -16,6 +16,7 @@ package tech.bitey.dataframe;
 
 import static java.lang.Integer.compare;
 import static java.util.Spliterator.NONNULL;
+import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -25,7 +26,7 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 
-abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNullSingleBufferColumn<E, C> {
+abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E, I, C>> extends NonNullSingleBufferColumn<E, I, C> {
 
 	final IntArrayPacker<E> packer;
 	final IntBuffer elements;
@@ -78,6 +79,10 @@ abstract class IntArrayColumn<E, C extends IntArrayColumn<E, C>> extends NonNull
 			
 			return -1;
 		}
+	}
+	
+	void sort() {
+		inplaceSort(elements, offset, offset+size);
 	}
 	
 	@Override

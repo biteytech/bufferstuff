@@ -214,7 +214,7 @@ public class TestDataFrame {
 		StringColumn c2 = StringColumn.of(null, "BB", null, "DDDD", null, "FFFFFF", null);
 		
 		DataFrame df = DataFrameFactory.$.create(new Column<?>[] {c1, c2}, new String[] {"C1", "C2"});
-//		df = df.subFrame(1, df.size() - 1);
+		df = df.subFrame(1, df.size() - 1);
 			
 		File file = new File(System.getProperty("user.home")+"/Desktop", "df.dat");
 		df.writeTo(file);

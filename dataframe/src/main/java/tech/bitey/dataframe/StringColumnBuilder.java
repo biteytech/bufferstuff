@@ -22,6 +22,7 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
@@ -115,5 +116,10 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 	@Override
 	void append0(StringColumnBuilder tail) {
 		this.elements.addAll(tail.elements);
+	}
+	
+	void sort() {
+		Collections.sort(elements);
+		characteristics |= SORTED;
 	}
 }

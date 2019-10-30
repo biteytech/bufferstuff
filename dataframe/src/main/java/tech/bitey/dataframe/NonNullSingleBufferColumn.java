@@ -15,6 +15,7 @@
 package tech.bitey.dataframe;
 
 import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
 
@@ -23,7 +24,7 @@ import java.nio.ByteOrder;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
-public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBufferColumn<E, C>> extends NonNullColumn<E, C> {
+public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNullSingleBufferColumn<E, I, C>> extends NonNullColumn<E, I, C> {
 
 	final ByteBuffer buffer;
 	
@@ -43,8 +44,16 @@ public abstract class NonNullSingleBufferColumn<E, C extends NonNullSingleBuffer
 	}
 
 	@Override
-	C toHeap0() {
-		return construct(buffer, offset, size, NONNULL);
+	C withCharacteristics(int characteristics) {
+		return construct(buffer, offset, size, characteristics);
+	}
+	
+	abstract void sort();
+	
+	@Override
+	C toSorted0() {
+		sort();
+		return construct(buffer, offset, size, NONNULL | SORTED); 
 	}
 
 	@Override

@@ -156,12 +156,30 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	}
 
 	/**
-	 * Converts a unique index into a heap.
+	 * Converts an index into a heap.
 	 * 
 	 * @return a column equal to this one, but which reports {@link #isSorted} as
 	 *         false
 	 */
 	Column<E> toHeap();
+
+	/**
+	 * Converts a heap to an index. The resulting column will have the same
+	 * elements, but sorted in ascending order. The exact behavior of this method
+	 * depends on the {@link #characteristics()} of this column:
+	 * <ul>
+	 * <li>heap - {@link #copy()} will be invoked, and the resulting column will be
+	 * sorted
+	 * <li>sorted - returns this column
+	 * <li>distinct - returns a new column which shares the same underlying buffer,
+	 * but with {@code DISTINCT} flag unset.
+	 * </ul>
+	 * 
+	 * @return a column with the same elements, but sorted
+	 * 
+	 * @throws UnsupportedOperationException if the {@code NONNULL} flag is not set
+	 */
+	Column<E> toSorted();
 
 	/**
 	 * @return this column's {@link ColumnType type}.

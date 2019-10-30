@@ -32,7 +32,7 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
 
-class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> implements StringColumn {
+class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStringColumn> implements StringColumn {
 
 	private static ByteBuffer allocate(int capacity) {
 		return ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
@@ -73,8 +73,24 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 	}
 	
 	@Override
-	NonNullStringColumn toHeap0() {
-		return new NonNullStringColumn(elements, rawPointers, offset, size, NONNULL);
+	NonNullStringColumn withCharacteristics(int characteristics) {
+		return new NonNullStringColumn(elements, rawPointers, offset, size, characteristics);
+	}
+	
+	@Override
+	public NonNullStringColumn toSorted() {
+		if(isSorted())
+			return super.toSorted();
+		
+		StringColumnBuilder builder = new StringColumnBuilder(NONNULL);
+		builder.addAll(this);
+		builder.sort();
+		return (NonNullStringColumn)builder.build();
+	}
+	
+	@Override
+	NonNullStringColumn toSorted0() {
+		throw new IllegalStateException();
 	}
 	
 	private int end(int index) {
@@ -227,7 +243,7 @@ class NonNullStringColumn extends NonNullColumn<String, NonNullStringColumn> imp
 				return false;
 
 		return slice(elements, pat(lStart), end(lStart + length - 1))
-				.equals(slice(rhs.elements, pat(rStart), end(rStart + length - 1)));
+				.equals(slice(rhs.elements, rhs.pat(rStart), rhs.end(rStart + length - 1)));
 	}
 
 	private void copyElement(int i, ByteBuffer dest) {
