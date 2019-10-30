@@ -90,6 +90,11 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	public N toSorted() {
 		throw new UnsupportedOperationException("columns with null values cannot be sorted");
 	}
+
+	@Override
+	public N toDistinct() {
+		throw new UnsupportedOperationException("columns with null values cannot be sorted");
+	}
 	
 	@Override
 	E getNoOffset(int index) {

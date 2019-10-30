@@ -159,27 +159,52 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 * Converts an index into a heap.
 	 * 
 	 * @return a column equal to this one, but which reports {@link #isSorted} as
-	 *         false
+	 *         false. The resulting column shares the same underlying buffer as this
+	 *         one.
 	 */
 	Column<E> toHeap();
 
 	/**
 	 * Converts a heap to an index. The resulting column will have the same
-	 * elements, but sorted in ascending order. The exact behavior of this method
-	 * depends on the {@link #characteristics()} of this column:
+	 * elements, but sorted in ascending order. The behavior of this method depends
+	 * on the {@link #characteristics()} of this column:
 	 * <ul>
-	 * <li>heap - {@link #copy()} will be invoked, and the resulting column will be
-	 * sorted
+	 * <li>heap - checks if the column is already sorted. If so, returns a new
+	 * column which shares the same underlying buffer, but with {@code SORTED} flag
+	 * set. If not already sorted then {@link #copy()} will be invoked, and the
+	 * resulting column will be sorted.
 	 * <li>sorted - returns this column
 	 * <li>distinct - returns a new column which shares the same underlying buffer,
 	 * but with {@code DISTINCT} flag unset.
 	 * </ul>
 	 * 
-	 * @return a column with the same elements, but sorted
+	 * @return a column with elements sorted in ascending order
 	 * 
 	 * @throws UnsupportedOperationException if the {@code NONNULL} flag is not set
 	 */
 	Column<E> toSorted();
+
+	/**
+	 * Converts a column to a unique index. The behavior of this method depends on
+	 * the {@link #characteristics()} of this column:
+	 * <ul>
+	 * <li>heap - checks if the column is already sorted and distinct. If so,
+	 * returns a new column which shares the same underlying buffer, but with
+	 * {@code SORTED} and {@code DISTINCT} flags set. If not already sorted and
+	 * distinct then {@link #copy()} will be invoked, and the resulting column will
+	 * be sorted and deduplicated.
+	 * <li>sorted - checks if the column contains duplicates. If not, returns a new
+	 * column which shares the same underlying buffer, but with {@code DISTINCT}
+	 * flag set. If duplicates are present then {@link #copy()} will be invoked, and
+	 * the resulting column will be deduplicated.
+	 * <li>distinct - returns this column
+	 * </ul>
+	 * 
+	 * @return a column with distinct elements sorted in ascending order
+	 * 
+	 * @throws UnsupportedOperationException if the {@code NONNULL} flag is not set
+	 */
+	Column<E> toDistinct();
 
 	/**
 	 * @return this column's {@link ColumnType type}.

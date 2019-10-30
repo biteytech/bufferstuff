@@ -16,6 +16,7 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.SORTED;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
@@ -57,7 +58,10 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	
 	abstract int search(E value, boolean first);
 	abstract C withCharacteristics(int characteristics);
+	abstract boolean checkSorted();	
+	abstract boolean checkDistinct();
 	abstract C toSorted0();
+	abstract C toDistinct0(C sorted);
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -77,15 +81,40 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		else if(isSorted()) {
 			return (C)this;
 		}
+		else {
+			if(checkSorted())
+				return withCharacteristics(characteristics | SORTED);
+			else
+				return toSorted0();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public C toDistinct() {
+		if(isDistinct())
+			return (C)this;
+		else if(isSorted())
+			return sortedToDistinct();
+		else {
+			if(checkSorted())
+				return sortedToDistinct();
+			else
+				return toDistinct0(toSorted0());
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private C sortedToDistinct() {
+		if(checkDistinct())
+			return withCharacteristics(characteristics | SORTED | DISTINCT);
 		else
-			return ((C)copy()).toSorted0();
+			return toDistinct0((C)copy());
 	}
 	
 	/*
-	 * 
 	 * @param fromIndex - inclusive
 	 * @param toIndex - inclusive
-	 * @return
 	 */
 	abstract int hashCode(int fromIndex, int toIndex);
 	
@@ -252,7 +281,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	/*------------------------------------------------------------
 	 *                ImmutableNavigableSet methods
 	 *------------------------------------------------------------*/
-	void checkDistinct() {
+	void verifyDistinct() {
 		if(!isDistinct())
 			throw new UnsupportedOperationException("not a unique index");
 	}
@@ -261,7 +290,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	public E lower(E value) {
 		if(value == null)
 			return null;
-		checkDistinct();
+		verifyDistinct();
 		
 		int idx = lowerIndex(value);
 		return idx == -1 ? null : getNoOffset(idx);
@@ -271,7 +300,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	public E higher(E value) {
 		if(value == null)
 			return null;
-		checkDistinct();
+		verifyDistinct();
 		
 		int idx = higherIndex(value);
 		return idx == -1 ? null : getNoOffset(idx);
@@ -281,7 +310,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	public E floor(E value) {
 		if(value == null)
 			return null;
-		checkDistinct();
+		verifyDistinct();
 		
 		int idx = floorIndex(value);
 		return idx == -1 ? null : getNoOffset(idx);
@@ -291,7 +320,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	public E ceiling(E value) {
 		if(value == null)
 			return null;
-		checkDistinct();
+		verifyDistinct();
 		
 		int idx = ceilingIndex(value);
 		return idx == -1 ? null : getNoOffset(idx);
@@ -381,7 +410,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	 *                subColumn methods
 	 *------------------------------------------------------------*/	
 	public C subColumn(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
-		checkDistinct();
+		verifyDistinct();
 		
 		int direction = comparator().compare(fromElement, toElement);
 		

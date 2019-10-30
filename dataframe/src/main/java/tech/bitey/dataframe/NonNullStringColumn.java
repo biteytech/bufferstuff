@@ -77,22 +77,6 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 		return new NonNullStringColumn(elements, rawPointers, offset, size, characteristics);
 	}
 	
-	@Override
-	public NonNullStringColumn toSorted() {
-		if(isSorted())
-			return super.toSorted();
-		
-		StringColumnBuilder builder = new StringColumnBuilder(NONNULL);
-		builder.addAll(this);
-		builder.sort();
-		return (NonNullStringColumn)builder.build();
-	}
-	
-	@Override
-	NonNullStringColumn toSorted0() {
-		throw new IllegalStateException();
-	}
-	
 	private int end(int index) {
 		return index == pointers.limit()-1 ? elements.limit() : pat(index+1);
 	}
@@ -405,5 +389,73 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 			for(int i = 0; i < size; i++)
 				pointers.put(i, pointers.get(i) - first);
 		}
+	}
+
+	@Override
+	boolean checkSorted() {
+		if(size < 2)
+			return true;
+				
+		for(int i = offset+1; i <= lastIndex(); i++) {
+			if(getNoOffset(i-1).compareTo(getNoOffset(i)) > 0)
+				return false;
+		}
+		
+		return true;
+	}
+
+	@Override
+	boolean checkDistinct() {
+		if(size < 2)
+			return true;
+				
+		for(int i = offset+1; i <= lastIndex(); i++) {
+			if(length(i) != length(i-1))
+				continue;
+						
+			ByteBuffer curr = slice(elements, pat(i), end(i));
+			ByteBuffer prev = slice(elements, pat(i-1), end(i-1));
+			
+			if(curr.equals(prev))
+				return false;						
+		}
+		
+		return true;
+	}
+	
+	@Override
+	NonNullStringColumn toSorted0() {
+		StringColumnBuilder builder = new StringColumnBuilder(NONNULL);
+		builder.addAll(this);
+		builder.sort();
+		return (NonNullStringColumn)builder.build();
+	}
+
+	@Override
+	NonNullStringColumn toDistinct0(NonNullStringColumn sorted) {
+		
+		String prev = sorted.getNoOffset(0);
+		int ptr = prev.length();
+		int size = 1;
+
+		for (int i = 1; i < sorted.size; i++) {
+			String value = sorted.getNoOffset(i);
+
+			if (!value.equals(prev)) {
+				if (size < i) {					
+					sorted.pointers.put(size, ptr);
+					
+					slice(sorted.elements, ptr, ptr+value.length())
+						.put(ByteBuffer.wrap(value.getBytes(UTF_8)));
+				}
+
+				size++;
+				ptr += value.length();
+				prev = value;
+			}
+		}
+		
+		return new NonNullStringColumn(slice(sorted.elements, 0, ptr),
+				slice(sorted.rawPointers, 0, size<<2), 0, size, sorted.characteristics | DISTINCT);
 	}
 }

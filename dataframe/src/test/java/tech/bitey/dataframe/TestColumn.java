@@ -245,16 +245,47 @@ public class TestColumn {
 		Assertions.assertNotSame(idistinct, isorted2);
 		
 		
-		StringColumn sunsorted = StringColumn.of("b", "c", "b", "a");
+		StringColumn sunsorted = StringColumn.of("bb", "ccc", "bb", "a");
 		StringColumn sunsortedCopy = sunsorted.copy();
-		StringColumn ssorted = StringColumn.builder(SORTED).add("a", "b", "b", "c").build();		
+		StringColumn ssorted = StringColumn.builder(SORTED).add("a", "bb", "bb", "ccc").build();		
 		assertEquals(ssorted, sunsorted.toSorted());
 		assertSame(ssorted, ssorted.toSorted());
 		assertEquals(sunsortedCopy, sunsorted);
 		
-		StringColumn sdistinct = StringColumn.builder(DISTINCT).add("a", "b", "c").build();
+		StringColumn sdistinct = StringColumn.builder(DISTINCT).add("a", "bb", "ccc").build();
 		StringColumn ssorted2 = sdistinct.toSorted();
 		assertEquals(sdistinct, ssorted2);
 		Assertions.assertNotSame(sdistinct, ssorted2);
+	}
+	
+	@Test
+	public void toDistinct() {
+		
+		IntColumn idistinct = IntColumn.builder(DISTINCT).addAll(1, 2, 3).build();
+		assertSame(idistinct, idistinct.toDistinct());
+		
+		IntColumn isorted = IntColumn.builder(SORTED).addAll(1, 2, 2, 3).build();
+		IntColumn isortedCopy = isorted.copy();
+		assertEquals(idistinct, isorted.toDistinct());
+		assertEquals(isorted, isortedCopy);
+		
+		IntColumn iunsorted = IntColumn.of(3, 2, 1, 2, 2, 3, 3, 2, 1);
+		IntColumn iunsortedCopy = iunsorted.copy();
+		assertEquals(idistinct, iunsorted.toDistinct());
+		assertEquals(iunsorted, iunsortedCopy);
+		
+		
+		StringColumn sdistinct = StringColumn.builder(DISTINCT).add("a", "bb", "ccc").build();
+		assertSame(sdistinct, sdistinct.toDistinct());
+		
+		StringColumn ssorted = StringColumn.builder(SORTED).add("a", "bb", "bb", "ccc").build();
+		StringColumn ssortedCopy = ssorted.copy();
+		assertEquals(sdistinct, ssorted.toDistinct());
+		assertEquals(ssorted, ssortedCopy);
+		
+		StringColumn sunsorted = StringColumn.of("ccc", "bb", "a", "bb", "bb", "ccc", "a", "bb", "ccc");
+		StringColumn sunsortedCopy = sunsorted.copy();
+		assertEquals(sdistinct, sunsorted.toDistinct());
+		assertEquals(sunsorted, sunsortedCopy);
 	}
 }

@@ -43,11 +43,6 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	NonNullBooleanColumn withCharacteristics(int characteristics) {
 		throw new IllegalStateException();
 	}
-
-	@Override
-	NonNullBooleanColumn toSorted0() {
-		throw new UnsupportedOperationException("toSorted");
-	}
 	
 	@Override
 	Boolean getNoOffset(int index) {
@@ -166,6 +161,26 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	@Override
 	int compareValuesAt(NonNullBooleanColumn rhs, int l, int r) {
 		throw new UnsupportedOperationException("compareValuesAt");
+	}
+
+	@Override
+	NonNullBooleanColumn toSorted0() {
+		throw new UnsupportedOperationException("toSorted");
+	}
+
+	@Override
+	NonNullBooleanColumn toDistinct0(NonNullBooleanColumn sorted) {
+		throw new UnsupportedOperationException("toDistinct0");
+	}
+
+	@Override
+	boolean checkSorted() {
+		throw new UnsupportedOperationException("checkSorted");
+	}
+
+	@Override
+	boolean checkDistinct() {
+		throw new UnsupportedOperationException("checkDistinct");
 	}
 
 	@Override

@@ -14,7 +14,7 @@
 
 package tech.bitey.dataframe;
 
-import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
@@ -49,11 +49,19 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 	}
 	
 	abstract void sort();
+	abstract int deduplicate();
 	
 	@Override
 	C toSorted0() {
-		sort();
-		return construct(buffer, offset, size, NONNULL | SORTED); 
+		C copy = copy();
+		copy.sort();
+		return copy.withCharacteristics(SORTED);
+	}
+
+	@Override
+	C toDistinct0(C sorted) {				
+		int size = sorted.deduplicate();		
+		return construct(slice(sorted.buffer, 0, size * elementSize()), 0, size, sorted.characteristics | DISTINCT);
 	}
 
 	@Override

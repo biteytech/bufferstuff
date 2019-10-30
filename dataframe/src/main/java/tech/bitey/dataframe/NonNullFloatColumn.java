@@ -18,6 +18,7 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
+import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
@@ -30,6 +31,7 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
+import tech.bitey.bufferstuff.BufferUtils;
 
 class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, NonNullFloatColumn> implements FloatColumn {
 	
@@ -115,8 +117,24 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, N
 		}
 	}
 	
+	@Override
 	void sort() {
 		inplaceSort(elements, offset, offset+size);
+	}
+	
+	@Override
+	int deduplicate() {
+		return BufferUtils.deduplicate(elements, offset, offset+size);
+	}
+
+	@Override
+	boolean checkSorted() {
+		return BufferUtils.isSorted(elements, offset, offset+size);
+	}
+
+	@Override
+	boolean checkDistinct() {
+		return isSortedAndDistinct(elements, offset, offset+size);
 	}
 
 	@Override
