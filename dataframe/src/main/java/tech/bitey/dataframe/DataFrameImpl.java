@@ -995,10 +995,8 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			RandomAccessFile raf = new RandomAccessFile(file, "rw");
 			FileChannel channel = raf.getChannel();
 		) {
-			if(file.exists()) {
+			if(file.exists())
 				checkState(file.isFile(), file+", is not a normal file");
-				file.delete();
-			}
 			
 			final int cc = columnCount(); // abbreviation
 			

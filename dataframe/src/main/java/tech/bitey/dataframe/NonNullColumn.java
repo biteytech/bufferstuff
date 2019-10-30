@@ -41,8 +41,7 @@ abstract class NonNullColumn<E, C extends NonNullColumn<E, C>> extends AbstractC
 	NonNullColumn(int offset, int size, int characteristics) {
 		super(offset, size);
 
-		checkArgument((characteristics & NONNULL) != 0, "NonNullColumn must have NONNULL flag set");
-		this.characteristics = characteristics;
+		this.characteristics = NONNULL_CHARACTERISTICS | characteristics;
 	}
 	
 	@Override

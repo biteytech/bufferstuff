@@ -49,4 +49,8 @@ public interface FloatColumn extends NumericColumn<Float> {
 			FloatColumnBuilder::build
 		);
 	}
+	
+	public static Collector<Float,?,FloatColumn> collector() {
+		return collector(0);
+	}
 }

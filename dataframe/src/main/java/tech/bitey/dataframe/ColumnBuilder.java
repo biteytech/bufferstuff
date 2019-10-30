@@ -47,7 +47,7 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 	}
 	
 	public abstract ColumnType getType();
-	abstract C empty();
+	abstract C emptyNonNull();
 	abstract int getNonNullSize();
 	abstract void checkCharacteristics();
 	abstract C buildNonNullColumn(int characteristics);
@@ -76,12 +76,12 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 	public C build() {
 		
 		if(size == 0)
-			return empty();
+			return emptyNonNull();
 		
 		final C column;
 		
 		if(getNonNullSize() == 0) {
-			column = empty();
+			column = emptyNonNull();
 		}
 		else {
 			if(characteristics != Column.BASE_CHARACTERISTICS)

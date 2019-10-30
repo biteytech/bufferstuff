@@ -60,7 +60,7 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 	}
 
 	@Override
-	BooleanColumn empty() {
+	BooleanColumn emptyNonNull() {
 		return EMPTY;
 	}
 

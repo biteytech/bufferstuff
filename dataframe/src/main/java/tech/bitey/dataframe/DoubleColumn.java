@@ -49,4 +49,8 @@ public interface DoubleColumn extends NumericColumn<Double> {
 			DoubleColumnBuilder::build
 		);
 	}
+	
+	public static Collector<Double,?,DoubleColumn> collector() {
+		return collector(0);
+	}
 }

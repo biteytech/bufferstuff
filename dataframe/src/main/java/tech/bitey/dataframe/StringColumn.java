@@ -50,4 +50,8 @@ public interface StringColumn extends Column<String> {
 			StringColumnBuilder::build
 		);
 	}
+	
+	public static Collector<String,?,StringColumn> collector() {
+		return collector(0);
+	}
 }

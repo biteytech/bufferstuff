@@ -14,6 +14,7 @@
 
 package tech.bitey.dataframe;
 
+import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
 import static tech.bitey.dataframe.AbstractColumn.readBufferBitSet;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
@@ -26,50 +27,50 @@ public enum ColumnType {
 
 	BOOLEAN("B") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
 			BufferBitSetWrapper wrapper = readBufferBitSet(slice(buffer, offset, offset+length));
 			return new NonNullBooleanColumn(wrapper.bbs, wrapper.offset, wrapper.size);
 		}
 	},
 	DATE("DA") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
 			return new NonNullDateColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
 		}
 	},
 	DATETIME("DT") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
 			return new NonNullDateTimeColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
 		}
 	},
 	DOUBLE("D") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
 			return new NonNullDoubleColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
 		}
 	},
 	FLOAT("F") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
 			return new NonNullFloatColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
 		}
 	},
 	INT("I") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
 			return new NonNullIntColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
 		}
 	},
 	LONG("L") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
 			return new NonNullLongColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
 		}
 	},
 	STRING("S") {
 		@Override
-		Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
+		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
 			return NonNullStringColumn.fromBuffer(buffer, offset, length, characteristics);
 		}
 	},
@@ -146,11 +147,11 @@ public enum ColumnType {
 		return builder().addNulls(size).build();
 	}
 		
-	abstract Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics);
+	abstract Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics);
 	
-	Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics, boolean isNullable) {		
-		if(!isNullable)
-			return fromBuffer(buffer, offset, length, characteristics);
+	Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {		
+		if((characteristics & NONNULL) != 0)
+			return fromBuffer0(buffer, offset, length, characteristics);
 		
 		int nonNullLength = buffer.getInt(offset);
 		offset += 4;
@@ -158,7 +159,7 @@ public enum ColumnType {
 		BufferBitSetWrapper wrapper = readBufferBitSet(slice(buffer, offset, offset+nonNullLength));
 	
 		int columnStart = offset+nonNullLength;
-		Column<?> column = fromBuffer(buffer, columnStart, length - columnStart, characteristics);
+		Column<?> column = fromBuffer0(buffer, columnStart, length - columnStart, characteristics);
 		
 		switch(this) {
 		case BOOLEAN:

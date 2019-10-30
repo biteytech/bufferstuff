@@ -22,6 +22,7 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
+import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -52,8 +53,8 @@ public class DoubleColumnBuilder
 	}
 
 	@Override
-	DoubleColumn empty() {
-		return NonNullDoubleColumn.EMPTY.get(characteristics);
+	DoubleColumn emptyNonNull() {
+		return NonNullDoubleColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}
 
 	@Override

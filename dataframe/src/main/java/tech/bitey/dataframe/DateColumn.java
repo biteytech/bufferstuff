@@ -50,4 +50,8 @@ public interface DateColumn extends Column<LocalDate> {
 			DateColumnBuilder::build
 		);
 	}
+	
+	public static Collector<LocalDate,?,DateColumn> collector() {
+		return collector(0);
+	}
 }

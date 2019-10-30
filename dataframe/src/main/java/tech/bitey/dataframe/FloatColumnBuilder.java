@@ -22,6 +22,7 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -51,8 +52,8 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 	}
 
 	@Override
-	FloatColumn empty() {
-		return NonNullFloatColumn.EMPTY.get(characteristics);
+	FloatColumn emptyNonNull() {
+		return NonNullFloatColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}
 
 	@Override

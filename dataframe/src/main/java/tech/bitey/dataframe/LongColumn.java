@@ -49,4 +49,8 @@ public interface LongColumn extends NumericColumn<Long> {
 			LongColumnBuilder::build
 		);
 	}
+	
+	public static Collector<Long,?,LongColumn> collector() {
+		return collector(0);
+	}
 }

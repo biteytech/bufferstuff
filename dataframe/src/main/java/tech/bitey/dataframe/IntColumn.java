@@ -49,4 +49,8 @@ public interface IntColumn extends NumericColumn<Integer> {
 			IntColumnBuilder::build
 		);
 	}
+	
+	public static Collector<Integer,?,IntColumn> collector() {
+		return collector(0);
+	}
 }

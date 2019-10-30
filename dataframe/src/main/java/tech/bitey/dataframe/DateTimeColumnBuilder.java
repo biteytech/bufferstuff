@@ -16,6 +16,7 @@ package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
+import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -26,8 +27,8 @@ public class DateTimeColumnBuilder extends LongArrayColumnBuilder<LocalDateTime,
 	}
 
 	@Override
-	DateTimeColumn empty() {
-		return NonNullDateTimeColumn.EMPTY.get(characteristics);
+	DateTimeColumn emptyNonNull() {
+		return NonNullDateTimeColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}
 
 	@Override

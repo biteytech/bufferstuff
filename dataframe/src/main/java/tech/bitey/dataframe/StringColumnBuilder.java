@@ -22,6 +22,7 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -45,8 +46,8 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 	}
 
 	@Override
-	StringColumn empty() {
-		return NonNullStringColumn.EMPTY.get(characteristics);
+	StringColumn emptyNonNull() {
+		return NonNullStringColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}
 
 	@Override

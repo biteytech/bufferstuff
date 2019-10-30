@@ -15,6 +15,7 @@
 package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
+import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -25,8 +26,8 @@ public class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, 
 	}
 
 	@Override
-	IntColumn empty() {
-		return NonNullIntColumn.EMPTY.get(characteristics);
+	IntColumn emptyNonNull() {
+		return NonNullIntColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}
 
 	@Override

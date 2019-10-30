@@ -16,6 +16,7 @@ package tech.bitey.dataframe;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
+import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -26,8 +27,8 @@ public class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, DateColu
 	}
 
 	@Override
-	DateColumn empty() {
-		return NonNullDateColumn.EMPTY.get(characteristics);
+	DateColumn emptyNonNull() {
+		return NonNullDateColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}
 
 	@Override

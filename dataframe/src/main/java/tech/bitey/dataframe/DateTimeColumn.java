@@ -48,4 +48,8 @@ public interface DateTimeColumn extends Column<LocalDateTime> {
 			DateTimeColumnBuilder::build
 		);
 	}
+	
+	public static Collector<LocalDateTime,?,DateTimeColumn> collector() {
+		return collector(0);
+	}
 }
