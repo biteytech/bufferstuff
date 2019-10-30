@@ -507,6 +507,184 @@ public enum BufferUtils {
 	}
 
 	/**
+	 * Deduplicates a range of the specified {@link IntBuffer}. The range must be
+	 * sorted in ascending order prior to making this call. If it is not sorted, the
+	 * results are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 * 
+	 * @return the (exclusive) highest index in use after deduplicating
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(IntBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		int prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			int value = b.get(i);
+
+			if (value != prev) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link LongBuffer}. The range must be
+	 * sorted in ascending order prior to making this call. If it is not sorted, the
+	 * results are undefined.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 * 
+	 * @return the (exclusive) highest index in use after deduplicating
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(LongBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		long prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			long value = b.get(i);
+
+			if (value != prev) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link FloatBuffer}. The range must be
+	 * sorted in ascending order prior to making this call. If it is not sorted, the
+	 * results are undefined. This method considers all NaN values to be equivalent
+	 * and equal.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 * 
+	 * @return the (exclusive) highest index in use after deduplicating
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(FloatBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		float prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			float value = b.get(i);
+
+			if (Float.compare(value, prev) != 0) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
+	 * Deduplicates a range of the specified {@link DoubleBuffer}. The range must be
+	 * sorted in ascending order prior to making this call. If it is not sorted, the
+	 * results are undefined. This method considers all NaN values to be equivalent
+	 * and equal.
+	 * <p>
+	 * This method is useful as a post-processing step after a sort on a buffer
+	 * which contains duplicate elements.
+	 *
+	 * @param b         the buffer to be deduplicated
+	 * @param fromIndex - the index of the first element (inclusive) to be
+	 *                  deduplicated
+	 * @param toIndex   - the index of the last element (exclusive) to be
+	 *                  deduplicated
+	 * 
+	 * @return the (exclusive) highest index in use after deduplicating
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static int deduplicate(DoubleBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		if (toIndex - fromIndex < 2)
+			return toIndex;
+
+		double prev = b.get(fromIndex);
+		int highest = fromIndex + 1;
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			double value = b.get(i);
+
+			if (Double.compare(value, prev) != 0) {
+				if (highest < i)
+					b.put(highest, value);
+
+				highest++;
+				prev = value;
+			}
+		}
+
+		return highest;
+	}
+
+	/**
 	 * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws
 	 * an exception if they aren't.
 	 * 
