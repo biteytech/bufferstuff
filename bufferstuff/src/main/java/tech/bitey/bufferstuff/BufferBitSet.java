@@ -313,7 +313,7 @@ public class BufferBitSet implements Cloneable {
 		// Process the last byte
 		int lastWordMask = MASK >>> ((-toIndex) & 7);
 		resultBuffer.put(targetBytes - 1, (byte) (((toIndex - 1) & 7) < (fromIndex & 7) ? /* straddles source bytes */
-				(((byt(sourceIndex) & 0xFF) >>> fromIndex)
+				(((byt(sourceIndex) & 0xFF) >>> (fromIndex & 7))
 						| (byt(sourceIndex + 1) & lastWordMask) << ((-fromIndex) & 7))
 				: ((byt(sourceIndex) & lastWordMask) >>> (fromIndex & 7))));
 
