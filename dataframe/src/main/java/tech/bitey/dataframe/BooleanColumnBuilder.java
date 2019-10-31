@@ -30,15 +30,12 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 
 	@Override
 	void addNonNull(Boolean element) {
-		if(element)
-			elements.set(size);
-		size++;
-		nonNullSize++;
+		add(element.booleanValue());
 	}
 	
 	public BooleanColumnBuilder add(boolean element) {
 		if(element)
-			elements.set(size);
+			elements.set(nonNullSize);
 		size++;
 		nonNullSize++;
 		return this;
@@ -47,10 +44,10 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 	public BooleanColumnBuilder addAll(boolean... elements) {
 		for(int i = 0; i < elements.length; i++) {
 			if(elements[i])
-				this.elements.set(size);
+				this.elements.set(nonNullSize);
+			nonNullSize++;
 		}
 		size += elements.length;
-		nonNullSize += elements.length;
 		return this;
 	}
 

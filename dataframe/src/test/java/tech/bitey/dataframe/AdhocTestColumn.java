@@ -42,7 +42,7 @@ public class AdhocTestColumn {
 		
 		assertEquals(column, list);
 		assertEquals(sub, list.subList(1, 3));
-		assertEquals(column.head("c"), list.subList(0, 3));
+		assertEquals(column.head("c"), list.subList(0, 2));
 		Assertions.assertEquals(column.tail("b"), list.subList(1, 4));
 		
 		assertNull(sub.lower("b"));

@@ -62,7 +62,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 			else {
 				// special case - all bits are considered clear after last index
 				int index = elements.nextClearBit(offset);
-				return index > lastIndex() ? -1 : lastIndex();
+				return index > lastIndex() ? -1 : index;
 			}
 		}
 		else {
@@ -140,8 +140,8 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	@Override
 	NonNullBooleanColumn appendNonNull(NonNullBooleanColumn tail) {
 		
-		BufferBitSet elements = tail.elements.shiftRight(size());
-		elements.or(this.elements);
+		BufferBitSet elements = tail.elements.get(tail.offset, tail.offset+tail.size).shiftRight(size());
+		elements.or(this.elements.get(offset, offset+size));
 			
 		return new NonNullBooleanColumn(elements, 0, this.size() + tail.size());
 	}
