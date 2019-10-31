@@ -38,7 +38,7 @@ class NullableIntColumn extends NullableColumn<Integer, IntColumn, NonNullIntCol
 
 	@Override
 	public double mean() {
-		return nonNullSubColumn().mean();
+		return subColumn.mean();
 	}
 
 	@Override

@@ -22,8 +22,10 @@ import static java.util.Spliterator.SIZED;
 import static java.util.Spliterator.SORTED;
 import static java.util.Spliterator.SUBSIZED;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
@@ -106,18 +108,18 @@ import java.util.Spliterators;
  * <li>All columns report {@link Spliterator#SIZED SIZED},
  * {@link Spliterator#SIZED SUBSIZED}, and {@link Spliterator#SIZED IMMUTABLE}
  * in addition to the ones listed above.
- * <li>Columns implement both {@link List} and {@link NavigableSet}.
- * {@code List} is the primary interface, and all {@code List} methods are
- * always available. <em>{@code NavigableSet} operations are only available for
- * unique indices</em> (i.e., when {@code isDistinct() -> true}). They will
- * throw {@link UnsupportedOperationException} otherwise.
+ * <li>Columns are {@link List}s, but they also have
+ * {@link NavigableSet}-inspired methods. <em>Some {@code NavigableSet}-like
+ * methods are only available for unique indices</em> (i.e., when
+ * {@code isDistinct() -> true}). They will throw
+ * {@link UnsupportedOperationException} otherwise.
  * </ul>
  * 
  * @author Lior Privman
  *
  * @param <E> the type of elements in this list
  */
-public interface Column<E> extends List<E>, NavigableSet<E> {
+public interface Column<E> extends List<E> {
 
 	static int BASE_CHARACTERISTICS = SIZED | SUBSIZED | IMMUTABLE | ORDERED;
 
@@ -236,119 +238,6 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	Column<E> subColumn(int fromIndex, int toIndex);
 
 	/**
-	 * Returns a view of the portion of this column whose elements range from
-	 * {@code fromElement} to {@code toElement}. If {@code fromElement} and
-	 * {@code toElement} are equal, the returned column is empty unless {@code
-	 * fromInclusive} and {@code toInclusive} are both true. The returned column is
-	 * backed by this column.
-	 * <p>
-	 * <em>This method is only available when {@link #isDistinct()} returns
-	 * true.</em>
-	 *
-	 * @param fromElement   low endpoint of the returned column
-	 * @param fromInclusive true if the low endpoint is to be included in the
-	 *                      returned view
-	 * @param toElement     high endpoint of the returned column
-	 * @param toInclusive   true if the high endpoint is to be included in the
-	 *                      returned view
-	 * @return a view of the portion of this column whose elements range from
-	 *         {@code fromElement} to {@code toElement}
-	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
-	 * @throws ClassCastException            if {@code fromElement} and
-	 *                                       {@code toElement} do not match type
-	 *                                       {@code E}
-	 * @throws NullPointerException          if {@code fromElement} or
-	 *                                       {@code toElement} is null
-	 * @throws IllegalArgumentException      if {@code fromElement} is greater than
-	 *                                       {@code toElement}
-	 */
-	Column<E> subColumn(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive);
-
-	/**
-	 * Same behavior as {@code Column#subColumn(Object, boolean, Object, Boolean)},
-	 * with {@code fromInclusive} set to true and {@code toInclusive} set to false.
-	 * <p>
-	 * <em>This method is only available when {@link #isDistinct()} returns
-	 * true.</em>
-	 * 
-	 * @param fromElement low endpoint of the returned column, inclusive
-	 * @param toElement   high endpoint of the returned column, exclusive
-	 * 
-	 * @return view of the portion of this column whose elements range from
-	 *         {@code fromElement}, inclusive, to {@code toElement}, exclusive
-	 */
-	Column<E> subColumn(E fromElement, E toElement);
-
-	/**
-	 * Returns a view of the portion of this column whose elements are less than (or
-	 * equal to, if {@code inclusive} is true) {@code toElement}. The returned
-	 * column is backed by this column.
-	 * <p>
-	 * <em>This method is only available when {@link #isDistinct()} returns
-	 * true.</em>
-	 *
-	 * @param toElement high endpoint of the returned column
-	 * @param inclusive {@code true} if the high endpoint is to be included in the
-	 *                  returned view
-	 * @return a view of the portion of this column whose elements are less than (or
-	 *         equal to, if {@code inclusive} is true) {@code toElement}
-	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
-	 * @throws ClassCastException            if {@code toElement} is not compatible
-	 *                                       with this column's element type.
-	 * @throws NullPointerException          if {@code toElement} is null
-	 */
-	Column<E> head(E toElement, boolean inclusive);
-
-	/**
-	 * Same behavior as {@link #head(Object, boolean)}, with {@code inclusive} set
-	 * to false.
-	 * <p>
-	 * <em>This method is only available when {@link #isDistinct()} returns
-	 * true.</em>
-	 * 
-	 * @param toElement high endpoint of the returned column
-	 * 
-	 * @return a view of the portion of this column whose elements are less than
-	 *         {@code toElement}
-	 */
-	Column<E> head(E toElement);
-
-	/**
-	 * Returns a view of the portion of this column whose elements are greater than
-	 * (or equal to, if {@code inclusive} is true) {@code fromElement}. The returned
-	 * column is backed by this column.
-	 * <p>
-	 * <em>This method is only available when {@link #isDistinct()} returns
-	 * true.</em>
-	 *
-	 * @param fromElement low endpoint of the returned column
-	 * @param inclusive   {@code true} if the low endpoint is to be included in the
-	 *                    returned view
-	 * @return a view of the portion of this column whose elements are greater than
-	 *         or equal to {@code fromElement}
-	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
-	 * @throws ClassCastException            if {@code fromElement} is not
-	 *                                       compatible with this column's element
-	 *                                       type.
-	 * @throws NullPointerException          if {@code fromElement} is null
-	 */
-	Column<E> tail(E fromElement, boolean inclusive);
-
-	/**
-	 * Same behavior as {@link #tail(Object, boolean)}, with {@code inclusive} set
-	 * to true.
-	 * <p>
-	 * <em>This method is only available when {@link #isDistinct()} returns
-	 * true.</em>
-	 * 
-	 * @param fromElement low endpoint of the returned column
-	 * 
-	 * @return a view of the portion of this column whose elements are greater than
-	 *         or equal to {@code fromElement}
-	 */
-	Column<E> tail(E fromElement);
-
-	/**
 	 * Creates a {@link Spliterator} over the elements in this list.
 	 * <p>
 	 * The {@code Spliterator} reports {@link Spliterator#SIZED SIZED},
@@ -407,4 +296,189 @@ public interface Column<E> extends List<E>, NavigableSet<E> {
 	 *         allocated buffer.
 	 */
 	Column<E> copy();
+
+	/*------------------------------------------------------------
+	 *  NavigableSet-inspired Methods
+	 *------------------------------------------------------------*/
+	/**
+	 * Returns the comparator used to order the elements in this column.
+	 *
+	 * @return the comparator used to order the elements in this column.
+	 */
+	Comparator<? super E> comparator();
+
+	/**
+	 * Returns the first (lowest) element in this column.
+	 *
+	 * @return the first (lowest) element in this column
+	 * 
+	 * @throws NoSuchElementException if this column is empty
+	 */
+	E first();
+
+	/**
+	 * Returns the last (highest) element in this column.
+	 *
+	 * @return the last (highest) element in this column
+	 * 
+	 * @throws NoSuchElementException if this column is empty
+	 */
+	E last();
+
+	/**
+	 * Returns the greatest element in this column strictly less than the given
+	 * element, or {@code null} if there is no such element.
+	 *
+	 * @param value the value to match
+	 * 
+	 * @return the greatest element less than {@code e}, or {@code null} if there is
+	 *         no such element
+	 * 
+	 * @throws UnsupportedOperationException if column is not a unique index, i.e.
+	 *                                       the DISTINCT flag is not set
+	 */
+	E lower(E value);
+
+	/**
+	 * Returns the least element in this column strictly greater than the given
+	 * element, or {@code null} if there is no such element.
+	 *
+	 * @param value the value to match
+	 * 
+	 * @return the least element greater than {@code e}, or {@code null} if there is
+	 *         no such element
+	 * 
+	 * @throws UnsupportedOperationException if column is not a unique index, i.e.
+	 *                                       the DISTINCT flag is not set
+	 */
+	E higher(E value);
+
+	/**
+	 * Returns the greatest element in this column less than or equal to the given
+	 * element, or {@code null} if there is no such element.
+	 *
+	 * @param value the value to match
+	 * 
+	 * @return the greatest element less than or equal to {@code e}, or {@code null}
+	 *         if there is no such element
+	 * 
+	 * @throws UnsupportedOperationException if column is not a unique index, i.e.
+	 *                                       the DISTINCT flag is not set
+	 */
+	E floor(E value);
+
+	/**
+	 * Returns the least element in this column greater than or equal to the given
+	 * element, or {@code null} if there is no such element.
+	 *
+	 * @param value the value to match
+	 * 
+	 * @return the least element greater than or equal to {@code e}, or {@code null}
+	 *         if there is no such element
+	 * 
+	 * @throws UnsupportedOperationException if column is not a unique index, i.e.
+	 *                                       the DISTINCT flag is not set
+	 */
+	E ceiling(E value);
+
+	/**
+	 * Returns a view of the portion of this column whose elements range from
+	 * {@code fromElement} to {@code toElement}. If {@code fromElement} and
+	 * {@code toElement} are equal, the returned column is empty unless {@code
+	 * fromInclusive} and {@code toInclusive} are both true. The returned column is
+	 * backed by this column.
+	 * <p>
+	 * <em>This method is only available when {@link #isDistinct()} returns
+	 * true.</em>
+	 *
+	 * @param fromElement   low endpoint of the returned column
+	 * @param fromInclusive true if the low endpoint is to be included in the
+	 *                      returned view
+	 * @param toElement     high endpoint of the returned column
+	 * @param toInclusive   true if the high endpoint is to be included in the
+	 *                      returned view
+	 * @return a view of the portion of this column whose elements range from
+	 *         {@code fromElement} to {@code toElement}
+	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
+	 * @throws IllegalArgumentException      if {@code fromElement} is greater than
+	 *                                       {@code toElement}
+	 */
+	Column<E> subColumn(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive);
+
+	/**
+	 * Same behavior as {@code Column#subColumn(Object, boolean, Object, Boolean)},
+	 * with {@code fromInclusive} set to true and {@code toInclusive} set to false.
+	 * <p>
+	 * <em>This method is only available when {@link #isDistinct()} returns
+	 * true.</em>
+	 * 
+	 * @param fromElement low endpoint of the returned column, inclusive
+	 * @param toElement   high endpoint of the returned column, exclusive
+	 * 
+	 * @return view of the portion of this column whose elements range from
+	 *         {@code fromElement}, inclusive, to {@code toElement}, exclusive
+	 */
+	Column<E> subColumn(E fromElement, E toElement);
+
+	/**
+	 * Returns a view of the portion of this column whose elements are less than (or
+	 * equal to, if {@code inclusive} is true) {@code toElement}. The returned
+	 * column is backed by this column.
+	 * <p>
+	 * <em>This method is only available when {@link #isDistinct()} returns
+	 * true.</em>
+	 *
+	 * @param toElement high endpoint of the returned column
+	 * @param inclusive {@code true} if the high endpoint is to be included in the
+	 *                  returned view
+	 * @return a view of the portion of this column whose elements are less than (or
+	 *         equal to, if {@code inclusive} is true) {@code toElement}
+	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
+	 */
+	Column<E> head(E toElement, boolean inclusive);
+
+	/**
+	 * Same behavior as {@link #head(Object, boolean)}, with {@code inclusive} set
+	 * to false.
+	 * <p>
+	 * <em>This method is only available when {@link #isDistinct()} returns
+	 * true.</em>
+	 * 
+	 * @param toElement high endpoint of the returned column
+	 * 
+	 * @return a view of the portion of this column whose elements are less than
+	 *         {@code toElement}
+	 */
+	Column<E> head(E toElement);
+
+	/**
+	 * Returns a view of the portion of this column whose elements are greater than
+	 * (or equal to, if {@code inclusive} is true) {@code fromElement}. The returned
+	 * column is backed by this column.
+	 * <p>
+	 * <em>This method is only available when {@link #isDistinct()} returns
+	 * true.</em>
+	 *
+	 * @param fromElement low endpoint of the returned column
+	 * @param inclusive   {@code true} if the low endpoint is to be included in the
+	 *                    returned view
+	 * @return a view of the portion of this column whose elements are greater than
+	 *         or equal to {@code fromElement}
+	 * @throws UnsupportedOperationException if {@link #isDistinct()} return false
+	 */
+	Column<E> tail(E fromElement, boolean inclusive);
+
+	/**
+	 * Same behavior as {@link #tail(Object, boolean)}, with {@code inclusive} set
+	 * to true.
+	 * <p>
+	 * <em>This method is only available when {@link #isDistinct()} returns
+	 * true.</em>
+	 * 
+	 * @param fromElement low endpoint of the returned column
+	 * 
+	 * @return a view of the portion of this column whose elements are greater than
+	 *         or equal to {@code fromElement}
+	 */
+	Column<E> tail(E fromElement);
 }

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestDataFrame {
+public class AdhocTestDataFrame {
 
 	@Test
 	public void basic() {

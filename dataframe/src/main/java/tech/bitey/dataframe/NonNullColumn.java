@@ -22,10 +22,8 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
 import java.nio.Buffer;
 import java.util.ListIterator;
-import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
-import java.util.SortedSet;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
@@ -388,21 +386,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 			return idx + 1;
 	}
 	
-	@Override
-	public NavigableSet<E> subSet(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
-		return subColumn(fromElement, fromInclusive, toElement, toInclusive);
-	}
-	
-	@Override
-	public NavigableSet<E> tailSet(E fromElement, boolean inclusive) {		
-		return tail(fromElement, inclusive);
-	}
-
-	@Override
-	public NavigableSet<E> headSet(E toElement, boolean inclusive) {		
-		return head(toElement, inclusive);
-	}
-	
 	/*------------------------------------------------------------
 	 *                subColumn methods
 	 *------------------------------------------------------------*/	
@@ -424,7 +407,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		if(tk == -1)
 			return empty();
 				
-		return subColumn(fk, tk+1);
+		return subColumn(fk-offset, tk+1-offset);
 	}
 	
 	public C subColumn(E fromElement, E toElement) {
@@ -445,7 +428,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	}
 	
 	public C head(E toElement) {
-		return head(toElement, true);
+		return head(toElement, false);
 	}
 	
 	public C tail(E fromElement, boolean inclusive) {
@@ -463,22 +446,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	
 	public C tail(E fromElement) {
 		return tail(fromElement, true);
-	}
-	
-	
-	@Override
-	public SortedSet<E> subSet(E fromElement, E toElement) {
-		return subSet(fromElement, true, toElement, false);
-	}
-
-	@Override
-	public SortedSet<E> headSet(E toElement) {
-		return headSet(toElement, false);
-	}
-
-	@Override
-	public SortedSet<E> tailSet(E fromElement) {
-		return tailSet(fromElement, true);
 	}
 	
 	void validateBuffer(Buffer buffer) {

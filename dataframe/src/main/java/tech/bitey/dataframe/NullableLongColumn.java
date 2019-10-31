@@ -38,7 +38,7 @@ class NullableLongColumn extends NullableColumn<Long, LongColumn, NonNullLongCol
 
 	@Override
 	public double mean() {
-		return nonNullSubColumn().mean();
+		return subColumn.mean();
 	}
 
 	@Override

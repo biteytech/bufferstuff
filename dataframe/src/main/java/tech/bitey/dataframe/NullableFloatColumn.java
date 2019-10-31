@@ -38,7 +38,7 @@ class NullableFloatColumn extends NullableColumn<Float, FloatColumn, NonNullFloa
 
 	@Override
 	public double mean() {
-		return nonNullSubColumn().mean();
+		return subColumn.mean();
 	}
 
 	@Override

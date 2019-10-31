@@ -22,15 +22,14 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Comparator;
 import java.util.ListIterator;
-import java.util.NavigableSet;
 import java.util.NoSuchElementException;
-import java.util.SortedSet;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
 abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>> extends AbstractColumn<E, I, N> {
 
 	final C column;
+	final C subColumn;
 	final BufferBitSet nonNulls;
 	
 	NullableColumn(C column, BufferBitSet nonNulls, int offset, int size) {
@@ -38,6 +37,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		
 		this.column = column;
 		this.nonNulls = nonNulls;
+		this.subColumn = column.subColumn(nonNullIndex(offset), nonNullIndex(offset+size));
 	}
 	
 	@Override
@@ -50,19 +50,15 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		return column.byteOrder();
 	}
 	
-	C nonNullSubColumn() {
-		return column.subColumn(nonNullIndex(offset), nonNullIndex(offset+size));
-	}
-	
 	@Override
 	int byteLength() {
-		return 4 + bufferBitSetLength(nonNulls) + nonNullSubColumn().byteLength();
+		return 4 + bufferBitSetLength(nonNulls) + subColumn.byteLength();
 	}
 
 	@Override
 	ByteBuffer[] asBuffers() {
 		
-		ByteBuffer[] columnBuffers = nonNullSubColumn().asBuffers();
+		ByteBuffer[] columnBuffers = subColumn.asBuffers();
 		
 		ByteBuffer[] buffers = new ByteBuffer[3 + columnBuffers.length];
 		
@@ -145,7 +141,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	}
 	
 	private int indexOf0(Object o, boolean first) {
-		if(!checkType(o) || isEmpty())
+		if((o != null && !checkType(o)) || isEmpty())
 			return -1;
 		else if(o == null) {
 			if(first) {
@@ -161,7 +157,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		@SuppressWarnings("unchecked")
 		E value = (E)o;
 		
-		int index = column.search(value, first);
+		int index = subColumn.search(value, first);
 		index = nullIndex(index);
 		
 		return index < offset || index > lastIndex() ? -1 : index - offset;
@@ -348,10 +344,10 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		nonNulls.set(0, head.size());
 		
 		final C column;
-		if(this.column.isEmpty())
+		if(this.subColumn.isEmpty())
 			column = head;
 		else
-			column = head.appendNonNull(this.column);
+			column = head.appendNonNull(this.subColumn);
 		
 		return (I)construct(column, nonNulls, head.size() + this.size());
 	}
@@ -366,7 +362,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 			// append nullable column
 			N rhs = (N)tail;
 			
-			C column = this.column.appendNonNull(rhs.column);
+			C column = (C)this.subColumn.append(rhs.subColumn);
 			
 			BufferBitSet nonNulls = this.nonNulls.get(offset, offset+this.size());
 			BufferBitSet bothNonNulls = rhs.nonNulls.get(rhs.offset, rhs.offset+rhs.size());
@@ -380,7 +376,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 			// append non-null column
 			C rhs = (C)tail;
 			
-			C column = this.column.appendNonNull(rhs);
+			C column = (C)this.subColumn.append(rhs);
 			
 			BufferBitSet nonNulls = this.nonNulls.get(offset, offset+this.size());
 			nonNulls.set(this.size(), size);
@@ -392,7 +388,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	@Override
 	public N copy() {		
 		@SuppressWarnings("unchecked")
-		C column = (C)nonNullSubColumn().copy();
+		C column = (C)subColumn.copy();
 		
 		return construct(column, nonNulls.get(offset, offset+size), size);
 	}
@@ -427,37 +423,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	@Override
 	public E higher(E e) {
 		throw new UnsupportedOperationException("higher");
-	}
-
-	@Override
-	public NavigableSet<E> subSet(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) {
-		throw new UnsupportedOperationException("subSet");
-	}
-
-	@Override
-	public NavigableSet<E> headSet(E toElement, boolean inclusive) {
-		throw new UnsupportedOperationException("headSet");
-	}
-
-	@Override
-	public NavigableSet<E> tailSet(E fromElement, boolean inclusive) {
-		throw new UnsupportedOperationException("tailSet");
-	}
-
-	@Override
-	public SortedSet<E> subSet(E fromElement, E toElement) {
-		throw new UnsupportedOperationException("subSet");
-	}
-
-	@Override
-	public SortedSet<E> headSet(E toElement) {
-		throw new UnsupportedOperationException("headSet");
-	}
-
-	@Override
-	public SortedSet<E> tailSet(E fromElement) {
-		throw new UnsupportedOperationException("tailSet");
-	}
+	}	
 	
 	// does not implement subColumn-by-element methods
 	

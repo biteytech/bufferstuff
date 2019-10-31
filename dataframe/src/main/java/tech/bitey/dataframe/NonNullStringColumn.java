@@ -219,6 +219,8 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 
 	@Override
 	boolean equals0(NonNullStringColumn rhs, int lStart, int rStart, int length) {
+		if(length == 0)
+			return true;
 
 		for (int i = 0; i < length; i++)
 			if (length(lStart + i) != rhs.length(rStart + i))
@@ -301,11 +303,13 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 			rawPointers.put(tailPointers);
 			rawPointers.flip();
 		}
-				
+		
 		final IntBuffer pointers = rawPointers.asIntBuffer();
 		final int size = pointers.limit();
+		for(int i = 0; i < this.size(); i++)
+			pointers.put(i, pointers.get(i) - this.pat(this.offset));
 		for(int i = this.size(); i < size; i++)
-			pointers.put(i, pointers.get(i) + thisByteLength);
+			pointers.put(i, pointers.get(i) - tail.pat(tail.offset) + thisByteLength);
 			
 		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics);
 	}
@@ -370,7 +374,9 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 	}
 
 	@Override
-	public NonNullStringColumn copy() {
+	public NonNullStringColumn copy() {		
+		if(isEmpty())
+			return new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, characteristics);
 		
 		ByteBuffer rawPointers = BufferUtils.copy(this.rawPointers, offset*4, (offset+size)*4);
 		zero(rawPointers, size);
@@ -454,6 +460,6 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 		}
 		
 		return new NonNullStringColumn(slice(sorted.elements, 0, ptr),
-				slice(sorted.rawPointers, 0, size<<2), 0, size, sorted.characteristics | DISTINCT);
+				slice(sorted.rawPointers, 0, size<<2), 0, size, sorted.characteristics | SORTED | DISTINCT);
 	}
 }

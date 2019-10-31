@@ -61,7 +61,7 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 	@Override
 	C toDistinct0(C sorted) {				
 		int size = sorted.deduplicate();		
-		return construct(slice(sorted.buffer, 0, size * elementSize()), 0, size, sorted.characteristics | DISTINCT);
+		return construct(slice(sorted.buffer, 0, size * elementSize()), 0, size, sorted.characteristics | SORTED | DISTINCT);
 	}
 
 	@Override
@@ -88,8 +88,8 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 		
 		ByteBuffer buffer = allocate(size);
 						
-		buffer.put(duplicate(this.buffer));
-		buffer.put(duplicate(tail.buffer));
+		buffer.put(slice(this.buffer, this.offset * elementSize(), (this.offset+this.size) * elementSize()));
+		buffer.put(slice(tail.buffer, tail.offset * elementSize(), (tail.offset+tail.size) * elementSize()));
 		
 		buffer.flip();
 			

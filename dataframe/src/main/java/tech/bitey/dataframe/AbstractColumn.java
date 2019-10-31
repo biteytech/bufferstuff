@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
@@ -225,20 +224,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 			C cast = (C)o;
 			return equals0(cast);
 		}
-		if(isDistinct() && o instanceof Set) {
-			// from AbstractSet
-
-	        Collection<?> c = (Collection<?>) o;
-	        if (c.size() != size())
-	            return false;
-	        try {
-	            return containsAll(c);
-	        } catch (ClassCastException unused)   {
-	            return false;
-	        } catch (NullPointerException unused) {
-	            return false;
-	        }
-		}
 		else if(o instanceof List) {
 			// from AbstractList
 
@@ -251,6 +236,20 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	                return false;
 	        }
 	        return !(e1.hasNext() || e2.hasNext());
+		}
+		else if(isDistinct() && o instanceof Set) {
+			// from AbstractSet
+
+	        Collection<?> c = (Collection<?>) o;
+	        if (c.size() != size())
+	            return false;
+	        try {
+	            return containsAll(c);
+	        } catch (ClassCastException unused)   {
+	            return false;
+	        } catch (NullPointerException unused) {
+	            return false;
+	        }
 		}
 		else
 			return false;
@@ -313,33 +312,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 		return get(size()-1);
 	}
 	
-	@Override
-	public Iterator<E> descendingIterator() {
-		
-		return new Iterator<E>() {
-			
-			int index = lastIndex();
-
-			@Override
-			public boolean hasNext() {
-				return index >= offset;
-			}
-
-			@Override
-			public E next() {
-				if(!hasNext())
-					throw new NoSuchElementException("called next when hasNext is false");
-				
-				return getNoOffset(index--);
-			}			
-		};
-	}
-	
-	@Override
-	public NavigableSet<E> descendingSet() {
-		return new DescendingImmutableNavigableSet<E>(this);
-	}
-	
 	/*------------------------------------------------------------
 	 *  Reading & writing BufferBitSet
 	 *------------------------------------------------------------*/	
@@ -391,19 +363,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 			bbs.clear(size+1, bbs.size());
 		
 		return new BufferBitSetWrapper(offset, size, bbs);
-	}
-	
-	/*------------------------------------------------------------
-	 *  Mutating operations throw UnsupportedOperationException
-	 *------------------------------------------------------------*/
-	@Override
-	public E pollFirst() {
-		throw new UnsupportedOperationException("pollFirst");
-	}
-
-	@Override
-	public E pollLast() {
-		throw new UnsupportedOperationException("pollLast");
 	}
 
 	/*------------------------------------------------------------
