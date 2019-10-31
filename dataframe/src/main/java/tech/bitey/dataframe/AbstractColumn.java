@@ -98,10 +98,10 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 			return applyFilter0(keep, cardinality);
 	}
 	
-	abstract Column<E> select0(int[] indices);
+	abstract Column<E> select0(IntColumn indices);
 	
-	Column<E> select(int[] indices) {
-		if(indices.length == 0)
+	Column<E> select(IntColumn indices) {
+		if(indices.size() == 0)
 			return empty();
 		else
 			return select0(indices);
@@ -142,7 +142,7 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	}
 	
 	abstract int intersectBothSorted(C rhs, BufferBitSet keepLeft, BufferBitSet keepRight);
-	abstract int[] intersectLeftSorted(C rhs, BufferBitSet keepRight);
+	abstract IntColumn intersectLeftSorted(C rhs, BufferBitSet keepRight);
 	
 	@Override
 	public int size() {

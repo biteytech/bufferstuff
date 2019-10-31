@@ -5,7 +5,7 @@
 
 	<groupId>tech.bitey</groupId>
 	<artifactId>dataframe</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.6</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -124,16 +124,6 @@
 			<groupId>tech.bitey</groupId>
 			<artifactId>bufferstuff</artifactId>
 			<version>0.3.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.collections</groupId>
-			<artifactId>eclipse-collections-api</artifactId>
-			<version>10.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.collections</groupId>
-			<artifactId>eclipse-collections</artifactId>
-			<version>10.0.0</version>
 		</dependency>
 
 		<dependency>

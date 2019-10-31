@@ -27,8 +27,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.collections.api.list.primitive.MutableIntList;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
 
@@ -258,24 +256,24 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 	}
 
 	@Override
-	NonNullStringColumn select0(int[] indices) {
+	NonNullStringColumn select0(IntColumn indices) {
 		
-		ByteBuffer rawPointers = allocate(indices.length*4);
+		ByteBuffer rawPointers = allocate(indices.size()*4);
 		int byteLength = 0;		
-		for(int i = 0; i < indices.length; i++) {
+		for(int i = 0; i < indices.size(); i++) {
 			rawPointers.putInt(byteLength);
-			byteLength += length(indices[i] + offset);
+			byteLength += length(indices.getInt(i) + offset);
 		}
 		rawPointers.flip();
 		
 		ByteBuffer elements = allocate(byteLength);
-		for(int i = 0; i < indices.length; i++) {
-			int index = indices[i] + offset;
+		for(int i = 0; i < indices.size(); i++) {
+			int index = indices.getInt(i) + offset;
 			copyElement(index, elements);
 		}
 		elements.flip();
 		
-		return new NonNullStringColumn(elements, rawPointers, 0, indices.length, NONNULL);
+		return new NonNullStringColumn(elements, rawPointers, 0, indices.size(), NONNULL);
 	}
 	
 	@Override
@@ -318,7 +316,7 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 	}
 
 	@Override
-	void intersectLeftSorted(NonNullStringColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullStringColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
 		
 		for(int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 			

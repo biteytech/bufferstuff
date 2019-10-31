@@ -47,6 +47,12 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 	}
 
 	@Override
+	public StringColumnBuilder ensureCapacity(int minCapacity) {
+		elements.ensureCapacity(minCapacity);
+		return this;
+	}
+
+	@Override
 	StringColumn emptyNonNull() {
 		return NonNullStringColumn.EMPTY.get(characteristics | Spliterator.NONNULL);
 	}

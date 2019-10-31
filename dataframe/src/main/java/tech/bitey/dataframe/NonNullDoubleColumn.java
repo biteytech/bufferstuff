@@ -27,8 +27,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.collections.api.list.primitive.MutableIntList;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferUtils;
@@ -182,14 +180,14 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn
 	}
 
 	@Override
-	NonNullDoubleColumn select0(int[] indices) {
+	NonNullDoubleColumn select0(IntColumn indices) {
 		
-		ByteBuffer buffer = allocate(indices.length);
-		for(int i = 0; i < indices.length; i++)
-			buffer.putDouble(at(indices[i]+offset));
+		ByteBuffer buffer = allocate(indices.size());
+		for(int i = 0; i < indices.size(); i++)
+			buffer.putDouble(at(indices.getInt(i)+offset));
 		buffer.flip();
 		
-		return new NonNullDoubleColumn(buffer, 0, indices.length, NONNULL);
+		return construct(buffer, 0, indices.size(), NONNULL);
 	}
 
 	@Override
@@ -198,7 +196,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn
 	}
 
 	@Override
-	void intersectLeftSorted(NonNullDoubleColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullDoubleColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
 		
 		for(int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 			

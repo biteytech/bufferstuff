@@ -49,11 +49,6 @@ import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
-import org.eclipse.collections.api.list.primitive.MutableIntList;
-import org.eclipse.collections.api.map.primitive.MutableObjectIntMap;
-import org.eclipse.collections.impl.list.mutable.primitive.MutableIntListFactoryImpl;
-import org.eclipse.collections.impl.map.mutable.primitive.MutableObjectIntMapFactoryImpl;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
@@ -827,7 +822,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 		
 		BufferBitSet keepRight = new BufferBitSet(ALLOCATE_DIRECT);
-		int[] indices = leftKey.intersectLeftSorted(rightColumn, keepRight);
+		IntColumn indices = leftKey.intersectLeftSorted(rightColumn, keepRight);
 		
 		rhs = rhs.filter(keepRight);
 		
@@ -852,12 +847,12 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		
 		Object[] pair = joinSingleIndex0(df, columnName);
 		DataFrameImpl inner = (DataFrameImpl)pair[0];
-		int[] indices = (int[])pair[1];
+		IntColumn indices = (IntColumn)pair[1];
 		
 		BufferBitSet unmatchedLeft = new BufferBitSet(ALLOCATE_DIRECT);
 		unmatchedLeft.set(0, this.size());
-		for(int index : indices)
-			unmatchedLeft.set(index, false);
+		for(int i = 0; i < indices.size(); i++)
+			unmatchedLeft.set(indices.getInt(i), false);
 		
 		if(unmatchedLeft.cardinality() == 0)
 			return inner;
@@ -901,7 +896,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			checkArgument(columns[leftColumnIndices[i]].getType() == rhs.columns[rightColumnIndices[i]].getType(),
 				"mismatched key column types");
 
-		int[] indices;
+		IntColumn indices;
 		BufferBitSet keepRight = new BufferBitSet(ALLOCATE_DIRECT);
 		
 		{
@@ -938,8 +933,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				}
 			}
 			
-			MutableObjectIntMap<SimpleTuple> hashMap =
-				MutableObjectIntMapFactoryImpl.INSTANCE.ofInitialCapacity(size());
+			Map<SimpleTuple, Integer> hashMap = new HashMap<>();
 		
 			for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next()) {
 				SimpleTuple tuple = new SimpleTuple(cursor, leftColumnIndices);
@@ -949,20 +943,20 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 					hashMap.put(tuple, cursor.currentIndex());
 			}
 			
-			MutableIntList list = MutableIntListFactoryImpl.INSTANCE.empty();
+			IntColumnBuilder builder = IntColumn.builder();
 			
 			for(Cursor cursor = rhs.cursor(); cursor.hasNext(); cursor.next()) {
 				SimpleTuple tuple = new SimpleTuple(cursor, rightColumnIndices);
-				int leftRowIndex = hashMap.getIfAbsent(tuple, -1);
+				int leftRowIndex = hashMap.getOrDefault(tuple, -1);
 				if(leftRowIndex >= 0) {
-					list.add(leftRowIndex);
+					builder.add(leftRowIndex);
 					keepRight.set(cursor.currentIndex());
 				}
 			}
 			
 			hashMap = null;
-			indices = list.toArray();
-			list = null;
+			indices = builder.build();
+			builder = null;
 		}
 		
 		DataFrameImpl left = select(indices);
@@ -1220,9 +1214,9 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return modifyColumns(column -> column.applyFilter(keep, cardinality));
 	}
 	
-	private DataFrameImpl select(int[] indices) {
+	private DataFrameImpl select(IntColumn indices) {
 		
-		if(indices.length == 0)
+		if(indices.size() == 0)
 			return (DataFrameImpl)empty();
 		
 		return modifyColumns(column -> column.select(indices));

@@ -29,9 +29,6 @@ import java.util.SortedSet;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
-import org.eclipse.collections.api.list.primitive.MutableIntList;
-import org.eclipse.collections.impl.list.mutable.primitive.MutableIntListFactoryImpl;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>> extends AbstractColumn<E, I, C> implements RandomAccess
@@ -174,13 +171,13 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		return cardinality;
 	}
 	
-	abstract void intersectLeftSorted(C rhs, MutableIntList indices, BufferBitSet keepRight);
+	abstract void intersectLeftSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepRight);
 	
 	@Override
-	int[] intersectLeftSorted(C rhs, BufferBitSet keepRight) {		
-		MutableIntList indices = MutableIntListFactoryImpl.INSTANCE.empty();
+	IntColumn intersectLeftSorted(C rhs, BufferBitSet keepRight) {		
+		IntColumnBuilder indices = IntColumn.builder();
 		intersectLeftSorted(rhs, indices, keepRight);		
-		return indices.toArray();
+		return indices.build();
 	}
 	
 	@Override

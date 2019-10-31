@@ -24,8 +24,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Comparator;
 
-import org.eclipse.collections.api.list.primitive.MutableIntList;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn> implements BooleanColumn {
@@ -129,14 +127,14 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	}
 
 	@Override
-	NonNullBooleanColumn select0(int[] indices) {
+	NonNullBooleanColumn select0(IntColumn indices) {
 		
 		BufferBitSet elements = new BufferBitSet(ALLOCATE_DIRECT);
-		for(int i = 0; i < indices.length; i++)
-			if(this.elements.get(indices[i] + offset))
+		for(int i = 0; i < indices.size(); i++)
+			if(this.elements.get(indices.getInt(i) + offset))
 				elements.set(i);
 		
-		return new NonNullBooleanColumn(elements, 0, indices.length);
+		return new NonNullBooleanColumn(elements, 0, indices.size());
 	}
 
 	@Override
@@ -154,7 +152,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	}
 
 	@Override
-	void intersectLeftSorted(NonNullBooleanColumn rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(NonNullBooleanColumn rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
 		throw new UnsupportedOperationException("intersectLeftSorted");	
 	}
 

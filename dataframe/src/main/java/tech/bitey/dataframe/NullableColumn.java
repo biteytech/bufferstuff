@@ -313,31 +313,31 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	}
 	
 	@Override
-	Column<E> select0(int[] indices) {
+	Column<E> select0(IntColumn indices) {
 		
 		BufferBitSet decodedNonNulls = new BufferBitSet(ALLOCATE_DIRECT);
 		int cardinality = 0;
-		for(int i = 0; i < indices.length; i++) {
-			if(nonNulls.get(indices[i]+offset)) {
+		for(int i = 0; i < indices.size(); i++) {
+			if(nonNulls.get(indices.getInt(i)+offset)) {
 				decodedNonNulls.set(i);
 				cardinality++;
 			}
 		}
 		
-		int[] nonNullIndices = new int[cardinality];
-		for(int i = 0, j = 0; i < indices.length; i++) {
-			int index = indices[i] + offset;
+		IntColumnBuilder nonNullIndices = IntColumn.builder().ensureCapacity(cardinality);
+		for(int i = 0; i < indices.size(); i++) {
+			int index = indices.getInt(i) + offset;
 			if(nonNulls.get(index))
-				nonNullIndices[j++] = nonNullIndex(index);
+				nonNullIndices.add(nonNullIndex(index));
 		}
 		
 		@SuppressWarnings("unchecked")
-		C column = (C)this.column.select(nonNullIndices);
+		C column = (C)this.column.select(nonNullIndices.build());
 		
-		if(cardinality == indices.length)
+		if(cardinality == indices.size())
 			return column;
 		else
-			return construct(column, decodedNonNulls, indices.length);
+			return construct(column, decodedNonNulls, indices.size());
 	}
 		
 	@SuppressWarnings("unchecked")
@@ -403,7 +403,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	}
 	
 	@Override
-	int[] intersectLeftSorted(N rhs, BufferBitSet keepRight) {
+	IntColumn intersectLeftSorted(N rhs, BufferBitSet keepRight) {
 		throw new UnsupportedOperationException("intersectLeftSorted");
 	}
 	

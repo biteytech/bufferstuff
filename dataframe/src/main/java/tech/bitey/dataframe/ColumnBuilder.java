@@ -142,7 +142,8 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 		return addAll(rest);
 	}
 	
-	abstract void ensureAdditionalCapacity(int required);
+	abstract void ensureAdditionalCapacity(int required);	
+	public abstract B ensureCapacity(int minCapacity);
 	
 	public B addAll(E[] elements) {
 		

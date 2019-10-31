@@ -22,8 +22,6 @@ import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import org.eclipse.collections.api.list.primitive.MutableIntList;
-
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferUtils;
@@ -125,14 +123,14 @@ abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E
 	}
 
 	@Override
-	C select0(int[] indices) {
+	C select0(IntColumn indices) {
 		
-		ByteBuffer buffer = allocate(indices.length);
-		for(int i = 0; i < indices.length; i++)
-			buffer.putInt(at(indices[i]+offset));
+		ByteBuffer buffer = allocate(indices.size());
+		for(int i = 0; i < indices.size(); i++)
+			buffer.putInt(at(indices.getInt(i)+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.length, NONNULL);
+		return construct(buffer, 0, indices.size(), NONNULL);
 	}
 
 	@Override
@@ -141,7 +139,7 @@ abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E
 	}
 
 	@Override
-	void intersectLeftSorted(C rhs, MutableIntList indices, BufferBitSet keepRight) {
+	void intersectLeftSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepRight) {
 		
 		for(int i = rhs.offset; i <= rhs.lastIndex(); i++) {
 			

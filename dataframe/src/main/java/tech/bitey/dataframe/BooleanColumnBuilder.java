@@ -60,6 +60,12 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 	}
 
 	@Override
+	public BooleanColumnBuilder ensureCapacity(int minCapacity) {
+		// noop
+		return this;
+	}
+
+	@Override
 	BooleanColumn emptyNonNull() {
 		return EMPTY;
 	}

@@ -44,6 +44,16 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 		return ByteBuffer.allocateDirect(capacity * elementSize()).order(ByteOrder.nativeOrder());
 	}
 	
+	private void extendCapacity(int newCapacity) {
+		ByteBuffer extended = allocate(newCapacity);
+		buffer.position(elements.limit() * elementSize());
+		buffer.flip();			
+		extended.put(buffer);
+		
+		buffer = extended;
+		resetElementBuffer();
+	}
+	
 	@Override
 	void ensureAdditionalCapacity(int required) {
 		if(elements.remaining() < required) {
@@ -52,14 +62,18 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 			int additionalCapacity = elements.limit() >>> 1;
 			additionalCapacity = Math.max(additionalCapacity, required);
 			
-			ByteBuffer extended = allocate(elements.limit() + additionalCapacity);
-			buffer.position(elements.limit() * elementSize());
-			buffer.flip();			
-			extended.put(buffer);
-			
-			buffer = extended;
-			resetElementBuffer();
+			extendCapacity(elements.limit() + additionalCapacity);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public B ensureCapacity(int minCapacity) {
+		if(elements.capacity() < minCapacity) {
+			elements.flip();
+			extendCapacity(minCapacity);
+		}
+		return (B)this;
 	}
 
 	@Override
