@@ -14,25 +14,8 @@
 
 package tech.bitey.dataframe;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.NONNULL;
-import static java.util.Spliterator.SORTED;
-import static tech.bitey.dataframe.DataFrame.BIG_ENDIAN_FLAG;
-import static tech.bitey.dataframe.DataFrame.DISTINCT_FLAG;
-import static tech.bitey.dataframe.DataFrame.KEY_COLUMN_FLAG;
-import static tech.bitey.dataframe.DataFrame.MAGIC_NUMBER;
-import static tech.bitey.dataframe.DataFrame.NONNULL_FLAG;
-import static tech.bitey.dataframe.DataFrame.SORTED_FLAG;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -71,100 +54,5 @@ public enum DataFrameFactory {
 	
 	public DataFrame create(List<Column<?>> columns, List<String> columnNames) {
 		return create(columns, columnNames, null);
-	}	
-	
-	public DataFrame readFrom(File file) {
-		try (
-			RandomAccessFile raf = new RandomAccessFile(file, "r");
-			FileChannel channel = raf.getChannel();
-		) {
-			ByteBuffer header1 = ByteBuffer.allocate(8 + 4 + 4).order(BIG_ENDIAN);
-			channel.read(header1);
-			header1.flip();
-			
-			checkState(header1.getLong() == MAGIC_NUMBER, "file must begin with magic number");
-			
-			final int version = header1.get();
-			checkState(version == 1, "unsupported version ("+version+")");
-			
-			// skip reserved bytes
-			header1.position(header1.position()+3);
-			
-			// column count
-			final int cc = header1.getInt();
-//			System.out.println("column count : "+cc);
-			
-			ByteBuffer header2 = ByteBuffer.allocate(cc*2 + cc + cc*4 + 4 + 1).order(BIG_ENDIAN);
-			channel.read(header2);
-			header2.flip();
-			
-			// column types
-			final ColumnType[] types = new ColumnType[cc];
-			byte[] codeBytes = new byte[2];			
-			for(int i = 0; i < cc; i++) {
-				header2.get(codeBytes);
-				types[i] = ColumnType.valueOf(codeBytes);
-			}
-//			System.out.println("types        : "+Arrays.toString(types));
-			
-			// column flags
-			byte[] flags = new byte[cc];
-			header2.get(flags);
-
-			boolean[] isBigEndian = new boolean[cc];
-			int[] characteristics = new int[cc];
-			Integer keyColumn = null;
-			for(int i = 0; i < cc; i++) {
-				if((flags[i] & BIG_ENDIAN_FLAG) != 0)
-					isBigEndian[i] = true;
-				if((flags[i] & NONNULL_FLAG) != 0)
-					characteristics[i] |= NONNULL;
-				if((flags[i] & SORTED_FLAG) != 0)
-					characteristics[i] |= SORTED;
-				if((flags[i] & DISTINCT_FLAG) != 0)
-					characteristics[i] |= DISTINCT;
-				if((flags[i] & KEY_COLUMN_FLAG) != 0)
-					keyColumn = i;
-			}
-//			System.out.println("isBigEndian  : "+Arrays.toString(isBigEndian));
-//			System.out.println("characteristics   : "+Arrays.toString(characteristics));
-//			System.out.println("keyColumn    : "+keyColumn);
-			
-			// column lengths
-			int[] lengths = new int[cc];
-			for(int i = 0; i < cc; i++)
-				lengths[i] = header2.getInt();
-//			System.out.println("col lengths  : "+Arrays.toString(lengths));
-			
-			// column name length
-			int colNameLength = header2.getInt();
-//			System.out.println("col name len : "+colNameLength);
-			
-			// column name byte order
-			ByteOrder nameOrder = header2.get() == 0 ? LITTLE_ENDIAN : BIG_ENDIAN;
-//			System.out.println("col name endi: "+nameOrder);
-			
-			// column names
-			ByteBuffer names = ByteBuffer.allocate(colNameLength).order(nameOrder);
-			channel.read(names);
-			StringColumn columnNames = NonNullStringColumn.fromBuffer(names, 0, colNameLength, 0);
-//			System.out.println("col names    : "+columnNames);
-			
-			// column data
-			Column<?>[] columns = new Column<?>[cc];
-			for(int i = 0; i < cc; i++) {
-				ByteBuffer data = ByteBuffer.allocate(lengths[i]).order(isBigEndian[i] ? BIG_ENDIAN : LITTLE_ENDIAN);
-				channel.read(data);
-				data.flip();
-				Column<?> column = types[i].fromBuffer(data, 0, lengths[i], characteristics[i]);
-				columns[i] = column;
-			}
-			
-			return DataFrameFactory.$.create(columns, columnNames.toArray(new String[0]), 
-					keyColumn == null ? null : columnNames.get(keyColumn));
-		}
-		catch(Exception e) {
-			throw new RuntimeException("failed to read dataframe from: "+file, e);
-		}
 	}
 }

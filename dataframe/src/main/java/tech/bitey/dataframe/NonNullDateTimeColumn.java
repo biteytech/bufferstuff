@@ -32,6 +32,9 @@ class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTimeColum
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateTimeColumn(ByteBuffer.allocate(0), 0, 0, c));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateTimeColumn(ByteBuffer.allocate(0), 0, 0, c));
 	}
+	static NonNullDateTimeColumn empty(int characteristics) {
+		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
+	}
 	
 	NonNullDateTimeColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
 		super(buffer, LOCAL_DATE_TIME, offset, size, characteristics);

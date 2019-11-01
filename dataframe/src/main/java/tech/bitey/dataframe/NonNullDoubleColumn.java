@@ -39,6 +39,9 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDoubleColumn(ByteBuffer.allocate(0), 0, 0, c));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDoubleColumn(ByteBuffer.allocate(0), 0, 0, c));
 	}
+	static NonNullDoubleColumn empty(int characteristics) {
+		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
+	}
 	
 	private final DoubleBuffer elements;
 	

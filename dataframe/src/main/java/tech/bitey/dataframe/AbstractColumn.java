@@ -78,8 +78,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	abstract boolean checkType(Object o);
 	
 	abstract ByteOrder byteOrder();
-	abstract int byteLength();
-	abstract ByteBuffer[] asBuffers();
 	
 	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
@@ -359,8 +357,8 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 		
 		if(offset > 0)
 			bbs.clear(0, offset);
-		if(size < bbs.size())
-			bbs.clear(size+1, bbs.size());
+		if(offset+size < bbs.size())
+			bbs.clear(offset+size, bbs.size());
 		
 		return new BufferBitSetWrapper(offset, size, bbs);
 	}

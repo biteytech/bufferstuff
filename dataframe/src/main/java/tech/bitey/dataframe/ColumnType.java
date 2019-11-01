@@ -14,65 +14,25 @@
 
 package tech.bitey.dataframe;
 
-import static java.util.Spliterator.NONNULL;
-import static tech.bitey.bufferstuff.BufferUtils.slice;
-import static tech.bitey.dataframe.AbstractColumn.readBufferBitSet;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
-
-import java.nio.ByteBuffer;
-
-import tech.bitey.dataframe.AbstractColumn.BufferBitSetWrapper;
 
 public enum ColumnType {
 
 	BOOLEAN("B") {
-		@Override
-		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
-			BufferBitSetWrapper wrapper = readBufferBitSet(slice(buffer, offset, offset+length));
-			return new NonNullBooleanColumn(wrapper.bbs, wrapper.offset, wrapper.size);
-		}
 	},
 	DATE("DA") {
-		@Override
-		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
-			return new NonNullDateColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
-		}
 	},
 	DATETIME("DT") {
-		@Override
-		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
-			return new NonNullDateTimeColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
-		}
 	},
 	DOUBLE("D") {
-		@Override
-		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
-			return new NonNullDoubleColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
-		}
 	},
 	FLOAT("F") {
-		@Override
-		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
-			return new NonNullFloatColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
-		}
 	},
 	INT("I") {
-		@Override
-		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
-			return new NonNullIntColumn(slice(buffer, offset, offset+length), 0, (length - offset)/4, characteristics);
-		}
 	},
 	LONG("L") {
-		@Override
-		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
-			return new NonNullLongColumn(slice(buffer, offset, offset+length), 0, (length - offset)/8, characteristics);
-		}
 	},
 	STRING("S") {
-		@Override
-		Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics) {
-			return NonNullStringColumn.fromBuffer(buffer, offset, length, characteristics);
-		}
 	},
 	;
 	
@@ -145,41 +105,5 @@ public enum ColumnType {
 	
 	public Column<?> nullColumn(int size) {
 		return builder().addNulls(size).build();
-	}
-		
-	abstract Column<?> fromBuffer0(ByteBuffer buffer, int offset, int length, int characteristics);
-	
-	Column<?> fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {		
-		if((characteristics & NONNULL) != 0)
-			return fromBuffer0(buffer, offset, length, characteristics);
-		
-		int nonNullLength = buffer.getInt(offset);
-		offset += 4;
-		
-		BufferBitSetWrapper wrapper = readBufferBitSet(slice(buffer, offset, offset+nonNullLength));
-	
-		int columnStart = offset+nonNullLength;
-		Column<?> column = fromBuffer0(buffer, columnStart, length - columnStart, characteristics);
-		
-		switch(this) {
-		case BOOLEAN:
-			return new NullableBooleanColumn((NonNullBooleanColumn)column, wrapper.bbs, wrapper.offset, wrapper.size);
-		case DATE:
-			return new NullableDateColumn((NonNullDateColumn)column, wrapper.bbs, wrapper.offset, wrapper.size);
-		case DATETIME:
-			return new NullableDateTimeColumn((NonNullDateTimeColumn)column, wrapper.bbs, wrapper.offset, wrapper.size);
-		case DOUBLE:
-			return new NullableDoubleColumn((NonNullDoubleColumn)column, wrapper.bbs, wrapper.offset, wrapper.size);			
-		case FLOAT:
-			return new NullableFloatColumn((NonNullFloatColumn)column, wrapper.bbs, wrapper.offset, wrapper.size);			
-		case INT:
-			return new NullableIntColumn((NonNullIntColumn)column, wrapper.bbs, wrapper.offset, wrapper.size);			
-		case LONG:
-			return new NullableLongColumn((NonNullLongColumn)column, wrapper.bbs, wrapper.offset, wrapper.size);
-		case STRING:
-			return new NullableStringColumn((NonNullStringColumn)column, wrapper.bbs, wrapper.offset, wrapper.size);
-		}
-		
-		throw new IllegalStateException();
 	}
 }

@@ -20,7 +20,6 @@ import static java.util.Spliterator.NONNULL;
 import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Comparator;
 
@@ -189,16 +188,6 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	@Override
 	ByteOrder byteOrder() {
 		return ByteOrder.BIG_ENDIAN;
-	}
-
-	@Override
-	int byteLength() {
-		return bufferBitSetLength(elements);
-	}
-
-	@Override
-	ByteBuffer[] asBuffers() {
-		return writeBufferBitSet(elements);
 	}
 
 	@Override

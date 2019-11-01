@@ -32,6 +32,9 @@ class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullIntColu
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, c));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, c));
 	}
+	static NonNullIntColumn empty(int characteristics) {
+		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
+	}
 	
 	NonNullIntColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
 		super(buffer, INTEGER, offset, size, characteristics);

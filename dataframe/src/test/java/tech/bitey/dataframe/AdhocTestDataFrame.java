@@ -16,9 +16,7 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -205,22 +203,5 @@ public class AdhocTestDataFrame {
 		
 		DataFrame df = df1.leftJoinSingleIndex(df2, "KEY");
 		System.out.println(df);
-	}
-	
-	@Test
-	void testSaveLoadString() throws Exception {
-		
-		StringColumn c1 = StringColumn.of("A", "BB", "CCC", "DDDD", "EEEEE", "FFFFFF", "GGGGGGG");
-		StringColumn c2 = StringColumn.of(null, "BB", null, "DDDD", null, "FFFFFF", null);
-		
-		DataFrame df = DataFrameFactory.$.create(new Column<?>[] {c1, c2}, new String[] {"C1", "C2"});
-		df = df.subFrame(1, df.size() - 1);
-			
-		File file = new File(System.getProperty("user.home")+"/Desktop", "df.dat");
-		df.writeTo(file);
-		
-		DataFrame df2 = DataFrameFactory.$.readFrom(file);
-		
-		assertEquals(df, df2);
 	}
 }

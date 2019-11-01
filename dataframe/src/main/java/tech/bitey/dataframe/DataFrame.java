@@ -18,7 +18,6 @@ import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -66,8 +65,6 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	
 	<K, V> Map<K, V> toMap(int columnIndex);
 	<K, V> Map<K, V> toMap(String columnName);
-	
-	void writeTo(File file);
 	
 
 	/*--------------------------------------------------------------------------------

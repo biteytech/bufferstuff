@@ -42,6 +42,9 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, c));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, c));
 	}
+	static NonNullStringColumn empty(int characteristics) {
+		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
+	}
 	
 	private final ByteBuffer elements;
 	
@@ -341,36 +344,6 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 	@Override
 	ByteOrder byteOrder() {
 		return pointers.order();
-	}
-
-	@Override
-	int byteLength() {
-		return 4 + size() * 4 + end(lastIndex()) - pat(offset);
-	}
-
-	@Override
-	ByteBuffer[] asBuffers() {
-		ByteBuffer[] buffers =  new ByteBuffer[3];
-		
-		buffers[0] = ByteBuffer.allocate(4).order(byteOrder());
-		buffers[0].putInt(size());
-		buffers[0].flip();
-		
-		buffers[1] = slice(rawPointers, offset*4, (offset+size)*4);		
-		buffers[2] = slice(elements, pat(offset), end(lastIndex()));
-		
-		return buffers;
-	}
-	
-	static NonNullStringColumn fromBuffer(ByteBuffer buffer, int offset, int length, int characteristics) {
-		final int size = buffer.getInt(offset);
-		
-		ByteBuffer rawPointers = slice(buffer, offset + 4, offset + 4 + size*4);
-		zero(rawPointers, size);		
-		
-		ByteBuffer elements = slice(buffer, offset + 4 + size*4, offset+length);
-		
-		return new NonNullStringColumn(elements, rawPointers, 0, size, characteristics);
 	}
 
 	@Override

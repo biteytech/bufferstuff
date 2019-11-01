@@ -14,19 +14,12 @@
 
 package tech.bitey.dataframe;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
 import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkNotNull;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
-import static tech.bitey.dataframe.guava.DfPreconditions.checkState;
 
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.AbstractList;
@@ -976,93 +969,6 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 		
 		return new DataFrameImpl(columns, columnNames, null);
-	}
-	
-	
-	/*--------------------------------------------------------------------------------
-	 *	Write/read a dataframe to/from a file 
-	 *--------------------------------------------------------------------------------*/	
-	@SuppressWarnings("rawtypes")
-	@Override
-	public void writeTo(File file) {
-		try (
-			RandomAccessFile raf = new RandomAccessFile(file, "rw");
-			FileChannel channel = raf.getChannel();
-		) {
-			if(file.exists())
-				checkState(file.isFile(), file+", is not a normal file");
-			
-			final int cc = columnCount(); // abbreviation
-			
-			ByteBuffer header = ByteBuffer.allocate(8 + 4 + 4 + cc*2 + cc + cc*4 + 4 + 1).order(BIG_ENDIAN);
-			StringColumn columnNames;
-			{
-				header.putLong(MAGIC_NUMBER);
-				
-				// 1 byte version and 3 bytes reserved for future use
-				header.put((byte)1); header.put((byte)0);
-				header.put((byte)0); header.put((byte)0);
-				
-				// column count
-				header.putInt(cc);
-				
-				// column types codes
-				for(Column<?> column : columns)
-					header.put(column.getType().getCodeBytes());
-				
-				// column flags
-				int i = 0;
-				for(Column<?> column : columns) {
-					byte flags = 0;
-					AbstractColumn col = (AbstractColumn)column;
-					
-					if(col.byteOrder() == BIG_ENDIAN)
-						flags |= BIG_ENDIAN_FLAG;
-					if(col.isNonnull())
-						flags |= NONNULL_FLAG;
-					if(col.isSorted())
-						flags |= SORTED_FLAG;
-					if(col.isDistinct())
-						flags |= DISTINCT_FLAG;
-					if((Integer.valueOf(i++)).equals(keyIndex))
-						flags |= KEY_COLUMN_FLAG;
-					
-					header.put(flags);
-				}
-				
-				// column lengths (in bytes)
-				for(Column<?> column : columns)
-					header.putInt(((AbstractColumn)column).byteLength());
-				
-				// column name length
-				columnNames = StringColumn.builder().addAll(this.columnNames).build();
-				header.putInt(((AbstractColumn)columnNames).byteLength());
-				
-				// column name byte order
-				header.put(((AbstractColumn)columnNames).byteOrder() == ByteOrder.BIG_ENDIAN ?
-						(byte)BIG_ENDIAN_FLAG : (byte)0);
-				
-				header.flip();
-			}
-			
-			channel.write(header);
-			channel.write(((AbstractColumn)columnNames).asBuffers());
-			
-			// write column data
-			ByteBuffer[] columnData = Arrays.stream(columns)
-				.map(c -> (AbstractColumn)c)
-				.flatMap(c -> Arrays.stream(c.asBuffers()))
-				.toArray(ByteBuffer[]::new);
-			
-			for(int i = 0; i < columnData.length; i++) {
-				int remaining = columnData[i].remaining();
-				long written = channel.write(columnData[i]);
-				checkState(written == remaining);
-			}
-		}
-		catch(Exception e) {
-			throw new RuntimeException("Failed to write dataframe to "+file, e);
-		}
 	}
 
 	/*--------------------------------------------------------------------------------

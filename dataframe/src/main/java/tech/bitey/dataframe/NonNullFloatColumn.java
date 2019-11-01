@@ -39,6 +39,9 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, N
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, c));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, c));
 	}
+	static NonNullFloatColumn empty(int characteristics) {
+		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
+	}
 	
 	private final FloatBuffer elements;
 	

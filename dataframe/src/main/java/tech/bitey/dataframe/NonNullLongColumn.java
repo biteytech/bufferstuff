@@ -32,6 +32,9 @@ class NonNullLongColumn extends LongArrayColumn<Long, LongColumn, NonNullLongCol
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullLongColumn(ByteBuffer.allocate(0), 0, 0, c));
 		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullLongColumn(ByteBuffer.allocate(0), 0, 0, c));
 	}
+	static NonNullLongColumn empty(int characteristics) {
+		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
+	}
 	
 	NonNullLongColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
 		super(buffer, LONG, offset, size, characteristics);

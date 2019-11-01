@@ -18,7 +18,6 @@ import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Comparator;
 import java.util.ListIterator;
@@ -48,31 +47,6 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	@Override
 	ByteOrder byteOrder() {
 		return column.byteOrder();
-	}
-	
-	@Override
-	int byteLength() {
-		return 4 + bufferBitSetLength(nonNulls) + subColumn.byteLength();
-	}
-
-	@Override
-	ByteBuffer[] asBuffers() {
-		
-		ByteBuffer[] columnBuffers = subColumn.asBuffers();
-		
-		ByteBuffer[] buffers = new ByteBuffer[3 + columnBuffers.length];
-		
-		ByteBuffer bbsLength = buffers[0] = ByteBuffer.allocate(4).order(byteOrder());
-		bbsLength.putInt(bufferBitSetLength(nonNulls));
-		bbsLength.flip();
-		
-		ByteBuffer[] nonNullsBuffers = writeBufferBitSet(nonNulls);
-		buffers[1] = nonNullsBuffers[0];
-		buffers[2] = nonNullsBuffers[1];
-		
-		System.arraycopy(columnBuffers, 0, buffers, 3, columnBuffers.length);
-		
-		return buffers;
 	}
 
 	@Override
