@@ -16,6 +16,7 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
+import static tech.bitey.dataframe.Allocator.EMPTY_BUFFER;
 import static tech.bitey.dataframe.IntArrayPacker.INTEGER;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
@@ -28,9 +29,9 @@ class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullIntColu
 
 	static final Map<Integer, NonNullIntColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullIntColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c));
 	}
 	static NonNullIntColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);

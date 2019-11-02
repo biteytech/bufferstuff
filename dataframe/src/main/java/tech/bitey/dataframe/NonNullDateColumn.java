@@ -16,6 +16,7 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
+import static tech.bitey.dataframe.Allocator.EMPTY_BUFFER;
 import static tech.bitey.dataframe.IntArrayPacker.LOCAL_DATE;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
@@ -29,9 +30,9 @@ class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonNullDat
 	
 	static final Map<Integer, NonNullDateColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateColumn(ByteBuffer.allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateColumn(ByteBuffer.allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c));
 	}
 	static NonNullDateColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);

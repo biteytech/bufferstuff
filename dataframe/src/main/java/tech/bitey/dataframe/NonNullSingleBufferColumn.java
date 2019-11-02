@@ -19,7 +19,6 @@ import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import tech.bitey.bufferstuff.BufferUtils;
 
@@ -40,7 +39,7 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 	abstract int elementSize();
 
 	ByteBuffer allocate(int capacity) {
-		return ByteBuffer.allocateDirect(capacity * elementSize()).order(ByteOrder.nativeOrder());
+		return Allocator.allocate(capacity * elementSize());
 	}
 
 	@Override
@@ -96,10 +95,5 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 		buffer.flip();
 
 		return construct(buffer, 0, size, characteristics);
-	}
-
-	@Override
-	ByteOrder byteOrder() {
-		return buffer.order();
 	}
 }

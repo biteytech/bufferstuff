@@ -14,13 +14,15 @@
 
 package tech.bitey.dataframe;
 
+import static tech.bitey.dataframe.Allocator.EMPTY_BITSET;
+
 import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableBooleanColumn extends NullableColumn<Boolean, BooleanColumn, NonNullBooleanColumn, NullableBooleanColumn> implements BooleanColumn {
 	
-	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_NO_RESIZE, null, 0, 0); 
+	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_BITSET, null, 0, 0); 
 	
 	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);

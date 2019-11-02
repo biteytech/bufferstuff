@@ -14,7 +14,6 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkNotNull;
@@ -602,7 +601,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		
 		ArrayUtils.shuffle(indices);
 		
-		BufferBitSet keep = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet keep = Allocator.newBitSet();
 		for(int i = 0; i < size; i++)
 			keep.set(indices[i]);
 		
@@ -664,7 +663,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public DataFrame filter(Predicate<Row> criteria) {
 		
-		BufferBitSet keep = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet keep = Allocator.newBitSet();
 		
 		int i = 0;
 		for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next(), i++)
@@ -713,8 +712,8 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		AbstractColumn leftKey = (AbstractColumn)columns[keyIndex];
 		AbstractColumn rightKey = (AbstractColumn)rhs.columns[rhs.keyIndex];
 		
-		BufferBitSet keepLeft = new BufferBitSet(ALLOCATE_DIRECT);
-		BufferBitSet keepRight = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet keepLeft = Allocator.newBitSet();
+		BufferBitSet keepRight = Allocator.newBitSet();
 		
 		int cardinality = leftKey.intersectBothSorted(rightKey, keepLeft, keepRight);
 		
@@ -814,7 +813,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			rightColumn = (AbstractColumn)rhs.column(columnName);
 		}
 		
-		BufferBitSet keepRight = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet keepRight = Allocator.newBitSet();
 		IntColumn indices = leftKey.intersectLeftSorted(rightColumn, keepRight);
 		
 		rhs = rhs.filter(keepRight);
@@ -842,7 +841,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		DataFrameImpl inner = (DataFrameImpl)pair[0];
 		IntColumn indices = (IntColumn)pair[1];
 		
-		BufferBitSet unmatchedLeft = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet unmatchedLeft = Allocator.newBitSet();
 		unmatchedLeft.set(0, this.size());
 		for(int i = 0; i < indices.size(); i++)
 			unmatchedLeft.set(indices.getInt(i), false);
@@ -890,7 +889,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				"mismatched key column types");
 
 		IntColumn indices;
-		BufferBitSet keepRight = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet keepRight = Allocator.newBitSet();
 		
 		{
 			class SimpleTuple {

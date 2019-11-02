@@ -14,12 +14,9 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Comparator;
 import java.util.ListIterator;
@@ -42,7 +39,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		
 		if(nullCounts == null) {
 			final int words = (size - 1) / 32;
-			this.nullCounts = ByteBuffer.allocate(words * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
+			this.nullCounts = Allocator.allocate(words * 4).asIntBuffer();
 			for(int i = 0, w = 0, count = 0; w < words; w++) {
 				for(int j = 0; i < size && j < 32; j++, i++)
 					if(!nonNulls.get(i))
@@ -63,11 +60,6 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	@Override
 	public int characteristics() {
 		return BASE_CHARACTERISTICS;
-	}
-	
-	@Override
-	ByteOrder byteOrder() {
-		return column.byteOrder();
 	}
 
 	@Override
@@ -280,8 +272,8 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		if(keep.equals(nonNulls))
 			return column;
 		
-		BufferBitSet filteredNonNulls = new BufferBitSet(ALLOCATE_DIRECT);
-		BufferBitSet keepNonNulls = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet filteredNonNulls = Allocator.newBitSet();
+		BufferBitSet keepNonNulls = Allocator.newBitSet();
 		
 		int nullCount = 0;
 		for(int i = offset, j = 0; i <= lastIndex(); i++) {
@@ -308,7 +300,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	@Override
 	Column<E> select0(IntColumn indices) {
 		
-		BufferBitSet decodedNonNulls = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet decodedNonNulls = Allocator.newBitSet();
 		int cardinality = 0;
 		for(int i = 0; i < indices.size(); i++) {
 			if(nonNulls.get(indices.getInt(i)+offset)) {

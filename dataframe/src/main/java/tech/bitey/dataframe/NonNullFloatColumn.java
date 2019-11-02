@@ -19,6 +19,7 @@ import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
+import static tech.bitey.dataframe.Allocator.EMPTY_BUFFER;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;
@@ -35,9 +36,9 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, N
 	
 	static final Map<Integer, NonNullFloatColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullFloatColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c));
 	}
 	static NonNullFloatColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);

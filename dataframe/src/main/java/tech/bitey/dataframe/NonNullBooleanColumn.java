@@ -17,17 +17,16 @@ package tech.bitey.dataframe;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Spliterator.NONNULL;
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
+import static tech.bitey.dataframe.Allocator.EMPTY_BITSET;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
-import java.nio.ByteOrder;
 import java.util.Comparator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn> implements BooleanColumn {
 
-	static final NonNullBooleanColumn EMPTY = new NonNullBooleanColumn(EMPTY_NO_RESIZE, 0, 0);
+	static final NonNullBooleanColumn EMPTY = new NonNullBooleanColumn(EMPTY_BITSET, 0, 0);
 	
 	private final BufferBitSet elements;
 	
@@ -113,7 +112,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	@Override
 	NonNullBooleanColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
-		BufferBitSet elements = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet elements = Allocator.newBitSet();
 		for(int i = offset, j = 0; i <= lastIndex(); i++) {
 			if(keep.get(i - offset)) {
 				if(this.elements.get(i))
@@ -128,7 +127,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	@Override
 	NonNullBooleanColumn select0(IntColumn indices) {
 		
-		BufferBitSet elements = new BufferBitSet(ALLOCATE_DIRECT);
+		BufferBitSet elements = Allocator.newBitSet();
 		for(int i = 0; i < indices.size(); i++)
 			if(this.elements.get(indices.getInt(i) + offset))
 				elements.set(i);
@@ -183,11 +182,6 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 	@Override
 	boolean checkType(Object o) {
 		return o instanceof Boolean;
-	}
-
-	@Override
-	ByteOrder byteOrder() {
-		return ByteOrder.BIG_ENDIAN;
 	}
 
 	@Override

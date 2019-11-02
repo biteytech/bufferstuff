@@ -20,7 +20,6 @@ import static tech.bitey.dataframe.StringColumn.UTF_8;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Spliterator;
@@ -91,8 +90,8 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 		for(int i = 0; i < elements.size(); i++)
 			byteLength += elements.get(i).getBytes(UTF_8).length;
 		
-		ByteBuffer elements = ByteBuffer.allocateDirect(byteLength);
-		ByteBuffer pointers = ByteBuffer.allocateDirect(this.elements.size()*4).order(ByteOrder.nativeOrder());
+		ByteBuffer elements = Allocator.allocate(byteLength);
+		ByteBuffer pointers = Allocator.allocate(this.elements.size()*4);
 		
 		int destPos = 0;
 		for(String e : this.elements) {

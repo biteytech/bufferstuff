@@ -17,7 +17,6 @@ package tech.bitey.dataframe;
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.dataframe.Column.BASE_CHARACTERISTICS;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 
@@ -93,7 +92,7 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 		if(nulls == null)
 			return column;
 		else {
-			BufferBitSet nonNulls = new BufferBitSet(ALLOCATE_DIRECT);
+			BufferBitSet nonNulls = Allocator.newBitSet();
 			
 			for(int i = 0; i < size; i++)
 				if(!nulls.get(i))
@@ -111,7 +110,7 @@ public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuil
 			throw new NullPointerException("cannot add null when NONNULL is set");
 		
 		if(nulls == null)
-			nulls = new BufferBitSet(ALLOCATE_DIRECT);
+			nulls = Allocator.newBitSet();
 		
 		nulls.set(size, size+=count);
 		

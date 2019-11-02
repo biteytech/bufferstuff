@@ -19,9 +19,9 @@ import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
+import static tech.bitey.dataframe.Allocator.EMPTY_BUFFER;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,16 +31,12 @@ import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
 
 class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStringColumn> implements StringColumn {
-
-	private static ByteBuffer allocate(int capacity) {
-		return ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
-	}
 	
 	static final Map<Integer, NonNullStringColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, c));
 	}
 	static NonNullStringColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
@@ -241,7 +237,7 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 	@Override
 	NonNullStringColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
-		ByteBuffer rawPointers = allocate(cardinality*4);
+		ByteBuffer rawPointers = Allocator.allocate(cardinality*4);
 		int byteLength = 0;		
 		for(int i = offset; i <= lastIndex(); i++) {
 			if(keep.get(i - offset)) {
@@ -251,7 +247,7 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 		}
 		rawPointers.flip();
 		
-		ByteBuffer elements = allocate(byteLength);
+		ByteBuffer elements = Allocator.allocate(byteLength);
 		for(int i = offset; i <= lastIndex(); i++)
 			if(keep.get(i - offset))
 				copyElement(i, elements);
@@ -263,7 +259,7 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 	@Override
 	NonNullStringColumn select0(IntColumn indices) {
 		
-		ByteBuffer rawPointers = allocate(indices.size()*4);
+		ByteBuffer rawPointers = Allocator.allocate(indices.size()*4);
 		int byteLength = 0;		
 		for(int i = 0; i < indices.size(); i++) {
 			rawPointers.putInt(byteLength);
@@ -271,7 +267,7 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 		}
 		rawPointers.flip();
 		
-		ByteBuffer elements = allocate(byteLength);
+		ByteBuffer elements = Allocator.allocate(byteLength);
 		for(int i = 0; i < indices.size(); i++) {
 			int index = indices.getInt(i) + offset;
 			copyElement(index, elements);
@@ -287,7 +283,7 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 		final int thisByteLength = this.end(this.lastIndex()) - this.pat(this.offset);
 		final int tailByteLength = tail.end(tail.lastIndex()) - tail.pat(tail.offset);
 		
-		ByteBuffer elements = allocate(thisByteLength + tailByteLength);
+		ByteBuffer elements = Allocator.allocate(thisByteLength + tailByteLength);
 		{
 			ByteBuffer thisElements = slice(this.elements, this.pat(this.offset), this.end(this.lastIndex()));
 			ByteBuffer tailElements = slice(tail.elements, tail.pat(tail.offset), tail.end(tail.lastIndex()));
@@ -297,7 +293,7 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 			elements.flip();
 		}
 		
-		ByteBuffer rawPointers = allocate((size() + tail.size())*4);
+		ByteBuffer rawPointers = Allocator.allocate((size() + tail.size())*4);
 		{
 			ByteBuffer thisPointers = slice(this.rawPointers, this.offset*4, (this.offset+this.size())*4);
 			ByteBuffer tailPointers = slice(tail.rawPointers, tail.offset*4, (tail.offset+tail.size())*4);
@@ -342,14 +338,9 @@ class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStr
 	}
 
 	@Override
-	ByteOrder byteOrder() {
-		return pointers.order();
-	}
-
-	@Override
 	public NonNullStringColumn copy() {		
 		if(isEmpty())
-			return new NonNullStringColumn(ByteBuffer.allocate(0), allocate(0), 0, 0, characteristics);
+			return new NonNullStringColumn(EMPTY_BUFFER, EMPTY_BUFFER, 0, 0, characteristics);
 		
 		ByteBuffer rawPointers = BufferUtils.copy(this.rawPointers, offset*4, (offset+size)*4);
 		zero(rawPointers, size);

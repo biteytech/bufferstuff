@@ -14,15 +14,11 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.bufferstuff.BufferUtils.duplicate;
-import static tech.bitey.bufferstuff.ResizeBehavior.NO_RESIZE;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkArgument;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndexes;
 
 import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,8 +33,6 @@ import java.util.Set;
 import tech.bitey.bufferstuff.BufferBitSet;
 
 abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E> implements Column<E>, RandomAccess {
-	
-	static final BufferBitSet EMPTY_NO_RESIZE = new BufferBitSet(NO_RESIZE);
 	
 	final int offset;
 	final int size;
@@ -77,8 +71,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	abstract boolean isNullNoOffset(int index);	
 	
 	abstract boolean checkType(Object o);
-	
-	abstract ByteOrder byteOrder();
 	
 	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
@@ -309,59 +301,6 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 			throw new NoSuchElementException();
 		
 		return get(size()-1);
-	}
-	
-	/*------------------------------------------------------------
-	 *  Reading & writing BufferBitSet
-	 *------------------------------------------------------------*/	
-	int bufferBitSetLength(BufferBitSet bbs) {
-		
-		int fromByte = offset >>> 3;
-		int toByte = Math.min(bbs.getBuffer().position(), (lastIndex() >>> 3)+1);
-		
-		return 5 + toByte - fromByte;
-	}
-	
-	ByteBuffer[] writeBufferBitSet(BufferBitSet bbs) {
-		
-		ByteBuffer[] buffers = new ByteBuffer[2];
-		
-		ByteBuffer header = buffers[0] = ByteBuffer.allocate(5).order(byteOrder());
-		header.put((byte)(offset & 7));
-		header.putInt(size());
-		header.flip();
-		
-		ByteBuffer body = buffers[1] = duplicate(bbs.getBuffer());
-		body.limit(Math.min(bbs.getBuffer().position(), (lastIndex() >>> 3)+1));
-		body.position(offset >>> 3);
-		
-		return buffers;
-	}
-	
-	static class BufferBitSetWrapper {
-		final int offset;
-		final int size;
-		final BufferBitSet bbs;
-		
-		BufferBitSetWrapper(int offset, int size, BufferBitSet bbs) {
-			this.offset = offset;
-			this.size = size;
-			this.bbs = bbs;
-		}
-	}
-	
-	static BufferBitSetWrapper readBufferBitSet(ByteBuffer buffer) {
-		
-		int offset = buffer.get();
-		int size = buffer.getInt();
-		BufferBitSet bbs = new BufferBitSet(buffer);
-		
-		if(offset > 0)
-			bbs.clear(0, offset);
-		if(offset+size < bbs.size())
-			bbs.clear(offset+size, bbs.size());
-		
-		return new BufferBitSetWrapper(offset, size, bbs);
 	}
 
 	/*------------------------------------------------------------

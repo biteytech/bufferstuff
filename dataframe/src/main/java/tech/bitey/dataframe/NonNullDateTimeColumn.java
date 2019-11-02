@@ -16,6 +16,7 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
+import static tech.bitey.dataframe.Allocator.EMPTY_BUFFER;
 import static tech.bitey.dataframe.LongArrayPacker.LOCAL_DATE_TIME;
 
 import java.nio.ByteBuffer;
@@ -28,9 +29,9 @@ class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTimeColum
 	
 	static final Map<Integer, NonNullDateTimeColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateTimeColumn(ByteBuffer.allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateTimeColumn(ByteBuffer.allocate(0), 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateTimeColumn(ByteBuffer.allocate(0), 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateTimeColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateTimeColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateTimeColumn(EMPTY_BUFFER, 0, 0, c));
 	}
 	static NonNullDateTimeColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);

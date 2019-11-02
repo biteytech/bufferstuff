@@ -59,6 +59,24 @@ public class TestDataFrame {
 	}
 	
 	@Test
+	public void testAppend() {
+		for(Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+			
+			DataFrame df = e.getValue();
+			if(df.size() < 2)
+				continue;
+			
+			int half = df.size()/2;
+			DataFrame head = df.subFrame(0, half);
+			DataFrame tail = df.subFrame(half, df.size());
+			
+			DataFrame joint = head.append(tail);
+			
+			Assertions.assertEquals(df, joint, e.getKey()+", append");
+		}
+	}
+	
+	@Test
 	public void singleColumnJoin() {
 				
 		StringColumn c11 = StringColumn.of("A", "B", "C");

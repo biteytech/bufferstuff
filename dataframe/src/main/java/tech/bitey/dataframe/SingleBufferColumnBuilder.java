@@ -18,7 +18,6 @@ import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>> extends ColumnBuilder<E, C, B> {
 
@@ -41,7 +40,7 @@ abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E
 	}
 	
 	private ByteBuffer allocate(int capacity) {
-		return ByteBuffer.allocateDirect(capacity * elementSize()).order(ByteOrder.nativeOrder());
+		return Allocator.allocate(capacity * elementSize());
 	}
 	
 	private void extendCapacity(int newCapacity) {

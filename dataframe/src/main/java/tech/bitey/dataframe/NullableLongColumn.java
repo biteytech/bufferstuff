@@ -14,6 +14,7 @@
 
 package tech.bitey.dataframe;
 
+import static tech.bitey.dataframe.Allocator.EMPTY_BITSET;
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
 import java.nio.IntBuffer;
@@ -22,7 +23,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableLongColumn extends NullableColumn<Long, LongColumn, NonNullLongColumn, NullableLongColumn> implements LongColumn {
 	
-	static final NullableLongColumn EMPTY = new NullableLongColumn(NonNullLongColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, null, 0, 0);
+	static final NullableLongColumn EMPTY = new NullableLongColumn(NonNullLongColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
 
 	NullableLongColumn(NonNullLongColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
 		super(column, nonNulls, nullCounts, offset, size);

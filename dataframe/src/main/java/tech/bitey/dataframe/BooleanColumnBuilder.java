@@ -15,7 +15,6 @@
 package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.NonNullBooleanColumn.EMPTY;
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
@@ -26,7 +25,7 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 	}
 
 	private int nonNullSize = 0;
-	private BufferBitSet elements = new BufferBitSet(ALLOCATE_DIRECT);
+	private BufferBitSet elements = Allocator.newBitSet();
 
 	@Override
 	void addNonNull(Boolean element) {
