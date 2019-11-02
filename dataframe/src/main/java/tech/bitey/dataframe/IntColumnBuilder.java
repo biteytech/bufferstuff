@@ -37,7 +37,7 @@ public class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, 
 
 	@Override
 	IntColumn wrapNullableColumn(IntColumn column, BufferBitSet nonNulls) {
-		return new NullableIntColumn((NonNullIntColumn)column, nonNulls, 0, size);
+		return new NullableIntColumn((NonNullIntColumn)column, nonNulls, null, 0, size);
 	}
 	
 	public IntColumnBuilder add(int element) {

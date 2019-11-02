@@ -16,19 +16,21 @@ package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
+import java.nio.IntBuffer;
+
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableFloatColumn extends NullableColumn<Float, FloatColumn, NonNullFloatColumn, NullableFloatColumn> implements FloatColumn {
 	
-	static final NullableFloatColumn EMPTY = new NullableFloatColumn(NonNullFloatColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
+	static final NullableFloatColumn EMPTY = new NullableFloatColumn(NonNullFloatColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, null, 0, 0);
 
-	NullableFloatColumn(NonNullFloatColumn column, BufferBitSet nonNulls, int offset, int size) {
-		super(column, nonNulls, offset, size);
+	NullableFloatColumn(NonNullFloatColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableFloatColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableFloatColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
+		return new NullableFloatColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
@@ -49,7 +51,7 @@ class NullableFloatColumn extends NullableColumn<Float, FloatColumn, NonNullFloa
 
 	@Override
 	NullableFloatColumn construct(NonNullFloatColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableFloatColumn(column, nonNulls, 0, size);
+		return new NullableFloatColumn(column, nonNulls, null, 0, size);
 	}
 
 	@Override

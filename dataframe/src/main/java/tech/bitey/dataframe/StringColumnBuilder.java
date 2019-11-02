@@ -109,9 +109,7 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 
 	@Override
 	StringColumn wrapNullableColumn(StringColumn column, BufferBitSet nonNulls) {
-		
-		NullableStringColumn nullable = new NullableStringColumn((NonNullStringColumn)column, nonNulls, 0, size);
-		return nullable;
+		return new NullableStringColumn((NonNullStringColumn)column, nonNulls, null, 0, size);
 	}
 
 	@Override

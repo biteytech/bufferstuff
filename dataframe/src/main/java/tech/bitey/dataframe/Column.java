@@ -46,8 +46,6 @@ import java.util.Spliterators;
  * <th>isDistinct</th>
  * <th>{@link Spliterator}<br>
  * characteristics</th>
- * <th>Get by Index /<br>
- * {@link java.util.RandomAccess RandomAccess}</th>
  * <th>Find by Value/<br>
  * Binary Search</th>
  * </tr>
@@ -60,7 +58,6 @@ import java.util.Spliterators;
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
  * IMMUTABLE}</td>
  * <td>O(n) / FALSE</td>
- * <td>O(n) / FALSE</td>
  * </tr>
  * 
  * <tr>
@@ -71,7 +68,6 @@ import java.util.Spliterators;
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
  * IMMUTABLE},<br>
  * {@link Spliterator#NONNULL NONNULL}</td>
- * <td>O(1) / TRUE</td>
  * <td>O(n) / FALSE</td>
  * </tr>
  * 
@@ -83,7 +79,6 @@ import java.util.Spliterators;
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
  * IMMUTABLE},<br>
  * {@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED}</td>
- * <td>O(1) / TRUE</td>
  * <td>O(log(n)) / TRUE</td>
  * </tr>
  * 
@@ -96,7 +91,6 @@ import java.util.Spliterators;
  * IMMUTABLE},<br>
  * {@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED},<br>
  * {@link Spliterator#DISTINCT DISTINCT}</td>
- * <td>O(1) / TRUE</td>
  * <td>O(log(n)) / TRUE</td>
  * </tr>
  * </table>

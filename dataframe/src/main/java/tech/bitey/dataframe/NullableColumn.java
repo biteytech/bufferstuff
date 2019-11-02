@@ -18,7 +18,9 @@ import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.Comparator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -30,13 +32,32 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	final C column;
 	final C subColumn;
 	final BufferBitSet nonNulls;
+	final IntBuffer nullCounts;
 	
-	NullableColumn(C column, BufferBitSet nonNulls, int offset, int size) {
+	NullableColumn(C column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
 		super(offset, size);
 		
 		this.column = column;
 		this.nonNulls = nonNulls;
-		this.subColumn = column.subColumn(nonNullIndex(offset), nonNullIndex(offset+size));
+		
+		if(nullCounts == null) {
+			final int words = (size - 1) / 32;
+			this.nullCounts = ByteBuffer.allocate(words * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
+			for(int i = 0, w = 0, count = 0; w < words; w++) {
+				for(int j = 0; i < size && j < 32; j++, i++)
+					if(!nonNulls.get(i))
+						count++;
+				this.nullCounts.put(w, count);
+			}
+		}
+		else
+			this.nullCounts = nullCounts;
+		
+		final int firstNonNullIndex = firstNonNullIndex();
+		if(firstNonNullIndex == -1)
+			this.subColumn = column.empty();
+		else
+			this.subColumn = column.subColumn(firstNonNullIndex, lastNonNullIndex()+1);
 	}
 	
 	@Override
@@ -75,25 +96,29 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	}
 	
 	@Override
-	public boolean isNullNoOffset(int index) {
+	boolean isNullNoOffset(int index) {
 		return !nonNulls.get(index);
+	}
+	
+	private int firstNonNullIndex() {
+		int index = nonNulls.nextSetBit(offset);
+		return index == -1 || index > lastIndex() ? -1 : nonNullIndex(index);
+	}
+	
+	private int lastNonNullIndex() {
+		int index = nonNulls.previousSetBit(lastIndex());
+		return index < offset ? -1 : nonNullIndex(index);
 	}
 	
 	int nonNullIndex(int index) {
 		
-		// if value at index is null, jump to next non-null value 
-		if(!nonNulls.get(index)) {
-			index = nonNulls.nextSetBit(index+1);
-			if(index == -1)
-				index = offset+size;
-		}
+		// count null bits before index		
+		int word = (index - 1) / 32;
+		int count = word == 0 ? 0 : nullCounts.get(word - 1);
 		
-		// count null bits before index
-		int count = 0;
-		for(int i = 0; i < index; i++) {
+		for(int i = word*32; i < index; i++)
 			if(!nonNulls.get(i))
 				count++;
-		}
 		
 		return index - count;
 	}
@@ -161,8 +186,6 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 			
 			int index = idx + offset;
 			
-			final ListIterator<E> iter = column.listIterator(nonNullIndex(index));
-
 			@Override
 			public boolean hasNext() {				
 				return index <= lastIndex();
@@ -173,7 +196,12 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 				if(!hasNext())
 					throw new NoSuchElementException("called next when hasNext is false");
 
-				return nonNulls.get(index++) ? iter.next() : null;
+				if(nonNulls.get(index))
+					return column.get(nonNullIndex(index++));
+				else {
+					index++;
+					return null;
+				}
 			}
 
 			@Override
@@ -186,7 +214,11 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 				if(!hasPrevious())
 					throw new NoSuchElementException("called previous when hasPrevious is false");
 				
-				return nonNulls.get(--index) ? iter.previous() : null;
+				if(nonNulls.get(--index))
+					return column.get(nonNullIndex(index));
+				else {
+					return null;
+				}
 			}
 
 			@Override
@@ -219,13 +251,9 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		}
 		
 		if(count > 0) {
-			// compare non-null values
-			int lStart = nonNullIndex(offset);
-			int rStart = rhs.nonNullIndex(rhs.offset);
-			
 			@SuppressWarnings("unchecked")
-			C cast = (C)rhs.column;
-			return column.equals0(cast, lStart, rStart, count);
+			C cast = (C)rhs.column;			
+			return column.equals0(cast, firstNonNullIndex(), rhs.firstNonNullIndex(), count);
 		}
 		else
 			return true; // all nulls
@@ -241,12 +269,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 			result = 31 * result + (nonNulls.get(i) ? 1231 : 1237);
 		
 		// hash actual values
-		int fromIndex = nonNullIndex(offset);
-		int toIndex = nonNullIndex(lastIndex());
-		
-		result = 31 * result + column.hashCode(fromIndex, toIndex);
-		
-		return result;
+		return 31 * result + subColumn.hashCode();
 	}
 
 	abstract N construct(C column, BufferBitSet nonNulls, int size);

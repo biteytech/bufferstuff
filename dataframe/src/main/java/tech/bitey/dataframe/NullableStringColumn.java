@@ -16,19 +16,21 @@ package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
+import java.nio.IntBuffer;
+
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableStringColumn extends NullableColumn<String, StringColumn, NonNullStringColumn, NullableStringColumn> implements StringColumn {
 	
-	static final NullableStringColumn EMPTY = new NullableStringColumn(NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
+	static final NullableStringColumn EMPTY = new NullableStringColumn(NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, null, 0, 0);
 
-	NullableStringColumn(NonNullStringColumn column, BufferBitSet nonNulls, int offset, int size) {
-		super(column, nonNulls, offset, size);
+	NullableStringColumn(NonNullStringColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableStringColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableStringColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
+		return new NullableStringColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
@@ -38,7 +40,7 @@ class NullableStringColumn extends NullableColumn<String, StringColumn, NonNullS
 
 	@Override
 	NullableStringColumn construct(NonNullStringColumn column, BufferBitSet nonNulls, int size) {		
-		return new NullableStringColumn(column, nonNulls, 0, size);
+		return new NullableStringColumn(column, nonNulls, null, 0, size);
 	}
 
 	@Override

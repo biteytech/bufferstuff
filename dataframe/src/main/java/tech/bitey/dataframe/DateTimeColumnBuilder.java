@@ -38,7 +38,7 @@ public class DateTimeColumnBuilder extends LongArrayColumnBuilder<LocalDateTime,
 
 	@Override
 	DateTimeColumn wrapNullableColumn(DateTimeColumn column, BufferBitSet nonNulls) {
-		return new NullableDateTimeColumn((NonNullDateTimeColumn)column, nonNulls, 0, size);
+		return new NullableDateTimeColumn((NonNullDateTimeColumn)column, nonNulls, null, 0, size);
 	}
 
 	@Override

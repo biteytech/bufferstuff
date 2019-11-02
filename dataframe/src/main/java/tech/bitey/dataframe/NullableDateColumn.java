@@ -16,21 +16,22 @@ package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
+import java.nio.IntBuffer;
 import java.time.LocalDate;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableDateColumn extends NullableColumn<LocalDate, DateColumn, NonNullDateColumn, NullableDateColumn> implements DateColumn {
 	
-	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
+	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, null, 0, 0);
 
-	NullableDateColumn(NonNullDateColumn column, BufferBitSet nonNulls, int offset, int size) {
-		super(column, nonNulls, offset, size);
+	NullableDateColumn(NonNullDateColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableDateColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableDateColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
+		return new NullableDateColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
@@ -46,7 +47,7 @@ class NullableDateColumn extends NullableColumn<LocalDate, DateColumn, NonNullDa
 
 	@Override
 	NullableDateColumn construct(NonNullDateColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableDateColumn(column, nonNulls, 0, size);
+		return new NullableDateColumn(column, nonNulls, null, 0, size);
 	}
 
 	@Override

@@ -70,7 +70,7 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 
 	@Override
 	FloatColumn wrapNullableColumn(FloatColumn column, BufferBitSet nonNulls) {
-		return new NullableFloatColumn((NonNullFloatColumn)column, nonNulls, 0, size);
+		return new NullableFloatColumn((NonNullFloatColumn)column, nonNulls, null, 0, size);
 	}
 
 	@Override

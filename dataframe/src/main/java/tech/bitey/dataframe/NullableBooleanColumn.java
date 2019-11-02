@@ -14,19 +14,21 @@
 
 package tech.bitey.dataframe;
 
+import java.nio.IntBuffer;
+
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableBooleanColumn extends NullableColumn<Boolean, BooleanColumn, NonNullBooleanColumn, NullableBooleanColumn> implements BooleanColumn {
 	
-	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_NO_RESIZE, 0, 0); 
+	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_NO_RESIZE, null, 0, 0); 
 	
-	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, int offset, int size) {
-		super(column, nonNulls, offset, size);
+	NullableBooleanColumn(NonNullBooleanColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableBooleanColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableBooleanColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
+		return new NullableBooleanColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
@@ -42,7 +44,7 @@ class NullableBooleanColumn extends NullableColumn<Boolean, BooleanColumn, NonNu
 
 	@Override
 	NullableBooleanColumn construct(NonNullBooleanColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableBooleanColumn(column, nonNulls, 0, size);
+		return new NullableBooleanColumn(column, nonNulls, null, 0, size);
 	}
 
 	@Override

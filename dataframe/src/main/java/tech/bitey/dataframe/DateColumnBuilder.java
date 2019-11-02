@@ -38,7 +38,7 @@ public class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, DateColu
 
 	@Override
 	DateColumn wrapNullableColumn(DateColumn column, BufferBitSet nonNulls) {
-		return new NullableDateColumn((NonNullDateColumn)column, nonNulls, 0, size);
+		return new NullableDateColumn((NonNullDateColumn)column, nonNulls, null, 0, size);
 	}
 
 	@Override

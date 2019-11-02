@@ -23,13 +23,12 @@ import static tech.bitey.dataframe.guava.DfPreconditions.checkPositionIndex;
 import java.nio.Buffer;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.RandomAccess;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>> extends AbstractColumn<E, I, C> implements RandomAccess
+abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>> extends AbstractColumn<E, I, C>
 {	
 	static final int NONNULL_CHARACTERISTICS = BASE_CHARACTERISTICS | NONNULL;
 	

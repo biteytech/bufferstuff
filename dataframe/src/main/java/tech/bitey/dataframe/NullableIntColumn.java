@@ -16,19 +16,21 @@ package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
+import java.nio.IntBuffer;
+
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableIntColumn extends NullableColumn<Integer, IntColumn, NonNullIntColumn, NullableIntColumn> implements IntColumn {
 	
-	static final NullableIntColumn EMPTY = new NullableIntColumn(NonNullIntColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
+	static final NullableIntColumn EMPTY = new NullableIntColumn(NonNullIntColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, null, 0, 0);
 
-	NullableIntColumn(NonNullIntColumn column, BufferBitSet nonNulls, int offset, int size) {
-		super(column, nonNulls, offset, size);
+	NullableIntColumn(NonNullIntColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableIntColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableIntColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
+		return new NullableIntColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
@@ -49,7 +51,7 @@ class NullableIntColumn extends NullableColumn<Integer, IntColumn, NonNullIntCol
 
 	@Override
 	NullableIntColumn construct(NonNullIntColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableIntColumn(column, nonNulls, 0, size);
+		return new NullableIntColumn(column, nonNulls, null, 0, size);
 	}
 
 	@Override

@@ -71,7 +71,7 @@ public class DoubleColumnBuilder
 
 	@Override
 	DoubleColumn wrapNullableColumn(DoubleColumn column, BufferBitSet nonNulls) {
-		return new NullableDoubleColumn((NonNullDoubleColumn) column, nonNulls, 0, size);
+		return new NullableDoubleColumn((NonNullDoubleColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override

@@ -84,7 +84,7 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 
 	@Override
 	BooleanColumn wrapNullableColumn(BooleanColumn column, BufferBitSet nonNulls) {
-		return new NullableBooleanColumn((NonNullBooleanColumn)column, nonNulls, 0, size);
+		return new NullableBooleanColumn((NonNullBooleanColumn)column, nonNulls, null, 0, size);
 	}
 
 	@Override

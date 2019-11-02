@@ -31,11 +31,12 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.RandomAccess;
 import java.util.Set;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E> implements Column<E> {
+abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E, I, C>> extends AbstractCollection<E> implements Column<E>, RandomAccess {
 	
 	static final BufferBitSet EMPTY_NO_RESIZE = new BufferBitSet(NO_RESIZE);
 	

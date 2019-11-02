@@ -16,19 +16,21 @@ package tech.bitey.dataframe;
 
 import static tech.bitey.dataframe.NonNullColumn.NONNULL_CHARACTERISTICS;
 
+import java.nio.IntBuffer;
+
 import tech.bitey.bufferstuff.BufferBitSet;
 
 class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, NonNullDoubleColumn, NullableDoubleColumn> implements DoubleColumn {
 	
-	static final NullableDoubleColumn EMPTY = new NullableDoubleColumn(NonNullDoubleColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, 0, 0);
+	static final NullableDoubleColumn EMPTY = new NullableDoubleColumn(NonNullDoubleColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_NO_RESIZE, null, 0, 0);
 
-	NullableDoubleColumn(NonNullDoubleColumn column, BufferBitSet nonNulls, int offset, int size) {
-		super(column, nonNulls, offset, size);
+	NullableDoubleColumn(NonNullDoubleColumn column, BufferBitSet nonNulls, IntBuffer nullCounts, int offset, int size) {
+		super(column, nonNulls, nullCounts, offset, size);
 	}
 
 	@Override
 	NullableDoubleColumn subColumn0(int fromIndex, int toIndex) {
-		return new NullableDoubleColumn(column, nonNulls, fromIndex+offset, toIndex-fromIndex);
+		return new NullableDoubleColumn(column, nonNulls, nullCounts, fromIndex+offset, toIndex-fromIndex);
 	}
 
 	@Override
@@ -49,7 +51,7 @@ class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, NonNullD
 
 	@Override
 	NullableDoubleColumn construct(NonNullDoubleColumn column, BufferBitSet nonNulls, int size) {
-		return new NullableDoubleColumn(column, nonNulls, 0, size);
+		return new NullableDoubleColumn(column, nonNulls, null, 0, size);
 	}
 
 	@Override

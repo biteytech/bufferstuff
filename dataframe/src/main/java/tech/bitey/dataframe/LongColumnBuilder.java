@@ -37,7 +37,7 @@ public class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongColumn, 
 
 	@Override
 	LongColumn wrapNullableColumn(LongColumn column, BufferBitSet nonNulls) {
-		return new NullableLongColumn((NonNullLongColumn)column, nonNulls, 0, size);
+		return new NullableLongColumn((NonNullLongColumn)column, nonNulls, null, 0, size);
 	}
 	
 	public LongColumnBuilder add(long element) {
