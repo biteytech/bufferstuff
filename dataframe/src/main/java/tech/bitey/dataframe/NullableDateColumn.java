@@ -22,7 +22,7 @@ import java.time.LocalDate;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-class NullableDateColumn extends NullableColumn<LocalDate, DateColumn, NonNullDateColumn, NullableDateColumn> implements DateColumn {
+final class NullableDateColumn extends NullableColumn<LocalDate, DateColumn, NonNullDateColumn, NullableDateColumn> implements DateColumn {
 	
 	static final NullableDateColumn EMPTY = new NullableDateColumn(NonNullDateColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
 

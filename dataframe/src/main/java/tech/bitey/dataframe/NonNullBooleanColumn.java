@@ -24,7 +24,7 @@ import java.util.Comparator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn> implements BooleanColumn {
+final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn> implements BooleanColumn {
 
 	static final NonNullBooleanColumn EMPTY = new NonNullBooleanColumn(EMPTY_BITSET, 0, 0, false);
 	

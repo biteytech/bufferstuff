@@ -47,7 +47,7 @@ public enum ColumnType {
 		this.code = code;
 	}
 	
-	public String getCode() {
+	String getCode() {
 		return code;
 	}
 	

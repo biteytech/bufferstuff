@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, C, B>> {
+abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, C, B>> {
 
 	int characteristics;
 	

@@ -29,7 +29,7 @@ import java.util.Map;
 import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferUtils;
 
-class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStringColumn> implements StringColumn {
+final class NonNullStringColumn extends NonNullColumn<String, StringColumn, NonNullStringColumn> implements StringColumn {
 	
 	static final Map<Integer, NonNullStringColumn> EMPTY = new HashMap<>();
 	static {

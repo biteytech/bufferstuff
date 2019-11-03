@@ -16,7 +16,7 @@ package tech.bitey.dataframe;
 
 import java.time.LocalDate;
 
-public interface IntArrayPacker<E> {
+interface IntArrayPacker<E> {
 
 	final IntArrayPacker<Integer> INTEGER = new IntArrayPacker<Integer>() {
 		@Override

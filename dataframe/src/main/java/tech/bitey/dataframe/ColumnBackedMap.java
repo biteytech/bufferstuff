@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
+class ColumnBackedMap<K, V> extends AbstractMap<K, V> {
 
 	private final Column<K> keyColumn;
 	private final Column<V> valueColumn;
 	
-	public ColumnBackedMap(Column<K> keyColumn, Column<V> valueColumn) {
+	ColumnBackedMap(Column<K> keyColumn, Column<V> valueColumn) {
 		
 		checkNotNull(keyColumn, "key column cannot be null");
 		checkNotNull(valueColumn, "value column cannot be null");

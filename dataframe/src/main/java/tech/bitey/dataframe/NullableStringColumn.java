@@ -21,7 +21,7 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-class NullableStringColumn extends NullableColumn<String, StringColumn, NonNullStringColumn, NullableStringColumn> implements StringColumn {
+final class NullableStringColumn extends NullableColumn<String, StringColumn, NonNullStringColumn, NullableStringColumn> implements StringColumn {
 	
 	static final NullableStringColumn EMPTY = new NullableStringColumn(NonNullStringColumn.EMPTY.get(NONNULL_CHARACTERISTICS), EMPTY_BITSET, null, 0, 0);
 

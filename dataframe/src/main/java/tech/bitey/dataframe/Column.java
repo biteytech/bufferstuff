@@ -24,18 +24,15 @@ import static java.util.Spliterator.SUBSIZED;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
 /**
- * An immutable collection backed by nio buffers. Elements of type {@code E} are
- * packed/unpacked to and from the buffers. There are four variants for each
- * element type, with different tradeoffs between performance and functionality.
- * The methods {@link #isNonnull()}, {@link #isSorted()}, and
- * {@link #isDistinct()} can be used to query the {@link #characteristics()} of
- * a column:
+ * An immutable {@link java.util.List List} backed by nio buffers. Elements of
+ * type {@code E} are packed/unpacked to and from the buffers. There are four
+ * variants for each element type, with different tradeoffs between performance
+ * and functionality:
  * <table border=1 cellpadding=3>
  * <caption><b>Column Implementation Overview</b></caption>
  * <tr>
@@ -46,7 +43,7 @@ import java.util.Spliterators;
  * <th>isDistinct</th>
  * <th>{@link Spliterator}<br>
  * characteristics</th>
- * <th>Find by Value/<br>
+ * <th>Find by Value /<br>
  * Binary Search</th>
  * </tr>
  * 
@@ -57,7 +54,8 @@ import java.util.Spliterators;
  * <td>FALSE</td>
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
  * IMMUTABLE}</td>
- * <td>O(n) / FALSE</td>
+ * <td>O(n)<br>
+ * No</td>
  * </tr>
  * 
  * <tr>
@@ -68,7 +66,8 @@ import java.util.Spliterators;
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
  * IMMUTABLE},<br>
  * {@link Spliterator#NONNULL NONNULL}</td>
- * <td>O(n) / FALSE</td>
+ * <td>O(n)<br>
+ * No</td>
  * </tr>
  * 
  * <tr>
@@ -79,7 +78,8 @@ import java.util.Spliterators;
  * <td>{@link Spliterator#ORDERED ORDERED}, {@link Spliterator#IMMUTABLE
  * IMMUTABLE},<br>
  * {@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED}</td>
- * <td>O(log(n)) / TRUE</td>
+ * <td>O(log(n))<br>
+ * Yes</td>
  * </tr>
  * 
  * <tr>
@@ -91,7 +91,8 @@ import java.util.Spliterators;
  * IMMUTABLE},<br>
  * {@link Spliterator#NONNULL NONNULL}, {@link Spliterator#SORTED SORTED},<br>
  * {@link Spliterator#DISTINCT DISTINCT}</td>
- * <td>O(log(n)) / TRUE</td>
+ * <td>O(log(n))<br>
+ * Yes</td>
  * </tr>
  * </table>
  * <p>
@@ -99,14 +100,9 @@ import java.util.Spliterators;
  * <ul>
  * <li>The characteristics cannot be mixed and matched arbitrarily. Rather:
  * {@code DISTINCT} implies {@code SORTED} implies {@code NONNULL}.
- * <li>All columns report {@link Spliterator#SIZED SIZED},
- * {@link Spliterator#SIZED SUBSIZED}, and {@link Spliterator#SIZED IMMUTABLE}
- * in addition to the ones listed above.
- * <li>Columns are {@link List}s, but they also have
- * {@link NavigableSet}-inspired methods. <em>Some {@code NavigableSet}-like
- * methods are only available for unique indices</em> (i.e., when
- * {@code isDistinct() -> true}). They will throw
- * {@link UnsupportedOperationException} otherwise.
+ * <li>All columns report {@link Spliterator#SIZED SIZED} and
+ * {@link Spliterator#SIZED SUBSIZED} in addition to the characteristics listed
+ * above.
  * </ul>
  * 
  * @author Lior Privman

@@ -20,7 +20,7 @@ import java.nio.IntBuffer;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-class NullableBooleanColumn extends NullableColumn<Boolean, BooleanColumn, NonNullBooleanColumn, NullableBooleanColumn> implements BooleanColumn {
+final class NullableBooleanColumn extends NullableColumn<Boolean, BooleanColumn, NonNullBooleanColumn, NullableBooleanColumn> implements BooleanColumn {
 	
 	static final NullableBooleanColumn EMPTY = new NullableBooleanColumn(NonNullBooleanColumn.EMPTY, EMPTY_BITSET, null, 0, 0); 
 	

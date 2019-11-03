@@ -25,7 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTimeColumn, NonNullDateTimeColumn> implements DateTimeColumn {
+final class NonNullDateTimeColumn extends LongArrayColumn<LocalDateTime, DateTimeColumn, NonNullDateTimeColumn> implements DateTimeColumn {
 	
 	static final Map<Integer, NonNullDateTimeColumn> EMPTY = new HashMap<>();
 	static {

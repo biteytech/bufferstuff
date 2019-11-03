@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
+class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	
 	private static final DataFramePrinter DEFAULT_PRINTER = new DataFramePrinter(20);
 	

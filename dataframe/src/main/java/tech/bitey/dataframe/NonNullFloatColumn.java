@@ -32,7 +32,7 @@ import tech.bitey.bufferstuff.BufferBitSet;
 import tech.bitey.bufferstuff.BufferSearch;
 import tech.bitey.bufferstuff.BufferUtils;
 
-class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, NonNullFloatColumn> implements FloatColumn {
+final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, NonNullFloatColumn> implements FloatColumn {
 	
 	static final Map<Integer, NonNullFloatColumn> EMPTY = new HashMap<>();
 	static {
