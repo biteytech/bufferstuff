@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, C, B>> {
+abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractColumnBuilder<E, C, B>> implements ColumnBuilder<E> {
 
 	int characteristics;
 	
@@ -33,7 +33,7 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 	
 	int size = 0;
 	
-	ColumnBuilder(int characteristics) {
+	AbstractColumnBuilder(int characteristics) {
 		
 		characteristics |= BASE_CHARACTERISTICS;
 		
@@ -44,8 +44,7 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 		
 		this.characteristics = characteristics;
 	}
-	
-	public abstract ColumnType getType();
+		
 	abstract C emptyNonNull();
 	abstract int getNonNullSize();
 	abstract void checkCharacteristics();
@@ -72,6 +71,7 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 		return cast;
 	}
 	
+	@Override
 	public C build() {
 		
 		if(size == 0)
@@ -105,6 +105,7 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 	
 	abstract void addNonNull(E element);
 	
+	@Override
 	public B addNulls(int count) {
 		if((characteristics & NONNULL) != 0)
 			throw new NullPointerException("cannot add null when NONNULL is set");
@@ -119,10 +120,12 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 		return b; 
 	}
 	
+	@Override
 	public B addNull() {
 		return addNulls(1);
 	}
 	
+	@Override
 	public B add(E element) {
 		
 		if(element == null)
@@ -136,14 +139,17 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Override
 	public B add(E element, E... rest) {
 		add(element);
 		return addAll(rest);
 	}
 	
 	abstract void ensureAdditionalCapacity(int required);	
+	@Override
 	public abstract B ensureCapacity(int minCapacity);
 	
+	@Override
 	public B addAll(E[] elements) {
 		
 		ensureAdditionalCapacity(elements.length);
@@ -156,6 +162,7 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 		return b;
 	}
 
+	@Override
 	public B addAll(Collection<E> elements) {
 		
 		ensureAdditionalCapacity(elements.size());
@@ -163,6 +170,7 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 		return addAll(elements.iterator());
 	}
 
+	@Override
 	public B addAll(Iterator<E> elements) {
 		
 		while(elements.hasNext())
@@ -173,6 +181,7 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 		return b;
 	}
 	
+	@Override
 	public B addAll(Iterable<E> elements) {
 		if(elements instanceof Collection)
 			return addAll((Collection<E>)elements);
@@ -180,6 +189,7 @@ abstract class ColumnBuilder<E, C extends Column<E>, B extends ColumnBuilder<E, 
 			return addAll(elements.iterator());
 	}
 	
+	@Override
 	public int size() {
 		return size;
 	}

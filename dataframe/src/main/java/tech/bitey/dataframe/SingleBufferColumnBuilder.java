@@ -19,7 +19,7 @@ import static tech.bitey.bufferstuff.BufferUtils.duplicate;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
-abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>> extends ColumnBuilder<E, C, B> {
+abstract class SingleBufferColumnBuilder<E, F extends Buffer, C extends Column<E>, B extends SingleBufferColumnBuilder<E, F, C, B>> extends AbstractColumnBuilder<E, C, B> {
 
 	SingleBufferColumnBuilder(int characteristics) {
 		super(characteristics);

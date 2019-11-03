@@ -51,53 +51,54 @@ public enum ColumnType {
 		return code;
 	}
 	
-	byte[] getCodeBytes() {
-		return code.length() == 2 ? code.getBytes() : (" "+code).getBytes();
-	}
+//	byte[] getCodeBytes() {
+//		return code.length() == 2 ? code.getBytes() : (" "+code).getBytes();
+//	}
+//	
+//	static ColumnType valueOf(byte[] codeBytes) {
+//		final String code;
+//		if(codeBytes[0] == ' ')
+//			code = String.valueOf((char)codeBytes[1]);
+//		else
+//			code = new String(codeBytes);
+//		
+//		switch(code) {
+//		case "B": return BOOLEAN;
+//		case "DA": return DATE;
+//		case "DT": return DATETIME;
+//		case "D": return DOUBLE;
+//		case "F": return FLOAT;
+//		case "I": return INT;
+//		case "L": return LONG;
+//		case "S": return STRING;
+//		default:
+//			throw new IllegalArgumentException("bad code bytes: "+code);
+//		}
+//	}
 	
-	static ColumnType valueOf(byte[] codeBytes) {
-		final String code;
-		if(codeBytes[0] == ' ')
-			code = String.valueOf((char)codeBytes[1]);
-		else
-			code = new String(codeBytes);
-		
-		switch(code) {
-		case "B": return BOOLEAN;
-		case "DA": return DATE;
-		case "DT": return DATETIME;
-		case "D": return DOUBLE;
-		case "F": return FLOAT;
-		case "I": return INT;
-		case "L": return LONG;
-		case "S": return STRING;
-		default:
-			throw new IllegalArgumentException("bad code bytes: "+code);
-		}
-	}
-	
-	public ColumnBuilder<?,?,?> builder() {
+	public <T> ColumnBuilder<T> builder() {
 		return builder(0);
 	}
 	
-	public ColumnBuilder<?,?,?> builder(int characteristics) {
+	@SuppressWarnings("unchecked")
+	public <T> ColumnBuilder<T> builder(int characteristics) {
 		switch(this) {
 		case BOOLEAN:
-			return BooleanColumn.builder();
+			return (ColumnBuilder<T>)BooleanColumn.builder();
 		case DATE:
-			return DateColumn.builder(characteristics);
+			return (ColumnBuilder<T>)DateColumn.builder(characteristics);
 		case DATETIME:
-			return DateTimeColumn.builder(characteristics);
+			return (ColumnBuilder<T>)DateTimeColumn.builder(characteristics);
 		case DOUBLE:
-			return DoubleColumn.builder(characteristics);
+			return (ColumnBuilder<T>)DoubleColumn.builder(characteristics);
 		case FLOAT:
-			return FloatColumn.builder(characteristics);
+			return (ColumnBuilder<T>)FloatColumn.builder(characteristics);
 		case INT:
-			return IntColumn.builder(characteristics);
+			return (ColumnBuilder<T>)IntColumn.builder(characteristics);
 		case LONG:
-			return LongColumn.builder(characteristics);
+			return (ColumnBuilder<T>)LongColumn.builder(characteristics);
 		case STRING:
-			return StringColumn.builder(characteristics);
+			return (ColumnBuilder<T>)StringColumn.builder(characteristics);
 		}
 		
 		throw new IllegalStateException();

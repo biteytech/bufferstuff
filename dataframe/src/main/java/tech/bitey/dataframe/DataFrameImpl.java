@@ -512,12 +512,10 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		return (DateTimeColumn)checkedColumn(columnName);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Column<T> deriveColumn(ColumnType type, Function<Row, T> function) {
 		
-		@SuppressWarnings("rawtypes")
-		ColumnBuilder builder = type.builder(0);
+		ColumnBuilder<T> builder = type.builder();
 		
 		for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next())
 			builder.add(function.apply(cursor));

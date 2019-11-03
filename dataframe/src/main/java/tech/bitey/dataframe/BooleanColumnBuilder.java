@@ -18,7 +18,7 @@ import static tech.bitey.dataframe.NonNullBooleanColumn.EMPTY;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, BooleanColumnBuilder> {
+public class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, BooleanColumn, BooleanColumnBuilder> {
 
 	BooleanColumnBuilder() { 
 		super(0);

@@ -26,7 +26,7 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, StringColumnBuilder> {
+public class StringColumnBuilder extends AbstractColumnBuilder<String, StringColumn, StringColumnBuilder> {
 
 	StringColumnBuilder(int characteristics) {
 		super(characteristics);
