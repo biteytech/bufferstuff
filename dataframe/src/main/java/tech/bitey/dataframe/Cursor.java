@@ -59,17 +59,4 @@ public interface Cursor extends Row {
 	 * @throws NoSuchElementException if the dataframe has no previous row
 	 */
 	void previous();
-
-	/**
-	 * Returns the index of the current row, ranging from zero to dataframe size,
-	 * exclusive.
-	 * <p>
-	 * Note: calls to {@link DataFrame#cursor()} will throw an
-	 * {@link IndexOutOfBoundsException} for empty dataframes, so there will always
-	 * be a at least one valid row to iterator over.
-	 * 
-	 * @return the index of the current row, ranging from zero to dataframe size,
-	 *         exclusive.
-	 */
-	int currentIndex();
 }

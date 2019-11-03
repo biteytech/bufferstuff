@@ -170,25 +170,29 @@ class DataFramePrinter {
 //		return col.size() > i ? col.getString(i) : TOO_SHORT_COLUMN_MARKER;
 		if (col.size() > i) {
 			Object o = col.get(i);
-			if(o == null)
-				return "(null)";
-			else {
-				switch(col.getType()) {
-				case FLOAT: case DOUBLE:
-					Number n = (Number)o;
-					return BigDecimal.valueOf(n.doubleValue())
-							.round(ROUNDING_CONTEXT).toPlainString();
-				case STRING:
-					String s = (String)o;
-					s = s.replaceAll("\r|\n", "");
-					s = s.replaceAll("\t", "  ");
-					return StringUtils.abbreviate(s, 100);
-				default:
-					return o.toString();
-				}
-			}
+			return pretty(o, col.getType());
 		} else
 			return TOO_SHORT_COLUMN_MARKER;
+	}
+	
+	String pretty(Object o, ColumnType type) {
+		if(o == null)
+			return "(null)";
+		else {
+			switch(type) {
+			case FLOAT: case DOUBLE:
+				Number n = (Number)o;
+				return BigDecimal.valueOf(n.doubleValue())
+						.round(ROUNDING_CONTEXT).toPlainString();
+			case STRING:
+				String s = (String)o;
+				s = s.replaceAll("\r|\n", "");
+				s = s.replaceAll("\t", "  ");
+				return StringUtils.abbreviate(s, 100);
+			default:
+				return o.toString();
+			}
+		}
 	}
 
 	/**

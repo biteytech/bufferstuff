@@ -223,9 +223,6 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 		return o == null ? false : indexOf(o) != -1;
 	}
 	
-	/*------------------------------------------------------------
-	 *                WcdsImmutableList methods
-	 *------------------------------------------------------------*/	
 	@Override
 	public ListIterator<E> listIterator(final int idx) {
 		

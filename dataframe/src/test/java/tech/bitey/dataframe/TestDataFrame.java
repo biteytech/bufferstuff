@@ -77,7 +77,24 @@ public class TestDataFrame {
 	}
 	
 	@Test
-	public void singleColumnJoin() {
+	public void testHashJoin() {
+		
+		for(Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+			
+			DataFrame expected = e.getValue();
+			
+			if(expected.stream().collect(Collectors.toSet()).size() < expected.size())
+				continue;
+			
+			String[] columnNames = expected.columnNames().stream().toArray(String[]::new);
+			DataFrame actual = expected.joinHash(expected, columnNames, columnNames);
+			
+			Assertions.assertEquals(expected, actual, e.getKey()+", hashJoin");
+		}
+	}
+	
+	@Test
+	public void testSingleColumnJoin() {
 				
 		StringColumn c11 = StringColumn.of("A", "B", "C");
 		IntColumn c21 = IntColumn.builder().addAll(1, 2, 3).build();
@@ -94,7 +111,31 @@ public class TestDataFrame {
 	}
 	
 	@Test
-	void toMapTest1() throws Exception {
+	public void testHashJoin2() {
+		
+		StringColumn c11 = StringColumn.of("A", "A", "B", "B", "C", "C");
+		IntColumn c21 = IntColumn.of(1, 2, 3, 1, 2, 3);
+		StringColumn c31 = StringColumn.of("foo", "foo", "foo", "foo", "foo", "foo");
+		DataFrame df1 = DataFrameFactory.$.create(new Column<?>[] {c11, c21, c31}, new String[] {"KEY1", "KEY2", "FOO"});
+		
+		StringColumn c12 = StringColumn.of("B", "B", "C", "C", "D", "D");
+		IntColumn c22 = IntColumn.of(2, 3, 4, 2, 3, 4);
+		StringColumn c32 = StringColumn.of("bar", "bar", "bar", "bar", "bar", "bar");
+		DataFrame df2 = DataFrameFactory.$.create(new Column<?>[] {c12, c22, c32}, new String[] {"KEY1", "KEY2", "BAR"});
+		
+		DataFrame actual = df1.joinHash(df2, new String[] {"KEY1","KEY2"}, new String[] {"KEY1","KEY2"});
+		
+		StringColumn e1 = StringColumn.of("B", "C");
+		IntColumn e2 = IntColumn.of(3, 2);
+		StringColumn e3 = StringColumn.of("foo", "foo");
+		StringColumn e4 = StringColumn.of("bar", "bar");
+		DataFrame expected = DataFrameFactory.$.create(new Column<?>[] {e1, e2, e3, e4}, new String[] {"KEY1", "KEY2", "FOO", "BAR"});
+		
+		Assertions.assertEquals(expected, actual);
+	}
+	
+	@Test
+	void testToMap() throws Exception {
 		
 		IntColumn df1KeyColumn = IntColumn.builder(DISTINCT).addAll(1, 3, 4, 5).build();
 		StringColumn df1ValueColumn = StringColumn.of("one", "three", "four", "five");

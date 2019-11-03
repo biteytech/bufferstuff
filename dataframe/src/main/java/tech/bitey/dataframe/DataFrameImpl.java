@@ -892,63 +892,26 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		BufferBitSet keepRight = Allocator.newBitSet();
 		
 		{
-			class SimpleTuple {
-				final Object[] elements;
-				
-				SimpleTuple(Row row, int[] columnIndices) {					
-					elements = new Object[columnIndices.length];
-					for(int i = 0; i < columnIndices.length; i++)
-						elements[i] = row.get(columnIndices[i]);					
-				}
-				
-				@Override
-				public int hashCode() {
-					int result = 1;
-
-			        for (Object element : elements)
-			            result = 31 * result + (element == null ? 0 : element.hashCode());
-
-			        return result;
-				}
-				
-				@Override
-				public boolean equals(Object o) {
-					SimpleTuple rhs = (SimpleTuple) o;
-
-					for (int i = 0; i < elements.length; i++) {
-						Object o1 = elements[i];
-						Object o2 = rhs.elements[i];
-						if (!(o1 == null ? o2 == null : o1.equals(o2)))
-							return false;
-					}
-					return true;
-				}
-			}
-			
-			Map<SimpleTuple, Integer> hashMap = new HashMap<>();
+			Map<Row, Integer> hashMap = new HashMap<>();
 		
-			for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next()) {
-				SimpleTuple tuple = new SimpleTuple(cursor, leftColumnIndices);
-				if(hashMap.containsKey(tuple))
+			for(Row row : selectColumns(leftColumnIndices)) {
+				if(hashMap.containsKey(row))
 					throw new IllegalStateException("columns do not form a unqiue index");
 				else
-					hashMap.put(tuple, cursor.currentIndex());
+					hashMap.put(row, row.rowIndex());
 			}
 			
 			IntColumnBuilder builder = IntColumn.builder();
 			
-			for(Cursor cursor = rhs.cursor(); cursor.hasNext(); cursor.next()) {
-				SimpleTuple tuple = new SimpleTuple(cursor, rightColumnIndices);
-				int leftRowIndex = hashMap.getOrDefault(tuple, -1);
+			for(Row row : rhs.selectColumns(rightColumnIndices)) {
+				int leftRowIndex = hashMap.getOrDefault(row, -1);
 				if(leftRowIndex >= 0) {
 					builder.add(leftRowIndex);
-					keepRight.set(cursor.currentIndex());
+					keepRight.set(row.rowIndex());
 				}
 			}
 			
-			hashMap = null;
 			indices = builder.build();
-			builder = null;
 		}
 		
 		DataFrameImpl left = select(indices);
@@ -1133,7 +1096,19 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	 *--------------------------------------------------------------------------------*/
 	private abstract class AbstractRow implements Row {
 		
-		abstract int rowIndex();
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+	        sb.append('[');
+	        for(int i = 0; i < columnCount(); i++) {
+	        	Object o = get(i);
+	        	sb.append(DEFAULT_PRINTER.pretty(o, columnType(i)));
+	        	if(i < columnCount()-1)
+	        		sb.append(", ");
+	        }
+	        sb.append(']');
+	        return sb.toString();
+		}
 		
 		@Override
 		public boolean isNull(int columnIndex) {
@@ -1260,8 +1235,35 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 
 		@Override
-		int rowIndex() {
+		public int rowIndex() {
 			return rowIndex;
+		}
+		
+		@Override
+		public int hashCode() {
+			int result = 1;
+
+			for(int i = 0; i < columnCount(); i++) {
+				Object value = get(i);
+				result = 31 * result + (value == null ? 0 : value.hashCode());
+			}
+
+			return result;
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			RowImpl rhs = (RowImpl)o;
+			if(columnCount() != rhs.columnCount())
+				return false;
+			
+			for(int i = 0; i < columnCount(); i++) {
+				Object o1 = get(i);
+				Object o2 = rhs.get(i);
+				if (!(o1 == null ? o2 == null : o1.equals(o2)))
+					return false;
+			}
+			return true;
 		}
 	}
 	
@@ -1274,7 +1276,7 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 
 		@Override
-		int rowIndex() {
+		public int rowIndex() {
 			return rowIndex;
 		}
 
@@ -1302,11 +1304,6 @@ public class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				throw new NoSuchElementException("called previous when hasPrevious is false");
 			
 			rowIndex--;
-		}
-
-		@Override
-		public int currentIndex() {
-			return rowIndex;
 		}
 	}
 	
