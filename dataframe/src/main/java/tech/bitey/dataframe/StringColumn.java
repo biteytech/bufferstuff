@@ -45,7 +45,7 @@ public interface StringColumn extends Column<String> {
 	}
 	
 	public static StringColumn of(String... elements) {
-		return builder(0).addAll(elements).build();
+		return builder().addAll(elements).build();
 	}
 	
 	public static Collector<String,?,StringColumn> collector(int characteristics) {		

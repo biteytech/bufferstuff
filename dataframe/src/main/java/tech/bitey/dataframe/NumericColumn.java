@@ -14,7 +14,20 @@
 
 package tech.bitey.dataframe;
 
+/**
+ * A {@link Column} with a numeric element type.
+ * 
+ * @author Lior Privman
+ *
+ * @param <E> a {@link Number numeric} type
+ */
 public interface NumericColumn<E extends Number> extends Column<E> {
 
+	/**
+	 * Returns the mean/average of the non-null values in this column.
+	 * 
+	 * @return the mean value, or NaN if this column is empty or contains only null
+	 *         values.
+	 */
 	double mean();
 }

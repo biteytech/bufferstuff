@@ -162,7 +162,7 @@ public class TestDataFrame {
 				new String[] {"KEY", "VALUE"}, "KEY");
 		
 		Map<Integer, String> expected = df1.stream().collect(
-				Collectors.toMap(r -> r.getInt(0), r -> r.getString(1)));
+				Collectors.toMap(r -> r.get(0), r -> r.get(1)));
 		
 		Map<Integer, String> actual = df1.toMap("VALUE");
 		

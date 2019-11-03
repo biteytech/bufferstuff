@@ -19,7 +19,24 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongColumn, LongColumnBuilder> {
+/**
+ * A builder for creating {@link LongColumn} instances. Example:
+ *
+ * <pre>
+ * LongColumn column = LongColumn.builder().add(10L).addAll(200L, 300L, 400L).build();
+ * </pre>
+ * 
+ * Elements appear in the resulting column in the same order they were added to
+ * the builder.
+ * <p>
+ * Builder instances can be reused; it is safe to call
+ * {@link ColumnBuilder#build build} multiple times to build multiple columns in
+ * series. Each new column contains all the elements of the ones created before
+ * it.
+ *
+ * @author Lior Privman
+ */
+public final class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongColumn, LongColumnBuilder> {
 
 	LongColumnBuilder(int characteristics) {
 		super(characteristics, LongArrayPacker.LONG);
@@ -37,16 +54,33 @@ public class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongColumn, 
 
 	@Override
 	LongColumn wrapNullableColumn(LongColumn column, BufferBitSet nonNulls) {
-		return new NullableLongColumn((NonNullLongColumn)column, nonNulls, null, 0, size);
+		return new NullableLongColumn((NonNullLongColumn) column, nonNulls, null, 0, size);
 	}
-	
+
+	/**
+	 * Adds a single {@code long} to the column. This is the primitive
+	 * specialization of {@link ColumnBuilder#add(Long) add(E element)}
+	 *
+	 * @param element the {@code long} to add
+	 * 
+	 * @return this builder
+	 */
 	public LongColumnBuilder add(long element) {
 		ensureAdditionalCapacity(1);
 		elements.put(element);
 		size++;
 		return this;
 	}
-	
+
+	/**
+	 * Adds a sequence of {@code longs} to the column. This is the primitive
+	 * specialization of {@link ColumnBuilder#add(Long, Long[]) add(E element, E...
+	 * rest)}
+	 *
+	 * @param elements the {@code longs} to add
+	 * 
+	 * @return this builder
+	 */
 	public LongColumnBuilder addAll(long... elements) {
 		ensureAdditionalCapacity(elements.length);
 		this.elements.put(elements);

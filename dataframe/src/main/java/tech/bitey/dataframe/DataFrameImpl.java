@@ -1129,16 +1129,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 
 		@Override
-		public String getString(int columnIndex) {
-			return DataFrameImpl.this.getString(rowIndex(), columnIndex);
-		}
-
-		@Override
-		public String getString(String columnName) {
-			return DataFrameImpl.this.getString(rowIndex(), columnName);
-		}
-
-		@Override
 		public boolean getBoolean(int columnIndex) {
 			return DataFrameImpl.this.getBoolean(rowIndex(), columnIndex);
 		}
@@ -1189,16 +1179,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		}
 
 		@Override
-		public LocalDate getDate(int columnIndex) {
-			return DataFrameImpl.this.getDate(rowIndex(), columnIndex);
-		}
-
-		@Override
-		public LocalDate getDate(String columnName) {
-			return DataFrameImpl.this.getDate(rowIndex(), columnName);
-		}
-
-		@Override
 		public int yyyymmdd(int columnIndex) {
 			return DataFrameImpl.this.yyyymmdd(rowIndex(), columnIndex);
 		}
@@ -1206,16 +1186,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		@Override
 		public int yyyymmdd(String columnName) {
 			return DataFrameImpl.this.yyyymmdd(rowIndex(), columnName);
-		}
-
-		@Override
-		public LocalDateTime getDateTime(int columnIndex) {
-			return DataFrameImpl.this.getDateTime(rowIndex(), columnIndex);
-		}
-
-		@Override
-		public LocalDateTime getDateTime(String columnName) {
-			return DataFrameImpl.this.getDateTime(rowIndex(), columnName);
 		}
 
 		@Override

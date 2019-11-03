@@ -18,9 +18,26 @@ import static tech.bitey.dataframe.NonNullBooleanColumn.EMPTY;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, BooleanColumn, BooleanColumnBuilder> {
+/**
+ * A builder for creating {@link BooleanColumn} instances. Example:
+ *
+ * <pre>
+ * BooleanColumn column = BooleanColumn.builder().add(true).addAll(true, false, true).build();
+ * </pre>
+ * 
+ * Elements appear in the resulting column in the same order they were added to
+ * the builder.
+ * <p>
+ * Builder instances can be reused; it is safe to call
+ * {@link ColumnBuilder#build build} multiple times to build multiple columns in
+ * series. Each new column contains all the elements of the ones created before
+ * it.
+ *
+ * @author Lior Privman
+ */
+public final class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, BooleanColumn, BooleanColumnBuilder> {
 
-	BooleanColumnBuilder() { 
+	BooleanColumnBuilder() {
 		super(0);
 	}
 
@@ -31,18 +48,35 @@ public class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, Boolean
 	void addNonNull(Boolean element) {
 		add(element.booleanValue());
 	}
-	
+
+	/**
+	 * Adds a single {@code boolean} to the column. This is the primitive
+	 * specialization of {@link ColumnBuilder#add(Boolean) add(E element)}
+	 *
+	 * @param element the {@code boolean} to add
+	 * 
+	 * @return this builder
+	 */
 	public BooleanColumnBuilder add(boolean element) {
-		if(element)
+		if (element)
 			elements.set(nonNullSize);
 		size++;
 		nonNullSize++;
 		return this;
 	}
-	
+
+	/**
+	 * Adds a sequence of {@code booleans} to the column. This is the primitive
+	 * specialization of {@link ColumnBuilder#add(Boolean, Boolean[]) add(E element,
+	 * E... rest)}
+	 *
+	 * @param elements the {@code booleans} to add
+	 * 
+	 * @return this builder
+	 */
 	public BooleanColumnBuilder addAll(boolean... elements) {
-		for(int i = 0; i < elements.length; i++) {
-			if(elements[i])
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i])
 				this.elements.set(nonNullSize);
 			nonNullSize++;
 		}
@@ -83,7 +117,7 @@ public class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, Boolean
 
 	@Override
 	BooleanColumn wrapNullableColumn(BooleanColumn column, BufferBitSet nonNulls) {
-		return new NullableBooleanColumn((NonNullBooleanColumn)column, nonNulls, null, 0, size);
+		return new NullableBooleanColumn((NonNullBooleanColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override
@@ -93,11 +127,11 @@ public class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, Boolean
 
 	@Override
 	void append0(BooleanColumnBuilder tail) {
-		
-		BufferBitSet elements = tail.elements.shiftRight(this.nonNullSize);				
+
+		BufferBitSet elements = tail.elements.shiftRight(this.nonNullSize);
 		elements.or(this.elements);
 		this.elements = elements;
-		
+
 		this.nonNullSize += tail.nonNullSize;
 	}
 }

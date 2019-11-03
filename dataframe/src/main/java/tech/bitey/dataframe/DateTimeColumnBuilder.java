@@ -20,7 +20,25 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class DateTimeColumnBuilder extends LongArrayColumnBuilder<LocalDateTime, DateTimeColumn, DateTimeColumnBuilder> {
+/**
+ * A builder for creating {@link DateTimeColumn} instances. Example:
+ *
+ * <pre>
+ * DateTimeColumn column = DateTimeColumn.builder().add(LocalDateTime.now()).build();
+ * </pre>
+ * 
+ * Elements appear in the resulting column in the same order they were added to
+ * the builder.
+ * <p>
+ * Builder instances can be reused; it is safe to call
+ * {@link ColumnBuilder#build build} multiple times to build multiple columns in
+ * series. Each new column contains all the elements of the ones created before
+ * it.
+ *
+ * @author Lior Privman
+ */
+public final class DateTimeColumnBuilder
+		extends LongArrayColumnBuilder<LocalDateTime, DateTimeColumn, DateTimeColumnBuilder> {
 
 	DateTimeColumnBuilder(int characteristics) {
 		super(characteristics, LongArrayPacker.LOCAL_DATE_TIME);
@@ -38,7 +56,7 @@ public class DateTimeColumnBuilder extends LongArrayColumnBuilder<LocalDateTime,
 
 	@Override
 	DateTimeColumn wrapNullableColumn(DateTimeColumn column, BufferBitSet nonNulls) {
-		return new NullableDateTimeColumn((NonNullDateTimeColumn)column, nonNulls, null, 0, size);
+		return new NullableDateTimeColumn((NonNullDateTimeColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override

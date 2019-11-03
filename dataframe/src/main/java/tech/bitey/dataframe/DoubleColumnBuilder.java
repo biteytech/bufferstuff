@@ -26,7 +26,24 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class DoubleColumnBuilder
+/**
+ * A builder for creating {@link DoubleColumn} instances. Example:
+ *
+ * <pre>
+ * DoubleColumn column = DoubleColumn.builder().add(10d).addAll(200d, 300d, 400d).build();
+ * </pre>
+ * 
+ * Elements appear in the resulting column in the same order they were added to
+ * the builder.
+ * <p>
+ * Builder instances can be reused; it is safe to call
+ * {@link ColumnBuilder#build build} multiple times to build multiple columns in
+ * series. Each new column contains all the elements of the ones created before
+ * it.
+ *
+ * @author Lior Privman
+ */
+public final class DoubleColumnBuilder
 		extends SingleBufferColumnBuilder<Double, DoubleBuffer, DoubleColumn, DoubleColumnBuilder> {
 
 	DoubleColumnBuilder(int characteristics) {
@@ -38,6 +55,14 @@ public class DoubleColumnBuilder
 		add(element.doubleValue());
 	}
 
+	/**
+	 * Adds a single {@code double} to the column. This is the primitive
+	 * specialization of {@link ColumnBuilder#add(Double) add(E element)}
+	 *
+	 * @param element the {@code double} to add
+	 * 
+	 * @return this builder
+	 */
 	public DoubleColumnBuilder add(double element) {
 		ensureAdditionalCapacity(1);
 		elements.put(element);
@@ -45,6 +70,15 @@ public class DoubleColumnBuilder
 		return this;
 	}
 
+	/**
+	 * Adds a sequence of {@code doubles} to the column. This is the primitive
+	 * specialization of {@link ColumnBuilder#add(Double, Double[]) add(E element,
+	 * E... rest)}
+	 *
+	 * @param elements the {@code double} to add
+	 * 
+	 * @return this builder
+	 */
 	public DoubleColumnBuilder addAll(double... elements) {
 		ensureAdditionalCapacity(elements.length);
 		this.elements.put(elements);
@@ -59,13 +93,11 @@ public class DoubleColumnBuilder
 
 	@Override
 	void checkCharacteristics() {
-		if((characteristics & DISTINCT) != 0) {
+		if ((characteristics & DISTINCT) != 0) {
 			checkState(isSortedAndDistinct(elements, 0, elements.position()),
-				"column elements must be sorted and distinct");
-		}
-		else if((characteristics & SORTED) != 0) {
-			checkState(isSorted(elements, 0, elements.position()),
-				"column elements must be sorted");
+					"column elements must be sorted and distinct");
+		} else if ((characteristics & SORTED) != 0) {
+			checkState(isSorted(elements, 0, elements.position()), "column elements must be sorted");
 		}
 	}
 

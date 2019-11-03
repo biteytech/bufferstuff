@@ -44,7 +44,7 @@ public interface IntColumn extends NumericColumn<Integer> {
 	}
 	
 	public static IntColumn of(Integer... elements) {
-		return builder(0).addAll(elements).build();
+		return builder().addAll(elements).build();
 	}
 	
 	public static Collector<Integer,?,IntColumn> collector(int characteristics) {		

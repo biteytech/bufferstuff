@@ -48,6 +48,9 @@ final class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullI
 
 	@Override
 	public double mean() {
+		if(size == 0)
+			return Double.NaN;
+		
 		long sum = 0;
 		for(int i = 0; i < size; i++)
 			sum += at(i+offset);

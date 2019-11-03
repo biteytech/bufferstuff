@@ -43,7 +43,7 @@ public interface DateTimeColumn extends Column<LocalDateTime> {
 	}
 	
 	public static DateTimeColumn of(LocalDateTime... elements) {
-		return builder(0).addAll(elements).build();
+		return builder().addAll(elements).build();
 	}
 	
 	public static Collector<LocalDateTime,?,DateTimeColumn> collector(int characteristics) {		

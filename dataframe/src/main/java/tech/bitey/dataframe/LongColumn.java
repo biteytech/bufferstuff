@@ -44,7 +44,7 @@ public interface LongColumn extends NumericColumn<Long> {
 	}
 	
 	public static LongColumn of(Long... elements) {
-		return builder(0).addAll(elements).build();
+		return builder().addAll(elements).build();
 	}
 	
 	public static Collector<Long,?,LongColumn> collector(int characteristics) {		

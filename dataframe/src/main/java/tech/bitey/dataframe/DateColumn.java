@@ -45,7 +45,7 @@ public interface DateColumn extends Column<LocalDate> {
 	}
 	
 	public static DateColumn of(LocalDate... elements) {
-		return builder(0).addAll(elements).build();
+		return builder().addAll(elements).build();
 	}
 	
 	public static Collector<LocalDate,?,DateColumn> collector(int characteristics) {		

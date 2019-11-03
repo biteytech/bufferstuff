@@ -26,7 +26,24 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class StringColumnBuilder extends AbstractColumnBuilder<String, StringColumn, StringColumnBuilder> {
+/**
+ * A builder for creating {@link StringColumn} instances. Example:
+ *
+ * <pre>
+ * StringColumn column = StringColumn.builder().add("Hello").add("World", "!").build();
+ * </pre>
+ * 
+ * Elements appear in the resulting column in the same order they were added to
+ * the builder.
+ * <p>
+ * Builder instances can be reused; it is safe to call
+ * {@link ColumnBuilder#build build} multiple times to build multiple columns in
+ * series. Each new column contains all the elements of the ones created before
+ * it.
+ *
+ * @author Lior Privman
+ */
+public final class StringColumnBuilder extends AbstractColumnBuilder<String, StringColumn, StringColumnBuilder> {
 
 	StringColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -35,7 +52,7 @@ public class StringColumnBuilder extends AbstractColumnBuilder<String, StringCol
 	private final ArrayList<String> elements = new ArrayList<>();
 
 	@Override
-	void addNonNull(String element) {		
+	void addNonNull(String element) {
 		elements.add(element);
 		size++;
 	}
@@ -63,18 +80,17 @@ public class StringColumnBuilder extends AbstractColumnBuilder<String, StringCol
 
 	@Override
 	void checkCharacteristics() {
-		if(elements.size() >= 2) {
+		if (elements.size() >= 2) {
 			String prev = elements.get(0);
-		
-			if((characteristics & DISTINCT) != 0) {
-				for(int i = 1; i < elements.size(); i++) {
+
+			if ((characteristics & DISTINCT) != 0) {
+				for (int i = 1; i < elements.size(); i++) {
 					String e = elements.get(i);
 					checkArgument(prev.compareTo(e) < 0, "column elements must be sorted and distinct");
 					prev = e;
 				}
-			}		
-			else if((characteristics & SORTED) != 0) {			
-				for(int i = 1; i < elements.size(); i++) {
+			} else if ((characteristics & SORTED) != 0) {
+				for (int i = 1; i < elements.size(); i++) {
 					String e = elements.get(i);
 					checkArgument(prev.compareTo(e) <= 0, "column elements must be sorted");
 					prev = e;
@@ -85,16 +101,16 @@ public class StringColumnBuilder extends AbstractColumnBuilder<String, StringCol
 
 	@Override
 	StringColumn buildNonNullColumn(int characteristics) {
-		
+
 		int byteLength = 0;
-		for(int i = 0; i < elements.size(); i++)
+		for (int i = 0; i < elements.size(); i++)
 			byteLength += elements.get(i).getBytes(UTF_8).length;
-		
+
 		ByteBuffer elements = Allocator.allocate(byteLength);
-		ByteBuffer pointers = Allocator.allocate(this.elements.size()*4);
-		
+		ByteBuffer pointers = Allocator.allocate(this.elements.size() * 4);
+
 		int destPos = 0;
-		for(String e : this.elements) {
+		for (String e : this.elements) {
 			byte[] bytes = e.getBytes(UTF_8);
 			elements.put(bytes);
 			pointers.putInt(destPos);
@@ -102,13 +118,13 @@ public class StringColumnBuilder extends AbstractColumnBuilder<String, StringCol
 		}
 		pointers.flip();
 		elements.flip();
-	
+
 		return new NonNullStringColumn(elements, pointers, 0, this.elements.size(), characteristics, false);
 	}
 
 	@Override
 	StringColumn wrapNullableColumn(StringColumn column, BufferBitSet nonNulls) {
-		return new NullableStringColumn((NonNullStringColumn)column, nonNulls, null, 0, size);
+		return new NullableStringColumn((NonNullStringColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override
@@ -120,7 +136,7 @@ public class StringColumnBuilder extends AbstractColumnBuilder<String, StringCol
 	void append0(StringColumnBuilder tail) {
 		this.elements.addAll(tail.elements);
 	}
-	
+
 	void sort() {
 		Collections.sort(elements);
 		characteristics |= SORTED;

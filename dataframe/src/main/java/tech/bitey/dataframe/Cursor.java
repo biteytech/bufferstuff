@@ -16,6 +16,16 @@ package tech.bitey.dataframe;
 
 import java.util.NoSuchElementException;
 
+/**
+ * A cursor for the rows of a {@link DataFrame} that allows the programmer to
+ * traverse the rows in either direction.
+ * <p>
+ * The difference between a cursor and an iterator is that an iterator returns a
+ * {@link Row} on a call to {@code next()} or {@code previous()}, while a cursor
+ * <em>is</em> a row.
+ *
+ * @author Lior Privman
+ */
 public interface Cursor extends Row {
 
 	/**

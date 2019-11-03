@@ -44,7 +44,7 @@ public interface DoubleColumn extends NumericColumn<Double> {
 	}
 	
 	public static DoubleColumn of(Double... elements) {
-		return builder(0).addAll(elements).build();
+		return builder().addAll(elements).build();
 	}
 	
 	public static Collector<Double,?,DoubleColumn> collector(int characteristics) {		

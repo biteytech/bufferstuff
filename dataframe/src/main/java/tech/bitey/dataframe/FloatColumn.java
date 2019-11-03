@@ -44,7 +44,7 @@ public interface FloatColumn extends NumericColumn<Float> {
 	}
 	
 	public static FloatColumn of(Float... elements) {
-		return builder(0).addAll(elements).build();
+		return builder().addAll(elements).build();
 	}
 	
 	public static Collector<Float,?,FloatColumn> collector(int characteristics) {		

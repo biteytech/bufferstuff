@@ -26,7 +26,24 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBuffer, FloatColumn, FloatColumnBuilder> {
+/**
+ * A builder for creating {@link FloatColumn} instances. Example:
+ *
+ * <pre>
+ * FloatColumn column = FloatColumn.builder().add(10f).addAll(200f, 300f, 400f).build();
+ * </pre>
+ * 
+ * Elements appear in the resulting column in the same order they were added to
+ * the builder.
+ * <p>
+ * Builder instances can be reused; it is safe to call
+ * {@link ColumnBuilder#build build} multiple times to build multiple columns in
+ * series. Each new column contains all the elements of the ones created before
+ * it.
+ *
+ * @author Lior Privman
+ */
+public final class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBuffer, FloatColumn, FloatColumnBuilder> {
 
 	FloatColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -37,6 +54,14 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 		add(element.floatValue());
 	}
 	
+	/**
+	 * Adds a single {@code float} to the column. This is the primitive specialization
+	 * of {@link ColumnBuilder#add(Float) add(E element)}
+	 *
+	 * @param element the {@code float} to add
+	 * 
+	 * @return this builder
+	 */
 	public FloatColumnBuilder add(float element) {
 		ensureAdditionalCapacity(1);
 		elements.put(element);
@@ -44,6 +69,15 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 		return this;
 	}
 	
+	/**
+	 * Adds a sequence of {@code floats} to the column. This is the primitive
+	 * specialization of {@link ColumnBuilder#add(Float, Float[]) add(E element,
+	 * E... rest)}
+	 *
+	 * @param elements the {@code float} to add
+	 * 
+	 * @return this builder
+	 */
 	public FloatColumnBuilder addAll(float... elements) {
 		ensureAdditionalCapacity(elements.length);
 		this.elements.put(elements);

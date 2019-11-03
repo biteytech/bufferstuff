@@ -19,7 +19,24 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, IntColumnBuilder> {
+/**
+ * A builder for creating {@link IntColumn} instances. Example:
+ *
+ * <pre>
+ * IntColumn column = IntColumn.builder().add(10).addAll(200, 300, 400).build();
+ * </pre>
+ * 
+ * Elements appear in the resulting column in the same order they were added to
+ * the builder.
+ * <p>
+ * Builder instances can be reused; it is safe to call
+ * {@link ColumnBuilder#build build} multiple times to build multiple columns in
+ * series. Each new column contains all the elements of the ones created before
+ * it.
+ *
+ * @author Lior Privman
+ */
+public final class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, IntColumnBuilder> {
 
 	IntColumnBuilder(int characteristics) {
 		super(characteristics, IntArrayPacker.INTEGER);
@@ -37,16 +54,33 @@ public class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, 
 
 	@Override
 	IntColumn wrapNullableColumn(IntColumn column, BufferBitSet nonNulls) {
-		return new NullableIntColumn((NonNullIntColumn)column, nonNulls, null, 0, size);
+		return new NullableIntColumn((NonNullIntColumn) column, nonNulls, null, 0, size);
 	}
-	
+
+	/**
+	 * Adds a single {@code int} to the column. This is the primitive specialization
+	 * of {@link ColumnBuilder#add(Integer) add(E element)}
+	 *
+	 * @param element the {@code int} to add
+	 * 
+	 * @return this builder
+	 */
 	public IntColumnBuilder add(int element) {
 		ensureAdditionalCapacity(1);
 		elements.put(element);
 		size++;
 		return this;
 	}
-	
+
+	/**
+	 * Adds a sequence of {@code ints} to the column. This is the primitive
+	 * specialization of {@link ColumnBuilder#add(Integer, Integer[]) add(E element,
+	 * E... rest)}
+	 *
+	 * @param elements the {@code ints} to add
+	 * 
+	 * @return this builder
+	 */
 	public IntColumnBuilder addAll(int... elements) {
 		ensureAdditionalCapacity(elements.length);
 		this.elements.put(elements);
@@ -54,6 +88,11 @@ public class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, 
 		return this;
 	}
 
+	/**
+	 * Returns {@link ColumnType#INT}
+	 * 
+	 * @return {@code ColumnType.INT}
+	 */
 	@Override
 	public ColumnType getType() {
 		return ColumnType.INT;

@@ -20,7 +20,24 @@ import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
 
-public class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, DateColumn, DateColumnBuilder> {
+/**
+ * A builder for creating {@link DateColumn} instances. Example:
+ *
+ * <pre>
+ * DateColumn column = DateColumn.builder().add(LocalDate.now()).build();
+ * </pre>
+ * 
+ * Elements appear in the resulting column in the same order they were added to
+ * the builder.
+ * <p>
+ * Builder instances can be reused; it is safe to call
+ * {@link ColumnBuilder#build build} multiple times to build multiple columns in
+ * series. Each new column contains all the elements of the ones created before
+ * it.
+ *
+ * @author Lior Privman
+ */
+public final class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, DateColumn, DateColumnBuilder> {
 
 	DateColumnBuilder(int characteristics) {
 		super(characteristics, IntArrayPacker.LOCAL_DATE);
@@ -38,14 +55,23 @@ public class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, DateColu
 
 	@Override
 	DateColumn wrapNullableColumn(DateColumn column, BufferBitSet nonNulls) {
-		return new NullableDateColumn((NonNullDateColumn)column, nonNulls, null, 0, size);
+		return new NullableDateColumn((NonNullDateColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override
 	public ColumnType getType() {
 		return ColumnType.DATE;
 	}
-	
+
+	/**
+	 * Adds a date to the column.
+	 *
+	 * @param year  - the year (yyyy)
+	 * @param month - the month, 1-based
+	 * @param day   - the day, 1-based
+	 * 
+	 * @return this builder
+	 */
 	public DateColumnBuilder add(int year, int month, int day) {
 		ensureAdditionalCapacity(1);
 		elements.put(IntArrayPacker.packDate(year, month, day));
