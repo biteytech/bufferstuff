@@ -181,8 +181,11 @@ class DataFramePrinter {
 		else {
 			switch(type) {
 			case FLOAT: case DOUBLE:
-				Number n = (Number)o;
-				return BigDecimal.valueOf(n.doubleValue())
+				double d = ((Number)o).doubleValue();
+				if(!Double.isFinite(d))
+					return Double.toString(d);
+				else
+					return BigDecimal.valueOf(d)
 						.round(ROUNDING_CONTEXT).toPlainString();
 			case STRING:
 				String s = (String)o;

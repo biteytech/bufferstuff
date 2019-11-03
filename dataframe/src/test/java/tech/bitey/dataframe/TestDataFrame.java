@@ -94,6 +94,25 @@ public class TestDataFrame {
 	}
 	
 	@Test
+	public void testInnerVsHash() {
+		
+		for(Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+			
+			DataFrame df = e.getValue();
+			
+			if(!df.column(0).isDistinct())
+				continue;
+			
+			DataFrame expected = df.joinHash(df, new String[] {df.columnName(0)}, new String[] {df.columnName(0)});
+						
+			DataFrame actual = df.withKeyColumn(0);
+			actual = actual.join(actual);
+			
+			Assertions.assertTrue(expected.equals(actual, true), e.getKey()+", inner vs hash");
+		}
+	}
+	
+	@Test
 	public void testSingleColumnJoin() {
 				
 		StringColumn c11 = StringColumn.of("A", "B", "C");
