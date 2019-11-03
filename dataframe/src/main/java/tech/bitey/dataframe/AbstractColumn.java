@@ -202,20 +202,29 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	
 	abstract boolean equals0(C rhs);
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean equals(Object o) {
 		if (o == this)
             return true;
 		
 		if(o instanceof Column) {
-			@SuppressWarnings("rawtypes")
 			AbstractColumn rhs = (AbstractColumn)o;
-			if(getType() != rhs.getType() || size != rhs.size || isNonnull() != rhs.isNonnull())
+			if(getType() != rhs.getType() || size != rhs.size)
 				return false;
 			
-			@SuppressWarnings("unchecked")
-			C cast = (C)o;
-			return equals0(cast);
+			if(isNonnull() == rhs.isNonnull()) {
+				return equals0((C)o);
+			}
+			else {
+				NonNullColumn nonNull = isNonnull() ? (NonNullColumn)this : (NonNullColumn)rhs;
+				NullableColumn nullable = isNonnull() ? (NullableColumn)rhs : (NullableColumn)this;
+				
+				if(nullable.indexOf(null) != -1)
+					return false;
+				
+				return nonNull.equals0(nullable.subColumn);
+			}
 		}
 		else if(o instanceof List) {
 			// from AbstractList
