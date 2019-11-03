@@ -33,7 +33,7 @@ public class DateColumnBuilder extends IntArrayColumnBuilder<LocalDate, DateColu
 
 	@Override
 	DateColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
-		return new NonNullDateColumn(trim, 0, getNonNullSize(), characteristics);
+		return new NonNullDateColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override

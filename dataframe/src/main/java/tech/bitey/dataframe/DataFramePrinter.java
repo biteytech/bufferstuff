@@ -29,27 +29,24 @@ import java.util.stream.IntStream;
  * https://github.com/jtablesaw/tablesaw/blob/master/core/src/main/java/tech/tablesaw/io/string/DataFramePrinter.java,
  * which is in turn based off of:
  * <p>
- * Based off of
  * https://github.com/zavtech/morpheus-core/blob/master/src/main/java/com/zavtech/morpheus/reference/XDataFramePrinter.java
  * under Apache 2 license
  */
-public class DataFramePrinter {
+class DataFramePrinter {
 
 	private static final String TOO_SHORT_COLUMN_MARKER = "?";
 	
 	private static final int PADDING = 1;
 
 	private final int maxRows;
-//	private final OutputStream stream;
 
 	/**
 	 * Constructor
 	 *
 	 * @param maxRows the max rows to print
 	 */
-	public DataFramePrinter(int maxRows) {
+	DataFramePrinter(int maxRows) {
 		this.maxRows = maxRows;
-//		this.stream = stream;
 	}
 
 	/**
@@ -117,8 +114,8 @@ public class DataFramePrinter {
 		IntStream.range(0, length).forEach(i -> text.append(" "));
 	}
 
-	public String print(DataFrame frame) {
-//		try {
+	String print(DataFrame frame) {
+
 		final String[] headers = getHeaderTokens(frame);
 		final String[][] data = getDataTokens(frame);
 		final int[] widths = getWidths(headers, data);
@@ -131,9 +128,7 @@ public class DataFramePrinter {
 			capacity = 0;
 		}
 		final StringBuilder text = new StringBuilder(capacity);
-//			if (frame.name() != null) {
-//				text.append(tableName(frame, totalWidth)).append(System.lineSeparator());
-//			}
+
 		final String headerLine = String.format(headerTemplate, (Object[]) headers);
 		text.append(headerLine).append(System.lineSeparator());
 		for (int j = 0; j < totalWidth; j++) {
@@ -144,23 +139,9 @@ public class DataFramePrinter {
 			text.append(System.lineSeparator());
 			text.append(dataLine);
 		}
-//			final byte[] bytes = text.toString().getBytes();
-//			this.stream.write(bytes);
-//			this.stream.flush();
-		return text.toString();
-//		} catch (IOException ex) {
-//			throw new IllegalStateException("Failed to print DataFrame", ex);
-//		}
-	}
 
-//	private String tableName(Relation frame, int width) {
-//		if (frame.name().length() > width) {
-//			return frame.name();
-//		}
-//		int diff = width - frame.name().length();
-//		String result = StringUtils.repeat(" ", diff / 2) + frame.name();
-//		return result + StringUtils.repeat(" ", width - result.length());
-//	}
+		return text.toString();
+	}
 
 	/**
 	 * Returns the header string tokens for the frame
@@ -257,126 +238,19 @@ public class DataFramePrinter {
 	
 	
 	
-	
-	
-	
 	// from Apache commons lang3
 	private static class StringUtils {
 
-		/**
-	     * <p>Abbreviates a String using ellipses. This will turn
-	     * "Now is the time for all good men" into "Now is the time for..."</p>
-	     *
-	     * <p>Specifically:</p>
-	     * <ul>
-	     *   <li>If the number of characters in {@code str} is less than or equal to
-	     *       {@code maxWidth}, return {@code str}.</li>
-	     *   <li>Else abbreviate it to {@code (substring(str, 0, max-3) + "...")}.</li>
-	     *   <li>If {@code maxWidth} is less than {@code 4}, throw an
-	     *       {@code IllegalArgumentException}.</li>
-	     *   <li>In no case will it return a String of length greater than
-	     *       {@code maxWidth}.</li>
-	     * </ul>
-	     *
-	     * <pre>
-	     * StringUtils.abbreviate(null, *)      = null
-	     * StringUtils.abbreviate("", 4)        = ""
-	     * StringUtils.abbreviate("abcdefg", 6) = "abc..."
-	     * StringUtils.abbreviate("abcdefg", 7) = "abcdefg"
-	     * StringUtils.abbreviate("abcdefg", 8) = "abcdefg"
-	     * StringUtils.abbreviate("abcdefg", 4) = "a..."
-	     * StringUtils.abbreviate("abcdefg", 3) = IllegalArgumentException
-	     * </pre>
-	     *
-	     * @param str  the String to check, may be null
-	     * @param maxWidth  maximum length of result String, must be at least 4
-	     * @return abbreviated String, {@code null} if null String input
-	     * @throws IllegalArgumentException if the width is too small
-	     * @since 2.0
-	     */
-	    public static String abbreviate(final String str, final int maxWidth) {
+	    static String abbreviate(final String str, final int maxWidth) {
 	        final String defaultAbbrevMarker = "...";
 	        return abbreviate(str, defaultAbbrevMarker, 0, maxWidth);
 	    }
 
-	    /**
-	     * <p>Abbreviates a String using another given String as replacement marker. This will turn
-	     * "Now is the time for all good men" into "Now is the time for..." if "..." was defined
-	     * as the replacement marker.</p>
-	     *
-	     * <p>Specifically:</p>
-	     * <ul>
-	     *   <li>If the number of characters in {@code str} is less than or equal to
-	     *       {@code maxWidth}, return {@code str}.</li>
-	     *   <li>Else abbreviate it to {@code (substring(str, 0, max-abbrevMarker.length) + abbrevMarker)}.</li>
-	     *   <li>If {@code maxWidth} is less than {@code abbrevMarker.length + 1}, throw an
-	     *       {@code IllegalArgumentException}.</li>
-	     *   <li>In no case will it return a String of length greater than
-	     *       {@code maxWidth}.</li>
-	     * </ul>
-	     *
-	     * <pre>
-	     * StringUtils.abbreviate(null, "...", *)      = null
-	     * StringUtils.abbreviate("abcdefg", null, *)  = "abcdefg"
-	     * StringUtils.abbreviate("", "...", 4)        = ""
-	     * StringUtils.abbreviate("abcdefg", ".", 5)   = "abcd."
-	     * StringUtils.abbreviate("abcdefg", ".", 7)   = "abcdefg"
-	     * StringUtils.abbreviate("abcdefg", ".", 8)   = "abcdefg"
-	     * StringUtils.abbreviate("abcdefg", "..", 4)  = "ab.."
-	     * StringUtils.abbreviate("abcdefg", "..", 3)  = "a.."
-	     * StringUtils.abbreviate("abcdefg", "..", 2)  = IllegalArgumentException
-	     * StringUtils.abbreviate("abcdefg", "...", 3) = IllegalArgumentException
-	     * </pre>
-	     *
-	     * @param str  the String to check, may be null
-	     * @param abbrevMarker  the String used as replacement marker
-	     * @param maxWidth  maximum length of result String, must be at least {@code abbrevMarker.length + 1}
-	     * @return abbreviated String, {@code null} if null String input
-	     * @throws IllegalArgumentException if the width is too small
-	     * @since 3.6
-	     */
-	    public static String abbreviate(final String str, final String abbrevMarker, final int maxWidth) {
+	    static String abbreviate(final String str, final String abbrevMarker, final int maxWidth) {
 	        return abbreviate(str, abbrevMarker, 0, maxWidth);
 	    }
 
-	    /**
-	     * <p>Abbreviates a String using a given replacement marker. This will turn
-	     * "Now is the time for all good men" into "...is the time for..." if "..." was defined
-	     * as the replacement marker.</p>
-	     *
-	     * <p>Works like {@code abbreviate(String, String, int)}, but allows you to specify
-	     * a "left edge" offset.  Note that this left edge is not necessarily going to
-	     * be the leftmost character in the result, or the first character following the
-	     * replacement marker, but it will appear somewhere in the result.
-	     *
-	     * <p>In no case will it return a String of length greater than {@code maxWidth}.</p>
-	     *
-	     * <pre>
-	     * StringUtils.abbreviate(null, null, *, *)                 = null
-	     * StringUtils.abbreviate("abcdefghijklmno", null, *, *)    = "abcdefghijklmno"
-	     * StringUtils.abbreviate("", "...", 0, 4)                  = ""
-	     * StringUtils.abbreviate("abcdefghijklmno", "---", -1, 10) = "abcdefg---"
-	     * StringUtils.abbreviate("abcdefghijklmno", ",", 0, 10)    = "abcdefghi,"
-	     * StringUtils.abbreviate("abcdefghijklmno", ",", 1, 10)    = "abcdefghi,"
-	     * StringUtils.abbreviate("abcdefghijklmno", ",", 2, 10)    = "abcdefghi,"
-	     * StringUtils.abbreviate("abcdefghijklmno", "::", 4, 10)   = "::efghij::"
-	     * StringUtils.abbreviate("abcdefghijklmno", "...", 6, 10)  = "...ghij..."
-	     * StringUtils.abbreviate("abcdefghijklmno", "*", 9, 10)    = "*ghijklmno"
-	     * StringUtils.abbreviate("abcdefghijklmno", "'", 10, 10)   = "'ghijklmno"
-	     * StringUtils.abbreviate("abcdefghijklmno", "!", 12, 10)   = "!ghijklmno"
-	     * StringUtils.abbreviate("abcdefghij", "abra", 0, 4)       = IllegalArgumentException
-	     * StringUtils.abbreviate("abcdefghij", "...", 5, 6)        = IllegalArgumentException
-	     * </pre>
-	     *
-	     * @param str  the String to check, may be null
-	     * @param abbrevMarker  the String used as replacement marker
-	     * @param offset  left edge of source String
-	     * @param maxWidth  maximum length of result String, must be at least 4
-	     * @return abbreviated String, {@code null} if null String input
-	     * @throws IllegalArgumentException if the width is too small
-	     * @since 3.6
-	     */
-	    public static String abbreviate(final String str, final String abbrevMarker, int offset, final int maxWidth) {
+	    static String abbreviate(final String str, final String abbrevMarker, int offset, final int maxWidth) {
 	        if (isNullOrEmpty(str) || isNullOrEmpty(abbrevMarker)) {
 	            return str;
 	        }

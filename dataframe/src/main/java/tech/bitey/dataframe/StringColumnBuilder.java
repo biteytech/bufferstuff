@@ -103,7 +103,7 @@ public class StringColumnBuilder extends ColumnBuilder<String, StringColumn, Str
 		pointers.flip();
 		elements.flip();
 	
-		return new NonNullStringColumn(elements, pointers, 0, this.elements.size(), characteristics);
+		return new NonNullStringColumn(elements, pointers, 0, this.elements.size(), characteristics, false);
 	}
 
 	@Override

@@ -31,8 +31,8 @@ abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E
 	final IntArrayPacker<E> packer;
 	final IntBuffer elements;
 	
-	IntArrayColumn(ByteBuffer buffer, IntArrayPacker<E> packer, int offset, int size, int characteristics) {
-		super(buffer, offset, size, characteristics);
+	IntArrayColumn(ByteBuffer buffer, IntArrayPacker<E> packer, int offset, int size, int characteristics, boolean view) {
+		super(buffer, offset, size, characteristics, view);
 		
 		this.packer = packer;
 		this.elements = buffer.asIntBuffer();
@@ -119,7 +119,7 @@ abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E
 				buffer.putInt(at(i));
 		buffer.flip();
 		
-		return construct(buffer, 0, cardinality, characteristics);
+		return construct(buffer, 0, cardinality, characteristics, false);
 	}
 
 	@Override
@@ -130,7 +130,7 @@ abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E
 			buffer.putInt(at(indices.getInt(i)+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.size(), NONNULL);
+		return construct(buffer, 0, indices.size(), NONNULL, false);
 	}
 
 	@Override

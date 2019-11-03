@@ -78,7 +78,7 @@ public class BooleanColumnBuilder extends ColumnBuilder<Boolean, BooleanColumn, 
 
 	@Override
 	BooleanColumn buildNonNullColumn(int characteristics) {
-		return new NonNullBooleanColumn(elements, 0, nonNullSize);
+		return new NonNullBooleanColumn(elements, 0, nonNullSize, false);
 	}
 
 	@Override

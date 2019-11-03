@@ -80,7 +80,7 @@ public class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBu
 
 	@Override
 	FloatColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
-		return new NonNullFloatColumn(trim, 0, getNonNullSize(), characteristics);
+		return new NonNullFloatColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override

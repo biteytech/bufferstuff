@@ -81,7 +81,7 @@ public class DoubleColumnBuilder
 
 	@Override
 	DoubleColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
-		return new NonNullDoubleColumn(trim, 0, getNonNullSize(), characteristics);
+		return new NonNullDoubleColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override

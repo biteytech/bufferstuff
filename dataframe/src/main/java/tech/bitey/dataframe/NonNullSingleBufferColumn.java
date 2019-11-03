@@ -16,7 +16,6 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.bufferstuff.BufferUtils.slice;
 
 import java.nio.ByteBuffer;
 
@@ -27,10 +26,10 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 
 	final ByteBuffer buffer;
 
-	abstract C construct(ByteBuffer buffer, int offset, int size, int characteristics);
+	abstract C construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view);
 
-	NonNullSingleBufferColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
-		super(offset, size, characteristics);
+	NonNullSingleBufferColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		super(offset, size, characteristics, view);
 
 		validateBuffer(buffer);
 		this.buffer = buffer;
@@ -44,7 +43,7 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 
 	@Override
 	C withCharacteristics(int characteristics) {
-		return construct(buffer, offset, size, characteristics);
+		return construct(buffer, offset, size, characteristics, view);
 	}
 
 	abstract void sort();
@@ -61,25 +60,31 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 	@Override
 	C toDistinct0(C sorted) {
 		int size = sorted.deduplicate();
-		return construct(slice(sorted.buffer, 0, size * elementSize()), 0, size,
-				sorted.characteristics | SORTED | DISTINCT);
+		return construct(BufferUtils.slice(sorted.buffer, 0, size * elementSize()), 0, size,
+				sorted.characteristics | SORTED | DISTINCT, false);
 	}
 
 	@Override
 	C subColumn0(int fromIndex, int toIndex) {
-		return construct(buffer, fromIndex + offset, toIndex - fromIndex, characteristics);
+		return construct(buffer, fromIndex + offset, toIndex - fromIndex, characteristics, true);
 	}
 
 	@Override
 	public C copy() {
 		ByteBuffer copy = BufferUtils.copy(buffer, offset * elementSize(), (offset + size) * elementSize());
-		return construct(copy, 0, size, characteristics);
+		return construct(copy, 0, size, characteristics, false);
+	}
+
+	@Override
+	public C slice() {
+		ByteBuffer copy = BufferUtils.slice(buffer, offset * elementSize(), (offset + size) * elementSize());
+		return construct(copy, 0, size, characteristics, false);
 	}
 
 	@Override
 	boolean equals0(C rhs, int lStart, int rStart, int length) {
-		return slice(buffer, lStart * elementSize(), (lStart + length) * elementSize())
-				.equals(slice(rhs.buffer, rStart * elementSize(), (rStart + length) * elementSize()));
+		return BufferUtils.slice(buffer, lStart * elementSize(), (lStart + length) * elementSize())
+				.equals(BufferUtils.slice(rhs.buffer, rStart * elementSize(), (rStart + length) * elementSize()));
 	}
 
 	@Override
@@ -89,11 +94,11 @@ public abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extend
 
 		ByteBuffer buffer = allocate(size);
 
-		buffer.put(slice(this.buffer, this.offset * elementSize(), (this.offset + this.size) * elementSize()));
-		buffer.put(slice(tail.buffer, tail.offset * elementSize(), (tail.offset + tail.size) * elementSize()));
+		buffer.put(BufferUtils.slice(this.buffer, this.offset * elementSize(), (this.offset + this.size) * elementSize()));
+		buffer.put(BufferUtils.slice(tail.buffer, tail.offset * elementSize(), (tail.offset + tail.size) * elementSize()));
 
 		buffer.flip();
 
-		return construct(buffer, 0, size, characteristics);
+		return construct(buffer, 0, size, characteristics, false);
 	}
 }

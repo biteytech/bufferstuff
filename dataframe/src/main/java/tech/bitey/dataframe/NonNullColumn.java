@@ -34,8 +34,8 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	
 	final int characteristics;
 	
-	NonNullColumn(int offset, int size, int characteristics) {
-		super(offset, size);
+	NonNullColumn(int offset, int size, int characteristics, boolean view) {
+		super(offset, size, view);
 
 		this.characteristics = NONNULL_CHARACTERISTICS | characteristics;
 	}
@@ -56,6 +56,7 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	abstract boolean checkDistinct();
 	abstract C toSorted0();
 	abstract C toDistinct0(C sorted);
+	abstract C slice();
 	
 	@SuppressWarnings("unchecked")
 	@Override

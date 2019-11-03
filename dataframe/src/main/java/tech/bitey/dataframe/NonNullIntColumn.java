@@ -29,21 +29,21 @@ class NonNullIntColumn extends IntArrayColumn<Integer, IntColumn, NonNullIntColu
 
 	static final Map<Integer, NonNullIntColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullIntColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
 	static NonNullIntColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 	
-	NonNullIntColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
-		super(buffer, INTEGER, offset, size, characteristics);
+	NonNullIntColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		super(buffer, INTEGER, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullIntColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
-		return new NonNullIntColumn(buffer, offset, size, characteristics);
+	NonNullIntColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		return new NonNullIntColumn(buffer, offset, size, characteristics, view);
 	}
 
 	@Override

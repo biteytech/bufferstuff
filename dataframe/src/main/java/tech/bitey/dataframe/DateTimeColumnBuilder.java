@@ -33,7 +33,7 @@ public class DateTimeColumnBuilder extends LongArrayColumnBuilder<LocalDateTime,
 
 	@Override
 	DateTimeColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
-		return new NonNullDateTimeColumn(trim, 0, getNonNullSize(), characteristics);
+		return new NonNullDateTimeColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override

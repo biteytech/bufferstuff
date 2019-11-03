@@ -30,21 +30,21 @@ class NonNullDateColumn extends IntArrayColumn<LocalDate, DateColumn, NonNullDat
 	
 	static final Map<Integer, NonNullDateColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDateColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
 	static NonNullDateColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
 	}
 	
-	NonNullDateColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
-		super(buffer, LOCAL_DATE, offset, size, characteristics);
+	NonNullDateColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		super(buffer, LOCAL_DATE, offset, size, characteristics, view);
 	}
 
 	@Override
-	NonNullDateColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
-		return new NonNullDateColumn(buffer, offset, size, characteristics);
+	NonNullDateColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		return new NonNullDateColumn(buffer, offset, size, characteristics, view);
 	}
 
 	@Override

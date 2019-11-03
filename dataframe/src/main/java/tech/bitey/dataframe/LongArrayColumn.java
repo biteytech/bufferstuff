@@ -30,8 +30,8 @@ abstract class LongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn
 	final LongArrayPacker<E> packer;
 	final LongBuffer elements;
 	
-	LongArrayColumn(ByteBuffer buffer, LongArrayPacker<E> packer, int offset, int size, int characteristics) {
-		super(buffer, offset, size, characteristics);
+	LongArrayColumn(ByteBuffer buffer, LongArrayPacker<E> packer, int offset, int size, int characteristics, boolean view) {
+		super(buffer, offset, size, characteristics, view);
 				
 		this.packer = packer;
 		this.elements = buffer.asLongBuffer();
@@ -121,7 +121,7 @@ abstract class LongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn
 				buffer.putLong(at(i));
 		buffer.flip();
 		
-		return construct(buffer, 0, cardinality, characteristics);
+		return construct(buffer, 0, cardinality, characteristics, false);
 	}
 
 	@Override
@@ -132,7 +132,7 @@ abstract class LongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn
 			buffer.putLong(at(indices.getInt(i)+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.size(), NONNULL);
+		return construct(buffer, 0, indices.size(), NONNULL, false);
 	}
 
 	@Override

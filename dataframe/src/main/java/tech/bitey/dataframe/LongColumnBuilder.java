@@ -32,7 +32,7 @@ public class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongColumn, 
 
 	@Override
 	LongColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
-		return new NonNullLongColumn(trim, 0, getNonNullSize(), characteristics);
+		return new NonNullLongColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override

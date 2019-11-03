@@ -36,9 +36,9 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn
 	
 	static final Map<Integer, NonNullDoubleColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullDoubleColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
 	static NonNullDoubleColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
@@ -46,15 +46,15 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn
 	
 	private final DoubleBuffer elements;
 	
-	NonNullDoubleColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
-		super(buffer, offset, size, characteristics);
+	NonNullDoubleColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		super(buffer, offset, size, characteristics, view);
 		
 		this.elements = buffer.asDoubleBuffer();
 	}
 	
 	@Override
-	NonNullDoubleColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
-		return new NonNullDoubleColumn(buffer, offset, size, characteristics);
+	NonNullDoubleColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		return new NonNullDoubleColumn(buffer, offset, size, characteristics, view);
 	}
 	
 	private double at(int index) {
@@ -180,7 +180,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn
 				buffer.putDouble(at(i));
 		buffer.flip();
 		
-		return new NonNullDoubleColumn(buffer, 0, cardinality, characteristics);
+		return new NonNullDoubleColumn(buffer, 0, cardinality, characteristics, false);
 	}
 
 	@Override
@@ -191,7 +191,7 @@ class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, DoubleColumn
 			buffer.putDouble(at(indices.getInt(i)+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.size(), NONNULL);
+		return construct(buffer, 0, indices.size(), NONNULL, false);
 	}
 
 	@Override

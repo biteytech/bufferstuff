@@ -36,9 +36,9 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, N
 	
 	static final Map<Integer, NonNullFloatColumn> EMPTY = new HashMap<>();
 	static {
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c));
-		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
+		EMPTY.computeIfAbsent(NONNULL_CHARACTERISTICS | SORTED | DISTINCT, c -> new NonNullFloatColumn(EMPTY_BUFFER, 0, 0, c, false));
 	}
 	static NonNullFloatColumn empty(int characteristics) {
 		return EMPTY.get(characteristics | NONNULL_CHARACTERISTICS);
@@ -46,15 +46,15 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, N
 	
 	private final FloatBuffer elements;
 	
-	NonNullFloatColumn(ByteBuffer buffer, int offset, int size, int characteristics) {
-		super(buffer, offset, size, characteristics);
+	NonNullFloatColumn(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		super(buffer, offset, size, characteristics, view);
 		
 		this.elements = buffer.asFloatBuffer();
 	}
 	
 	@Override
-	NonNullFloatColumn construct(ByteBuffer buffer, int offset, int size, int characteristics) {
-		return new NonNullFloatColumn(buffer, offset, size, characteristics);
+	NonNullFloatColumn construct(ByteBuffer buffer, int offset, int size, int characteristics, boolean view) {
+		return new NonNullFloatColumn(buffer, offset, size, characteristics, view);
 	}
 	
 	private float at(int index) {
@@ -180,7 +180,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, N
 				buffer.putFloat(at(i));
 		buffer.flip();
 		
-		return new NonNullFloatColumn(buffer, 0, cardinality, characteristics);
+		return new NonNullFloatColumn(buffer, 0, cardinality, characteristics, false);
 	}
 
 	@Override
@@ -191,7 +191,7 @@ class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatColumn, N
 			buffer.putFloat(at(indices.getInt(i)+offset));
 		buffer.flip();
 		
-		return construct(buffer, 0, indices.size(), NONNULL);
+		return construct(buffer, 0, indices.size(), NONNULL, false);
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntColumn, 
 
 	@Override
 	IntColumn buildNonNullColumn(ByteBuffer trim, int characteristics) {
-		return new NonNullIntColumn(trim, 0, getNonNullSize(), characteristics);
+		return new NonNullIntColumn(trim, 0, getNonNullSize(), characteristics, false);
 	}
 
 	@Override

@@ -36,10 +36,12 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	
 	final int offset;
 	final int size;
+	final boolean view;
 	
-	AbstractColumn(int offset, int size) {
+	AbstractColumn(int offset, int size, boolean view) {
 		this.offset = offset;
 		this.size = size;
+		this.view = view;
 	}
 	
 	private C castThis() {

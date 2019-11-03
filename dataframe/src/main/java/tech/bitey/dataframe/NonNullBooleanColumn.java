@@ -26,12 +26,12 @@ import tech.bitey.bufferstuff.BufferBitSet;
 
 class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNullBooleanColumn> implements BooleanColumn {
 
-	static final NonNullBooleanColumn EMPTY = new NonNullBooleanColumn(EMPTY_BITSET, 0, 0);
+	static final NonNullBooleanColumn EMPTY = new NonNullBooleanColumn(EMPTY_BITSET, 0, 0, false);
 	
 	private final BufferBitSet elements;
 	
-	NonNullBooleanColumn(BufferBitSet elements, int offset, int size) {
-		super(offset, size, NONNULL);
+	NonNullBooleanColumn(BufferBitSet elements, int offset, int size, boolean view) {
+		super(offset, size, NONNULL, view);
 		this.elements = elements;
 	}
 
@@ -47,7 +47,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 
 	@Override
 	NonNullBooleanColumn subColumn0(int fromIndex, int toIndex) {
-		return new NonNullBooleanColumn(elements, fromIndex+offset, toIndex-fromIndex);
+		return new NonNullBooleanColumn(elements, fromIndex+offset, toIndex-fromIndex, true);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 			}
 		}
 		
-		return new NonNullBooleanColumn(elements, 0, cardinality);
+		return new NonNullBooleanColumn(elements, 0, cardinality, false);
 	}
 
 	@Override
@@ -132,7 +132,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 			if(this.elements.get(indices.getInt(i) + offset))
 				elements.set(i);
 		
-		return new NonNullBooleanColumn(elements, 0, indices.size());
+		return new NonNullBooleanColumn(elements, 0, indices.size(), false);
 	}
 
 	@Override
@@ -141,7 +141,7 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 		BufferBitSet elements = tail.elements.get(tail.offset, tail.offset+tail.size).shiftRight(size());
 		elements.or(this.elements.get(offset, offset+size));
 			
-		return new NonNullBooleanColumn(elements, 0, this.size() + tail.size());
+		return new NonNullBooleanColumn(elements, 0, this.size() + tail.size(), false);
 	}
 
 	@Override
@@ -186,6 +186,11 @@ class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, NonNull
 
 	@Override
 	public NonNullBooleanColumn copy() {		
-		return new NonNullBooleanColumn(elements.get(offset, offset+size), 0, size);
+		return new NonNullBooleanColumn(elements.get(offset, offset+size), 0, size, false);
+	}
+
+	@Override
+	public NonNullBooleanColumn slice() {
+		return copy();
 	}
 }
