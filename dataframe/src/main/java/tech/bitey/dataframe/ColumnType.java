@@ -122,6 +122,8 @@ public enum ColumnType {
 	 *                       <li>{@link java.util.Spliterator#DISTINCT DISTINCT}
 	 *                       </ul>
 	 * 
+	 * @param <T>            the column's element type
+	 * 
 	 * @return a {@link ColumnBuilder builder} for this column type.
 	 * 
 	 * @throws IllegalArgumentException if {@code characteristic} is not valid

@@ -56,8 +56,7 @@ public final class DoubleColumnBuilder
 	}
 
 	/**
-	 * Adds a single {@code double} to the column. This is the primitive
-	 * specialization of {@link ColumnBuilder#add(Double) add(E element)}
+	 * Adds a single {@code double} to the column.
 	 *
 	 * @param element the {@code double} to add
 	 * 
@@ -71,9 +70,7 @@ public final class DoubleColumnBuilder
 	}
 
 	/**
-	 * Adds a sequence of {@code doubles} to the column. This is the primitive
-	 * specialization of {@link ColumnBuilder#add(Double, Double[]) add(E element,
-	 * E... rest)}
+	 * Adds a sequence of {@code doubles} to the column.
 	 *
 	 * @param elements the {@code double} to add
 	 * 

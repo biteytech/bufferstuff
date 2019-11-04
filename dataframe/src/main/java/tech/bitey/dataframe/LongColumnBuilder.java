@@ -58,8 +58,7 @@ public final class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongCo
 	}
 
 	/**
-	 * Adds a single {@code long} to the column. This is the primitive
-	 * specialization of {@link ColumnBuilder#add(Long) add(E element)}
+	 * Adds a single {@code long} to the column.
 	 *
 	 * @param element the {@code long} to add
 	 * 
@@ -73,9 +72,7 @@ public final class LongColumnBuilder extends LongArrayColumnBuilder<Long, LongCo
 	}
 
 	/**
-	 * Adds a sequence of {@code longs} to the column. This is the primitive
-	 * specialization of {@link ColumnBuilder#add(Long, Long[]) add(E element, E...
-	 * rest)}
+	 * Adds a sequence of {@code longs} to the column.
 	 *
 	 * @param elements the {@code longs} to add
 	 * 

@@ -17,28 +17,50 @@ package tech.bitey.dataframe;
 import java.util.stream.Collector;
 
 public interface BooleanColumn extends Column<Boolean> {
-	
-	@Override BooleanColumn subColumn(int fromIndex, int toIndex);
-	
-	@Override BooleanColumn append(Column<Boolean> tail);
-	@Override BooleanColumn copy();
 
-	public static BooleanColumnBuilder builder() {		
+	@Override
+	BooleanColumn subColumn(int fromIndex, int toIndex);
+
+	@Override
+	BooleanColumn append(Column<Boolean> tail);
+
+	@Override
+	BooleanColumn copy();
+
+	public static BooleanColumnBuilder builder() {
 		return new BooleanColumnBuilder();
 	}
 
+	/**
+	 * Primitive specialization of {@link Column#get(int)}.
+	 * 
+	 * @param index - index of the value to return
+	 * 
+	 * @return the boolean value at the specified index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code index} is negative or is not less
+	 *                                   than {@link #size()}
+	 */
 	boolean getBoolean(int index);
-	
+
+	/**
+	 * Returns a new {@code BooleanColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code BooleanColumn} containing the specified elements.
+	 */
 	public static BooleanColumn of(Boolean... elements) {
 		return builder().addAll(elements).build();
 	}
-	
-	public static Collector<Boolean,?,BooleanColumn> collector() {		
-		return Collector.of(
-			BooleanColumn::builder,
-			BooleanColumnBuilder::add,
-			BooleanColumnBuilder::append,
-			BooleanColumnBuilder::build
-		);
+
+	/**
+	 * Collects a stream of {@code Booleans} into a new {@code BooleanColumn}.
+	 * 
+	 * @return a new {@link BooleanColumn}
+	 */
+	public static Collector<Boolean, ?, BooleanColumn> collector() {
+		return Collector.of(BooleanColumn::builder, BooleanColumnBuilder::add, BooleanColumnBuilder::append,
+				BooleanColumnBuilder::build);
 	}
 }

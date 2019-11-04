@@ -50,7 +50,7 @@ public interface Row {
 	 * @return true if the value is null in the specified {@code Column}.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 */
 	boolean isNull(int columnIndex);
 
@@ -78,7 +78,7 @@ public interface Row {
 	 * @return the value for this row in the specified {@code Column}.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column type does not match the
 	 *                                   return type.
 	 */
@@ -109,7 +109,7 @@ public interface Row {
 	 * @return the value for this row in the specified {@code BooleanColumn}.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not a
 	 *                                   {@link BooleanColumn}
 	 */
@@ -136,7 +136,7 @@ public interface Row {
 	 * @return the value for this row in the specified {@code IntColumn}.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not a {@link IntColumn}
 	 */
 	int getInt(int columnIndex);
@@ -165,7 +165,7 @@ public interface Row {
 	 *         specified {@code defaultValue} if the value is null.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not an {@link IntColumn}
 	 */
 	default int getOrDefaultInt(int columnIndex, int defaultValue) {
@@ -198,7 +198,7 @@ public interface Row {
 	 * @return the value for this row in the specified {@code LongColumn}.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not a {@link LongColumn}
 	 */
 	long getLong(int columnIndex);
@@ -227,7 +227,7 @@ public interface Row {
 	 *         specified {@code defaultValue} if the value is null.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not an {@link LongColumn}
 	 */
 	default long getOrDefaultLong(int columnIndex, long defaultValue) {
@@ -260,7 +260,7 @@ public interface Row {
 	 * @return the value for this row in the specified {@code DoubleColumn}.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not a {@link DoubleColumn}
 	 */
 	double getDouble(int columnIndex);
@@ -289,7 +289,7 @@ public interface Row {
 	 *         specified {@code defaultValue} if the value is null.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not an
 	 *                                   {@link DoubleColumn}
 	 */
@@ -323,7 +323,7 @@ public interface Row {
 	 * @return the value for this row in the specified {@code FloatColumn}.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not a {@link FloatColumn}
 	 */
 	float getFloat(int columnIndex);
@@ -352,7 +352,7 @@ public interface Row {
 	 *         specified {@code defaultValue} if the value is null.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not an {@link FloatColumn}
 	 */
 	default float getOrDefaultFloat(int columnIndex, float defaultValue) {
@@ -387,7 +387,7 @@ public interface Row {
 	 *         {@code DateColumn}.
 	 * 
 	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
-	 *                                   not less than {@link columnCount()}
+	 *                                   not less than {@link #columnCount()}
 	 * @throws ClassCastException        if the column is not a {@link DateColumn}
 	 */
 	int yyyymmdd(int columnIndex);

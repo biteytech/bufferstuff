@@ -58,8 +58,7 @@ public final class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntCo
 	}
 
 	/**
-	 * Adds a single {@code int} to the column. This is the primitive specialization
-	 * of {@link ColumnBuilder#add(Integer) add(E element)}
+	 * Adds a single {@code int} to the column.
 	 *
 	 * @param element the {@code int} to add
 	 * 
@@ -73,9 +72,7 @@ public final class IntColumnBuilder extends IntArrayColumnBuilder<Integer, IntCo
 	}
 
 	/**
-	 * Adds a sequence of {@code ints} to the column. This is the primitive
-	 * specialization of {@link ColumnBuilder#add(Integer, Integer[]) add(E element,
-	 * E... rest)}
+	 * Adds a sequence of {@code ints} to the column.
 	 *
 	 * @param elements the {@code ints} to add
 	 * 

@@ -47,6 +47,8 @@ public interface ColumnBuilder<E> {
 	/**
 	 * Adds the specified number of nulls to the column.
 	 * 
+	 * @param count - the number of nulls to add
+	 * 
 	 * @return this builder
 	 * 
 	 * @throws IllegalArgumentException if count is negative
@@ -65,8 +67,8 @@ public interface ColumnBuilder<E> {
 	/**
 	 * Adds a sequence of {@code elements} to the column.
 	 *
-	 * @param element  an element to add to the column
-	 * @param elements additional elements to add to the column
+	 * @param element an element to add to the column
+	 * @param rest    additional elements to add to the column
 	 * 
 	 * @return this builder
 	 */
@@ -115,6 +117,8 @@ public interface ColumnBuilder<E> {
 	 * minimum capacity argument.
 	 *
 	 * @param minCapacity the desired minimum capacity
+	 * 
+	 * @return this builder
 	 */
 	ColumnBuilder<E> ensureCapacity(int minCapacity);
 

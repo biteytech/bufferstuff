@@ -19,45 +19,117 @@ import java.util.stream.Collector;
 
 public interface DateColumn extends Column<LocalDate> {
 
-	@Override DateColumn subColumn(int fromIndex, int toIndex);
-	
-	@Override DateColumn subColumn(LocalDate fromElement, boolean fromInclusive, LocalDate toElement, boolean toInclusive);
-	@Override DateColumn subColumn(LocalDate fromElement, LocalDate toElement);
-	@Override DateColumn head(LocalDate toElement, boolean inclusive);
-	@Override DateColumn head(LocalDate toElement);	
-	@Override DateColumn tail(LocalDate fromElement, boolean inclusive);
-	@Override DateColumn tail(LocalDate fromElement);
-	
-	@Override DateColumn toHeap();
-	@Override DateColumn toSorted();
-	
-	@Override DateColumn append(Column<LocalDate> tail);
-	@Override DateColumn copy();
-	
+	@Override
+	DateColumn subColumn(int fromIndex, int toIndex);
+
+	@Override
+	DateColumn subColumn(LocalDate fromElement, boolean fromInclusive, LocalDate toElement, boolean toInclusive);
+
+	@Override
+	DateColumn subColumn(LocalDate fromElement, LocalDate toElement);
+
+	@Override
+	DateColumn head(LocalDate toElement, boolean inclusive);
+
+	@Override
+	DateColumn head(LocalDate toElement);
+
+	@Override
+	DateColumn tail(LocalDate fromElement, boolean inclusive);
+
+	@Override
+	DateColumn tail(LocalDate fromElement);
+
+	@Override
+	DateColumn toHeap();
+
+	@Override
+	DateColumn toSorted();
+
+	@Override
+	DateColumn toDistinct();
+
+	@Override
+	DateColumn append(Column<LocalDate> tail);
+
+	@Override
+	DateColumn copy();
+
 	int yyyymmdd(int index);
-	
-	public static DateColumnBuilder builder(int characteristics) {		
-		return new DateColumnBuilder(characteristics);
+
+	/**
+	 * Returns a {@link DateColumnBuilder builder} with the specified
+	 * characteristic.
+	 * 
+	 * @param characteristic - one of:
+	 *                       <ul>
+	 *                       <li>{@code 0} (zero) - no constraints on the elements
+	 *                       to be added to the column
+	 *                       <li>{@link java.util.Spliterator#NONNULL NONNULL}
+	 *                       <li>{@link java.util.Spliterator#SORTED SORTED}
+	 *                       <li>{@link java.util.Spliterator#DISTINCT DISTINCT}
+	 *                       </ul>
+	 * 
+	 * @return a new {@link DateColumnBuilder}
+	 * 
+	 * @throws IllegalArgumentException if {@code characteristic} is not valid
+	 */
+	public static DateColumnBuilder builder(int characteristic) {
+		return new DateColumnBuilder(characteristic);
 	}
-	
+
+	/**
+	 * Returns a new {@link DateColumnBuilder}
+	 * <p>
+	 * Equivalent to {@link #builder(int) builder(0)}
+	 * 
+	 * @return a new {@link DateColumnBuilder}
+	 */
 	public static DateColumnBuilder builder() {
 		return new DateColumnBuilder(0);
 	}
-	
+
+	/**
+	 * Returns a new {@code DateColumn} containing the specified elements.
+	 * 
+	 * @param elements the elements to be included in the new column
+	 * 
+	 * @return a new {@code DateColumn} containing the specified elements.
+	 */
 	public static DateColumn of(LocalDate... elements) {
 		return builder().addAll(elements).build();
 	}
-	
-	public static Collector<LocalDate,?,DateColumn> collector(int characteristics) {		
-		return Collector.of(
-			() -> builder(characteristics),
-			DateColumnBuilder::add,
-			DateColumnBuilder::append,
-			DateColumnBuilder::build
-		);
+
+	/**
+	 * Collects a stream of {@code LocalDates} into a new {@code DateColumn} with
+	 * the specified characteristic.
+	 * 
+	 * @param characteristic - one of:
+	 *                       <ul>
+	 *                       <li>{@code 0} (zero) - no constraints on the elements
+	 *                       to be added to the column
+	 *                       <li>{@link java.util.Spliterator#NONNULL NONNULL}
+	 *                       <li>{@link java.util.Spliterator#SORTED SORTED}
+	 *                       <li>{@link java.util.Spliterator#DISTINCT DISTINCT}
+	 *                       </ul>
+	 * 
+	 * @return a new {@link DateColumn}
+	 * 
+	 * @throws IllegalArgumentException if {@code characteristic} is not valid
+	 */
+	public static Collector<LocalDate, ?, DateColumn> collector(int characteristic) {
+		return Collector.of(() -> builder(characteristic), DateColumnBuilder::add, DateColumnBuilder::append,
+				DateColumnBuilder::build);
 	}
-	
-	public static Collector<LocalDate,?,DateColumn> collector() {
+
+	/**
+	 * Collects a stream of {@code LocalDates} into a new {@code DateColumn}.
+	 * <p>
+	 * Equivalent to {@link #collector(int) collector(0)}
+	 * 
+	 * @return a new {@link DateColumn}
+	 */
+	public static Collector<LocalDate, ?, DateColumn> collector() {
 		return collector(0);
 	}
 }

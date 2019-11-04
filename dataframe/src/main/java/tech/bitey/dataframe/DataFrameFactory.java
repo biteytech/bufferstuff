@@ -21,38 +21,173 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/**
+ * Factory methods for creating {@link DataFrame DataFrames}.
+ * 
+ * @author Lior Privman
+ */
 public enum DataFrameFactory {
-	$; // singleton instance
-	
-	public DataFrame create(LinkedHashMap<String, Column<?>> columnMap, String keyColumnName) {
+	;
+
+	/**
+	 * Returns a {@link DataFrame} where the column names and {@link Column columns}
+	 * are provided as ordered entries in {@code columnMap}, and with the specified
+	 * key column name.
+	 * 
+	 * @param columnMap     - specifies the columns and column names
+	 * @param keyColumnName - the key column name, must be present in as a key in
+	 *                      {@code columnMap}. Can be null.
+	 * 
+	 * @return a {@code DataFrame} where the column names and {@code columns} are
+	 *         provided as ordered entries in {@code columnMap}.
+	 * 
+	 * @throws IllegalArgumentException if:
+	 *                                  <ul>
+	 *                                  <li>{@code columnMap} is empty
+	 *                                  <li>{@code columnMap} contains any null keys
+	 *                                  or values
+	 *                                  <li>all columns do not have the same size
+	 *                                  <li>{@code keyColumnName} is not null and is
+	 *                                  either not present as a key in
+	 *                                  {@code columnMap}, or refers to a column
+	 *                                  which is not a unique index
+	 *                                  </ul>
+	 */
+	public static DataFrame create(LinkedHashMap<String, Column<?>> columnMap, String keyColumnName) {
 		return new DataFrameImpl(columnMap, keyColumnName);
 	}
-	
-	public DataFrame create(LinkedHashMap<String, Column<?>> columnMap) {
+
+	/**
+	 * Returns a {@link DataFrame} where the column names and {@link Column columns}
+	 * are provided as ordered entries in {@code columnMap}.
+	 * 
+	 * @param columnMap - specifies the columns and column names
+	 * 
+	 * @return a {@code DataFrame} where the column names and {@code columns} are
+	 *         provided as ordered entries in {@code columnMap}.
+	 * 
+	 * @throws IllegalArgumentException if:
+	 *                                  <ul>
+	 *                                  <li>{@code columnMap} is empty
+	 *                                  <li>{@code columnMap} contains any null keys
+	 *                                  or values
+	 *                                  <li>all columns do not have the same size
+	 *                                  </ul>
+	 */
+	public static DataFrame create(LinkedHashMap<String, Column<?>> columnMap) {
 		return create(columnMap, null);
 	}
-	
-	public DataFrame create(Column<?>[] columns, String[] columnNames, String keyColumnName) {
+
+	/**
+	 * Returns a {@link DataFrame} with the specified {@link Column columns}, column
+	 * names, and key column name.
+	 * 
+	 * @param columns       - the columns
+	 * @param columnNames   - the column names
+	 * @param keyColumnName - the key column name, must be present in
+	 *                      {@code columnNames}. Can be null.
+	 * 
+	 * @return a {@code DataFrame} with the specified {@code columns} and column
+	 *         names.
+	 * 
+	 * @throws IllegalArgumentException if:
+	 *                                  <ul>
+	 *                                  <li>column names are not distinct
+	 *                                  <li>mismatched number of columns vs. column
+	 *                                  names
+	 *                                  <li>zero columns provided
+	 *                                  <li>all columns do not have the same size
+	 *                                  <li>{@code keyColumnName} is not null and is
+	 *                                  either not present in {@code columnNames},
+	 *                                  or refers to a column which is not a unique
+	 *                                  index
+	 *                                  </ul>
+	 */
+	public static DataFrame create(Column<?>[] columns, String[] columnNames, String keyColumnName) {
 		checkArgument(columns.length == columnNames.length, "columns vs column names, mismatched lengths");
-		checkArgument(new HashSet<>(Arrays.asList(columnNames)).size() == columnNames.length, "column names must be distinct");
-		
+		checkArgument(new HashSet<>(Arrays.asList(columnNames)).size() == columnNames.length,
+				"column names must be distinct");
+
 		LinkedHashMap<String, Column<?>> columnMap = new LinkedHashMap<>();
-		
-		for(int i = 0; i < columns.length; i++)
+
+		for (int i = 0; i < columns.length; i++)
 			columnMap.put(columnNames[i], columns[i]);
-		
+
 		return create(columnMap, keyColumnName);
 	}
-	
-	public DataFrame create(Column<?>[] columns, String[] columnNames) {
+
+	/**
+	 * Returns a {@link DataFrame} with the specified {@link Column columns} and
+	 * column names.
+	 * 
+	 * @param columns     - the columns
+	 * @param columnNames - the column names
+	 * 
+	 * @return a {@code DataFrame} with the specified {@code columns} and column
+	 *         names.
+	 * 
+	 * @throws IllegalArgumentException if:
+	 *                                  <ul>
+	 *                                  <li>column names are not distinct
+	 *                                  <li>mismatched number of columns vs. column
+	 *                                  names
+	 *                                  <li>zero columns provided
+	 *                                  <li>all columns do not have the same size
+	 *                                  </ul>
+	 */
+	public static DataFrame create(Column<?>[] columns, String[] columnNames) {
 		return create(columns, columnNames, null);
 	}
-	
-	public DataFrame create(List<Column<?>> columns, List<String> columnNames, String keyColumnName) {
+
+	/**
+	 * Returns a {@link DataFrame} with the specified {@link Column columns}, column
+	 * names, and key column name.
+	 * 
+	 * @param columns       - the columns
+	 * @param columnNames   - the column names
+	 * @param keyColumnName - the key column name, must be present in
+	 *                      {@code columnNames}. Can be null.
+	 * 
+	 * @return a {@code DataFrame} with the specified {@code columns} and column
+	 *         names.
+	 * 
+	 * @throws IllegalArgumentException if:
+	 *                                  <ul>
+	 *                                  <li>column names are not distinct
+	 *                                  <li>mismatched number of columns vs. column
+	 *                                  names
+	 *                                  <li>zero columns provided
+	 *                                  <li>all columns do not have the same size
+	 *                                  <li>{@code keyColumnName} is not null and is
+	 *                                  either not present in {@code columnNames},
+	 *                                  or refers to a column which is not a unique
+	 *                                  index
+	 *                                  </ul>
+	 */
+	public static DataFrame create(List<Column<?>> columns, List<String> columnNames, String keyColumnName) {
 		return create(columns.toArray(new Column<?>[0]), columnNames.toArray(new String[0]), keyColumnName);
 	}
-	
-	public DataFrame create(List<Column<?>> columns, List<String> columnNames) {
+
+	/**
+	 * Returns a {@link DataFrame} with the specified {@link Column columns} and
+	 * column names.
+	 * 
+	 * @param columns     - the columns
+	 * @param columnNames - the column names
+	 * 
+	 * @return a {@code DataFrame} with the specified {@code columns} and column
+	 *         names.
+	 * 
+	 * @throws IllegalArgumentException if:
+	 *                                  <ul>
+	 *                                  <li>column names are not distinct
+	 *                                  <li>mismatched number of columns vs. column
+	 *                                  names
+	 *                                  <li>zero columns provided
+	 *                                  <li>all columns do not have the same size
+	 *                                  </ul>
+	 */
+	public static DataFrame create(List<Column<?>> columns, List<String> columnNames) {
 		return create(columns, columnNames, null);
 	}
 }

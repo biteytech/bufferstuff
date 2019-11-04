@@ -50,8 +50,7 @@ public final class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, B
 	}
 
 	/**
-	 * Adds a single {@code boolean} to the column. This is the primitive
-	 * specialization of {@link ColumnBuilder#add(Boolean) add(E element)}
+	 * Adds a single {@code boolean} to the column.
 	 *
 	 * @param element the {@code boolean} to add
 	 * 
@@ -66,9 +65,7 @@ public final class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, B
 	}
 
 	/**
-	 * Adds a sequence of {@code booleans} to the column. This is the primitive
-	 * specialization of {@link ColumnBuilder#add(Boolean, Boolean[]) add(E element,
-	 * E... rest)}
+	 * Adds a sequence of {@code booleans} to the column.
 	 *
 	 * @param elements the {@code booleans} to add
 	 * 

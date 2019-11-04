@@ -43,7 +43,8 @@ import tech.bitey.bufferstuff.BufferBitSet;
  *
  * @author Lior Privman
  */
-public final class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, FloatBuffer, FloatColumn, FloatColumnBuilder> {
+public final class FloatColumnBuilder
+		extends SingleBufferColumnBuilder<Float, FloatBuffer, FloatColumn, FloatColumnBuilder> {
 
 	FloatColumnBuilder(int characteristics) {
 		super(characteristics);
@@ -53,10 +54,9 @@ public final class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, F
 	void addNonNull(Float element) {
 		add(element.floatValue());
 	}
-	
+
 	/**
-	 * Adds a single {@code float} to the column. This is the primitive specialization
-	 * of {@link ColumnBuilder#add(Float) add(E element)}
+	 * Adds a single {@code float} to the column.
 	 *
 	 * @param element the {@code float} to add
 	 * 
@@ -68,11 +68,9 @@ public final class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, F
 		size++;
 		return this;
 	}
-	
+
 	/**
-	 * Adds a sequence of {@code floats} to the column. This is the primitive
-	 * specialization of {@link ColumnBuilder#add(Float, Float[]) add(E element,
-	 * E... rest)}
+	 * Adds a sequence of {@code floats} to the column.
 	 *
 	 * @param elements the {@code float} to add
 	 * 
@@ -92,19 +90,17 @@ public final class FloatColumnBuilder extends SingleBufferColumnBuilder<Float, F
 
 	@Override
 	void checkCharacteristics() {
-		if((characteristics & DISTINCT) != 0) {
+		if ((characteristics & DISTINCT) != 0) {
 			checkState(isSortedAndDistinct(elements, 0, elements.position()),
-				"column elements must be sorted and distinct");
-		}
-		else if((characteristics & SORTED) != 0) {
-			checkState(isSorted(elements, 0, elements.position()),
-				"column elements must be sorted");
+					"column elements must be sorted and distinct");
+		} else if ((characteristics & SORTED) != 0) {
+			checkState(isSorted(elements, 0, elements.position()), "column elements must be sorted");
 		}
 	}
 
 	@Override
 	FloatColumn wrapNullableColumn(FloatColumn column, BufferBitSet nonNulls) {
-		return new NullableFloatColumn((NonNullFloatColumn)column, nonNulls, null, 0, size);
+		return new NullableFloatColumn((NonNullFloatColumn) column, nonNulls, null, 0, size);
 	}
 
 	@Override

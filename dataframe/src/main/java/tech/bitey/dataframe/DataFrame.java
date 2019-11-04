@@ -41,8 +41,27 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/*--------------------------------------------------------------------------------
 	 *	Object, Collection, and List style Methods
 	 *--------------------------------------------------------------------------------*/
+	/**
+	 * Tests this DataFrame against the specified one for equality. Only compares
+	 * the column data if {@code dataOnly} is true, otherwise compares column names
+	 * and {@link #keyColumnIndex()} as well.
+	 * 
+	 * @param df       - the dataframe to compare against
+	 * @param dataOnly - only compares column data if true, otherwise compares
+	 *                 column names and {@link #keyColumnIndex()} as well
+	 * 
+	 * @return true if all column comparisons are true, and either {@code dataOnly}
+	 *         is true or the column names and {@link #keyColumnIndex()} are the
+	 *         same as well.
+	 */
 	boolean equals(DataFrame df, boolean dataOnly);
 
+	/**
+	 * Returns a deep copy of this dataframe. All column data will be copied into
+	 * newly allocated buffers.
+	 * 
+	 * @return a deep copy of this dataframe.
+	 */
 	DataFrame copy();
 
 	/*--------------------------------------------------------------------------------
@@ -53,50 +72,207 @@ public interface DataFrame extends List<Row>, RandomAccess {
 		return Spliterators.spliterator(this, ORDERED | IMMUTABLE | NONNULL);
 	}
 
-	Cursor cursor(int index);
+	/**
+	 * Returns a {@link Cursor} at the specified row index.
+	 * 
+	 * @param rowIndex - the row index
+	 * 
+	 * @return a {@code Cursor} at the specified row index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 */
+	Cursor cursor(int rowIndex);
 
+	/**
+	 * Returns a {@link Cursor} pointing at the first row in this dataframe.
+	 * 
+	 * @return a {@code Cursor} pointing at the first row in this dataframe.
+	 * 
+	 * @throws IndexOutOfBoundsException if this dataframe is empty
+	 */
 	default Cursor cursor() {
 		return cursor(0);
 	}
 
+	/**
+	 * Returns a map keyed by the elements in the key column, with values from the
+	 * specified index.
+	 * 
+	 * @param <K>         - the key type. Must match the key column type.
+	 * @param <V>         - the value type. Must match the specified column type.
+	 * 
+	 * @param columnIndex - index of a column in this dataframe
+	 * 
+	 * @return a map keyed by the elements in the key column, with values from the
+	 *         specified index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 */
 	<K, V> Map<K, V> toMap(int columnIndex);
 
+	/**
+	 * Returns a map keyed by the elements in the key column, with values from the
+	 * specified index.
+	 * 
+	 * @param <K>        - the key type. Must match the key column type.
+	 * @param <V>        - the value type. Must match the specified column type.
+	 * 
+	 * @param columnName - name of a column in this dataframe
+	 * 
+	 * @return a map keyed by the elements in the key column, with values from the
+	 *         specified index.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe
+	 */
 	<K, V> Map<K, V> toMap(String columnName);
 
 	/*--------------------------------------------------------------------------------
 	 *	Key Column Methods
 	 *--------------------------------------------------------------------------------*/
+	/**
+	 * Returns true if this dataframe has a key column.
+	 * 
+	 * @return true if this dataframe has a key column.
+	 */
 	boolean hasKeyColumn();
 
+	/**
+	 * Returns the index of the key column, or null if no key column has been
+	 * specified.
+	 * 
+	 * @return the index of the key column, or null if no key column has been
+	 *         specified.
+	 */
 	Integer keyColumnIndex();
 
+	/**
+	 * Returns the key column name, or null if no key column has been specified.
+	 * 
+	 * @return the key column name, or null if no key column has been specified.
+	 */
 	String keyColumnName();
 
+	/**
+	 * Returns the key {@link ColumnType column type}, or null if no key column has
+	 * been specified.
+	 * 
+	 * @return the key column type, or null if no key column has been specified.
+	 */
 	ColumnType keyColumnType();
 
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but with the key
+	 * column set to the specified index.
+	 * 
+	 * @param columnIndex - the key column index
+	 * 
+	 * @return a new dataframe with the key column set to the specified index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 */
 	DataFrame withKeyColumn(int columnIndex);
 
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but with the key
+	 * column set to the specified index.
+	 * 
+	 * @param columnName - name of the column in this dataframe
+	 * 
+	 * @return a new dataframe with the key column set to the specified index.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe
+	 */
 	DataFrame withKeyColumn(String columnName);
 
 	/*--------------------------------------------------------------------------------
 	 *	Column Methods
 	 *--------------------------------------------------------------------------------*/
+	/**
+	 * Returns the number of columns in this dataframe.
+	 * 
+	 * @return the number of columns in this dataframe.
+	 */
 	int columnCount();
 
+	/**
+	 * Returns the index of the specified column.
+	 * 
+	 * @param columnName - name of the column in this dataframe
+	 * 
+	 * @return the index of the specified column.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe
+	 */
 	int columnIndex(String columnName);
 
+	/**
+	 * Returns the column name at the specified index.
+	 * 
+	 * @param columnIndex - the column index
+	 * 
+	 * @return the column name at the specified index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 */
 	String columnName(int columnIndex);
 
+	/**
+	 * Returns the {@link ColumnType column type} at the specified index.
+	 * 
+	 * @param columnIndex - the column index
+	 * 
+	 * @return the column type at the specified index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 */
 	ColumnType columnType(int columnIndex);
 
+	/**
+	 * Returns the {@link ColumnType column type} at the specified index.
+	 * 
+	 * @param columnName - name of the column in this dataframe
+	 * 
+	 * @return the column type at the specified index.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe
+	 */
 	ColumnType columnType(String columnName);
 
+	/**
+	 * Returns an ordered map where the entries are (name, column) pairs.
+	 * 
+	 * @return an ordered map where the entries are (name, column) pairs.
+	 */
 	LinkedHashMap<String, Column<?>> columnMap();
 
+	/**
+	 * Returns a list of columns in this dataframe.
+	 * 
+	 * @return a list of columns in this dataframe.
+	 */
 	List<Column<?>> columns();
 
+	/**
+	 * Returns a list of column names in this dataframe.
+	 * 
+	 * @return a list of column names in this dataframe.
+	 */
 	List<String> columnNames();
 
+	/**
+	 * Returns a list of column types in this dataframe.
+	 * 
+	 * @return a list of column types in this dataframe.
+	 */
 	List<ColumnType> columnTypes();
 
 	DataFrame withColumn(String columnName, Column<?> column);
