@@ -14,6 +14,9 @@
 
 package tech.bitey.dataframe;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 /**
  * Represents a logical row in a parent {@link DataFrame}, which implements the
  * {@code List<Row>} interface. Rows do not store any data, rather they index
@@ -406,4 +409,84 @@ public interface Row {
 	 * @throws ClassCastException       if the column is not a {@link DateColumn}
 	 */
 	int yyyymmdd(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link StringColumn}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code StringColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code StringColumn}
+	 */
+	String getString(int columnIndex);
+
+	/**
+	 * Returns the value for this row in the specified {@link StringColumn}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code StringColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@code DateColumn}
+	 */
+	String getString(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link DateColumn}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code DateColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code DateColumn}
+	 */
+	LocalDate getDate(int columnIndex);
+
+	/**
+	 * Returns the value for this row in the specified {@link DateColumn}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code DateColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a {@code DateColumn}
+	 */
+	LocalDate getDate(String columnName);
+
+	/**
+	 * Returns the value for this row in the specified {@link DateTimeColumn}.
+	 * 
+	 * @param columnIndex - index of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code DateTimeColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code DateTimeColumn}
+	 */
+	LocalDateTime getDateTime(int columnIndex);
+
+	/**
+	 * Returns the value for this row in the specified {@link DateTimeColumn}.
+	 * 
+	 * @param columnName - name of the column in the parent {@link DataFrame}.
+	 * 
+	 * @return the value for this row in the specified {@code DateTimeColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in the parent dataframe.
+	 * @throws ClassCastException       if the column is not a
+	 *                                  {@code DateTimeColumn}
+	 */
+	LocalDateTime getDateTime(String columnName);
 }
