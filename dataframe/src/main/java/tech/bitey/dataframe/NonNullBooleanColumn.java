@@ -17,7 +17,7 @@ package tech.bitey.dataframe;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Spliterator.NONNULL;
-import static tech.bitey.dataframe.Allocator.EMPTY_BITSET;
+import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.util.Comparator;
@@ -112,7 +112,7 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	@Override
 	NonNullBooleanColumn applyFilter0(BufferBitSet keep, int cardinality) {
 		
-		BufferBitSet elements = Allocator.newBitSet();
+		BufferBitSet elements = new BufferBitSet();
 		for(int i = offset, j = 0; i <= lastIndex(); i++) {
 			if(keep.get(i - offset)) {
 				if(this.elements.get(i))
@@ -127,7 +127,7 @@ final class NonNullBooleanColumn extends NonNullColumn<Boolean, BooleanColumn, N
 	@Override
 	NonNullBooleanColumn select0(IntColumn indices) {
 		
-		BufferBitSet elements = Allocator.newBitSet();
+		BufferBitSet elements = new BufferBitSet();
 		for(int i = 0; i < indices.size(); i++)
 			if(this.elements.get(indices.getInt(i) + offset))
 				elements.set(i);

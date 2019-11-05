@@ -592,7 +592,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		else if(size == size())
 			return this;
 		
-		return filter(Allocator.randomBitSet(size, size()));
+		return filter(BufferBitSet.random(size, size()));
 	}
 
 	@Override
@@ -650,7 +650,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	@Override
 	public DataFrame filter(Predicate<Row> criteria) {
 		
-		BufferBitSet keep = Allocator.newBitSet();
+		BufferBitSet keep = new BufferBitSet();
 		
 		int i = 0;
 		for(Cursor cursor = cursor(); cursor.hasNext(); cursor.next(), i++)
@@ -699,8 +699,8 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		AbstractColumn leftKey = (AbstractColumn)columns[keyIndex];
 		AbstractColumn rightKey = (AbstractColumn)rhs.columns[rhs.keyIndex];
 		
-		BufferBitSet keepLeft = Allocator.newBitSet();
-		BufferBitSet keepRight = Allocator.newBitSet();
+		BufferBitSet keepLeft = new BufferBitSet();
+		BufferBitSet keepRight = new BufferBitSet();
 		
 		int cardinality = leftKey.intersectBothSorted(rightKey, keepLeft, keepRight);
 		
@@ -800,7 +800,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			rightColumn = (AbstractColumn)rhs.column(columnName);
 		}
 		
-		BufferBitSet keepRight = Allocator.newBitSet();
+		BufferBitSet keepRight = new BufferBitSet();
 		IntColumn indices = leftKey.intersectLeftSorted(rightColumn, keepRight);
 		
 		rhs = rhs.filter(keepRight);
@@ -828,7 +828,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		DataFrameImpl inner = (DataFrameImpl)pair[0];
 		IntColumn indices = (IntColumn)pair[1];
 		
-		BufferBitSet unmatchedLeft = Allocator.newBitSet();
+		BufferBitSet unmatchedLeft = new BufferBitSet();
 		unmatchedLeft.set(0, this.size());
 		for(int i = 0; i < indices.size(); i++)
 			unmatchedLeft.set(indices.getInt(i), false);
@@ -876,7 +876,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				"mismatched key column types");
 
 		IntColumn indices;
-		BufferBitSet keepRight = Allocator.newBitSet();
+		BufferBitSet keepRight = new BufferBitSet();
 		
 		{
 			Map<Row, Integer> hashMap = new HashMap<>();

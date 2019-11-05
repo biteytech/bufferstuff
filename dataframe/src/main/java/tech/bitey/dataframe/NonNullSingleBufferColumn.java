@@ -38,7 +38,7 @@ abstract class NonNullSingleBufferColumn<E, I extends Column<E>, C extends NonNu
 	abstract int elementSize();
 
 	ByteBuffer allocate(int capacity) {
-		return Allocator.allocate(capacity * elementSize());
+		return BufferUtils.allocate(capacity * elementSize());
 	}
 
 	@Override

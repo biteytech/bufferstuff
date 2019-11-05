@@ -1,9 +1,7 @@
 package tech.bitey.bufferstuff;
 
+import static tech.bitey.bufferstuff.BufferUtils.allocate;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE;
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
-import static tech.bitey.bufferstuff.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;
@@ -19,7 +17,8 @@ import java.util.Random;
  * <li>... is not {@code Serializable}.
  * <li>... does not hide the backing buffer, and offers copy-free methods for
  * wrapping an existing buffer.
- * <li>... allows for specifying the {@link ResizeBehavior resize} behavior.
+ * <li>... allows for specifying whether or not the buffer can be resized
+ * (replaced with a larger buffer)
  * </ul>
  * This bitset is not thread safe, and concurrent writes could put it into a bad
  * state. External modifications to the backing buffer can do the same.
@@ -34,12 +33,17 @@ import java.util.Random;
  */
 public class BufferBitSet implements Cloneable {
 
+	/** An empty, non-resizable {@link BufferBitSet} */
+	public static final BufferBitSet EMPTY_BITSET = new BufferBitSet(false);
+
 	private static final int DEFAULT_INITIAL_SIZE = 8;
 
 	private static final int MASK = 0xFF;
 
-	/** {@link ResizeBehavior} */
-	private final ResizeBehavior resizeBehavior;
+	/**
+	 * Specifies whether or not the buffer can be replaced with a larger one.
+	 */
+	private final boolean resizable;
 
 	/**
 	 * This buffer's {@link ByteBuffer#limit() limit} is always equal to its
@@ -61,12 +65,12 @@ public class BufferBitSet implements Cloneable {
 	}
 
 	/**
-	 * Returns this bitset's {@link ResizeBehavior resize} behavior.
+	 * Returns true if this bitset's buffer can be resized.
 	 * 
-	 * @return this bitset's {@link ResizeBehavior resize} behavior.
+	 * @return true if this bitset's buffer can be resized.
 	 */
-	public ResizeBehavior getResizeBehavior() {
-		return resizeBehavior;
+	public boolean isResizable() {
+		return resizable;
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -75,13 +79,10 @@ public class BufferBitSet implements Cloneable {
 	/**
 	 * "Master" constructor. All other constructors invoke this one.
 	 */
-	private BufferBitSet(ByteBuffer buffer, ResizeBehavior resizeBehavior, boolean externalBuffer) {
+	private BufferBitSet(ByteBuffer buffer, boolean resizable, boolean externalBuffer) {
 
 		if (buffer == null)
 			throw new NullPointerException("buffer cannot be null");
-
-		if (resizeBehavior == null)
-			throw new NullPointerException("resizeBehavior cannot be null");
 
 		if (externalBuffer) {
 			this.buffer = buffer.slice();
@@ -91,28 +92,24 @@ public class BufferBitSet implements Cloneable {
 			this.buffer = buffer;
 		}
 
-		this.resizeBehavior = resizeBehavior;
+		this.resizable = resizable;
 	}
 
 	/**
-	 * Creates a {@link BufferBitSet} with {@code ResizeBehavior}
-	 * {@link ResizeBehavior#ALLOCATE ALLOCATE}.
+	 * Creates an empty, resizable {@link BufferBitSet}
 	 */
 	public BufferBitSet() {
-		this(ALLOCATE);
+		this(true);
 	}
 
 	/**
-	 * Creates a {@link BufferBitSet} with the specified resize behavior.
+	 * Creates an empty {@link BufferBitSet} with the specified resize behavior.
 	 * 
-	 * @param resizeBehavior - the {@link ResizeBehavior}. If
-	 *                       {@link ResizeBehavior#NO_RESIZE NO_RESIZE} is specified
-	 *                       then this bitset will always be empty.
-	 * 
-	 * @throws NullPointerException if resizeBehavior is null
+	 * @param resizable - specifies whether or not the buffer can be resized
+	 *                  (replaced with a larger buffer)
 	 */
-	public BufferBitSet(ResizeBehavior resizeBehavior) {
-		this(allocateInitialBuffer(resizeBehavior), resizeBehavior, false);
+	public BufferBitSet(boolean resizable) {
+		this(allocate(DEFAULT_INITIAL_SIZE), resizable, false);
 	}
 
 	/**
@@ -121,7 +118,7 @@ public class BufferBitSet implements Cloneable {
 	 * {@link ByteBuffer#limit()}. The provided buffer object will not itself be
 	 * modified, though the buffer's content can be via writes to this bitset.
 	 * <p>
-	 * The resize behavior defaults to {@link ResizeBehavior#NO_RESIZE NO_RESIZE}.
+	 * The resulting bitset is not resizable.
 	 * 
 	 * @param buffer - the {@link ByteBuffer} to be wrapped by this bitset. Writes
 	 *               to this bitset will modify the buffer's content.
@@ -129,7 +126,7 @@ public class BufferBitSet implements Cloneable {
 	 * @throws NullPointerException if the provided buffer is null
 	 */
 	public BufferBitSet(ByteBuffer buffer) {
-		this(buffer, NO_RESIZE, true);
+		this(buffer, false, true);
 	}
 
 	/**
@@ -138,18 +135,18 @@ public class BufferBitSet implements Cloneable {
 	 * {@link ByteBuffer#limit()}. The provided buffer object will not itself be
 	 * modified, though the buffer's content can be via writes to this bitset.
 	 * 
-	 * @param buffer         - the {@link ByteBuffer} to be wrapped by this bitset.
-	 *                       Writes to this bitset will modify the buffer's content.
-	 * @param resizeBehavior - the {@link ResizeBehavior}
-	 * 
-	 * @throws NullPointerException if the provided buffer or resizeBehavior is null
+	 * @param buffer    - the {@link ByteBuffer} to be wrapped by this bitset.
+	 *                  Writes to this bitset will modify the buffer's content.
+	 * @param resizable - specifies whether or not the buffer can be resized
+	 *                  (replaced with a larger buffer)
 	 */
-	public BufferBitSet(ByteBuffer buffer, ResizeBehavior resizeBehavior) {
-		this(buffer, resizeBehavior, true);
+	public BufferBitSet(ByteBuffer buffer, boolean resizable) {
+		this(buffer, resizable, true);
 	}
 
 	/**
-	 * Returns a new bit set containing all of the bits in the given byte array.
+	 * Returns a new resizable bitset containing all of the bits in the given byte
+	 * array.
 	 * <p>
 	 * More precisely, <br>
 	 * {@code BufferBitSet.valueOf(bytes).get(n) == ((bytes[n/8] & (1<<(n%8))) != 0)}
@@ -162,13 +159,13 @@ public class BufferBitSet implements Cloneable {
 	 * @param bytes - a byte array containing a sequence of bits to be used as the
 	 *              initial bits of the new bit set
 	 * 
-	 * @return a {@code BufferBitSet} containing all the bits in the byte array, and
-	 *         with resize behavior {@link ResizeBehavior#ALLOCATE ALLOCATE}.
+	 * @return a new resizable bitset containing all of the bits in the given byte
+	 *         array.
 	 */
 	public static BufferBitSet valueOf(byte[] bytes) {
 
 		if (bytes.length == 0)
-			return new BufferBitSet(ALLOCATE);
+			return new BufferBitSet(true);
 
 		ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
@@ -179,17 +176,17 @@ public class BufferBitSet implements Cloneable {
 
 		buffer.position(n + 1);
 
-		return new BufferBitSet(buffer, ALLOCATE, false);
+		return new BufferBitSet(buffer, true, false);
 	}
 
 	/**
-	 * Returns a new {@link BufferBitSet} containing all of the bits in the given
-	 * {@link java.util.BitSet}.
+	 * Returns a new resizable {@link BufferBitSet} containing all of the bits in
+	 * the given {@link java.util.BitSet}.
 	 *
 	 * @param bs - the bitset to copy
 	 * 
-	 * @return a {@code BufferBitSet} containing all the bits in the given bitset,
-	 *         with resize behavior {@link ResizeBehavior#ALLOCATE ALLOCATE}.
+	 * @return a new resizable {@code BufferBitSet} containing all of the bits in
+	 *         the given {@code java.util.BitSet}.
 	 */
 	public static BufferBitSet valueOf(BitSet bs) {
 
@@ -199,34 +196,29 @@ public class BufferBitSet implements Cloneable {
 		buffer.limit(array.length);
 		buffer.position(array.length);
 
-		return new BufferBitSet(buffer, ALLOCATE, false);
+		return new BufferBitSet(buffer, true, false);
 	}
 
 	/**
-	 * Returns a new {@link BufferBitSet} with the specified {@link ResizeBehavior
-	 * resize} behavior. The buffer object itself will be
-	 * {@link ByteBuffer#duplicate duplicated}, but will share the underlying space.
-	 * <p>
-	 * Concurrent modifications to this bitset and the returned bitset can put both
-	 * into a bad state.
+	 * Returns a new {@link BufferBitSet} with the specified resizability. The
+	 * buffer object itself will be {@link ByteBuffer#duplicate duplicated}, but
+	 * will share the underlying space.
 	 * 
-	 * @param resizeBehavior - {@link ResizeBehavior}
+	 * @param resizable - specifies whether or not the buffer can be resized
+	 *                  (replaced with a larger buffer)
 	 * 
 	 * @return a new bitset with the specified resize behavior
 	 */
-	public BufferBitSet withResizeBehavior(ResizeBehavior resizeBehavior) {
-		return new BufferBitSet(duplicate(buffer), resizeBehavior, false);
+	public BufferBitSet resizable(boolean resizable) {
+		return new BufferBitSet(duplicate(buffer), resizable, false);
 	}
 
 	/**
 	 * Returns a new {@link BufferBitSet} with {@code n} bits set randomly in the
-	 * range zero to {@code size} (exclusive), and with the specified resize
-	 * behavior.
+	 * range zero to {@code size} (exclusive).
 	 * 
-	 * @param n              - the number of bits to set
-	 * @param size           - bits are set within the range zero to size
-	 *                       (exclusive)
-	 * @param resizeBehavior - {@link ResizeBehavior}
+	 * @param n    - the number of bits to set
+	 * @param size - bits are set within the range zero to size (exclusive)
 	 * 
 	 * @return a new bitset with n bits set randomly in the range zero to size
 	 *         (exclusive)
@@ -234,21 +226,18 @@ public class BufferBitSet implements Cloneable {
 	 * @throws IllegalArgumentException if {@code size < 0}
 	 * @throws IllegalArgumentException if {@code n < 0 || n > size}
 	 */
-	public static BufferBitSet random(int n, int size, ResizeBehavior resizeBehavior) {
+	public static BufferBitSet random(int n, int size) {
 		final Random random = new Random();
-		return random(n, size, resizeBehavior, random);
+		return random(n, size, random);
 	}
 
-	public static BufferBitSet random(int n, int size, ResizeBehavior resizeBehavior, Random random) {
+	static BufferBitSet random(int n, int size, Random random) {
 		if (size < 0)
 			throw new IllegalArgumentException("size must be > 1");
 		if (n < 0 || n > size)
 			throw new IllegalArgumentException("n must between 0 and size inclusive");
 
-		ByteBuffer buffer = resizeBehavior == ALLOCATE_DIRECT ? ByteBuffer.allocateDirect(size >>> 3)
-				: ByteBuffer.allocate(size >>> 3);
-		BufferBitSet bbs = new BufferBitSet(buffer, resizeBehavior, false);
-
+		BufferBitSet bbs = new BufferBitSet();
 		bbs.set(0, n);
 
 		for (int i = size; i > 1; i--) {
@@ -333,7 +322,7 @@ public class BufferBitSet implements Cloneable {
 
 		// If no set bits in range return empty bitset
 		if (len <= fromIndex || fromIndex == toIndex)
-			return new BufferBitSet(resizeBehavior);
+			return new BufferBitSet(resizable);
 
 		// An optimization
 		if (toIndex > len)
@@ -341,9 +330,8 @@ public class BufferBitSet implements Cloneable {
 
 		final int targetBytes = byteIndex(toIndex - fromIndex - 1) + 1;
 
-		ByteBuffer resultBuffer = resizeBehavior == ALLOCATE_DIRECT ? ByteBuffer.allocateDirect(targetBytes)
-				: ByteBuffer.allocate(targetBytes);
-		BufferBitSet result = new BufferBitSet(resultBuffer, resizeBehavior, false);
+		ByteBuffer resultBuffer = allocate(targetBytes);
+		BufferBitSet result = new BufferBitSet(resultBuffer, resizable, false);
 
 		int sourceIndex = byteIndex(fromIndex);
 		boolean byteAligned = ((fromIndex & 7) == 0);
@@ -831,16 +819,14 @@ public class BufferBitSet implements Cloneable {
 		final int offsetBytes = (offset - 1) / 8 + 1;
 		final int totalBytes = offsetBytes + buffer.position();
 
-		ByteBuffer buffer = resizeBehavior == ALLOCATE_DIRECT ? ByteBuffer.allocateDirect(totalBytes)
-				: ByteBuffer.allocate(totalBytes);
-		buffer.order(this.buffer.order());
+		ByteBuffer buffer = allocate(totalBytes);
 
 		buffer.position(offsetBytes);
 		ByteBuffer from = this.buffer.duplicate();
 		from.flip();
 		buffer.put(from);
 
-		BufferBitSet bs = new BufferBitSet(buffer, resizeBehavior, false);
+		BufferBitSet bs = new BufferBitSet(buffer, resizable, false);
 
 		final int actualOffset = offsetBytes * 8;
 		if (actualOffset > offset) {
@@ -1019,7 +1005,7 @@ public class BufferBitSet implements Cloneable {
 		ByteBuffer copy = BufferUtils.copy(buffer, 0, buffer.position());
 		copy.position(buffer.position());
 
-		return new BufferBitSet(copy, resizeBehavior, false);
+		return new BufferBitSet(copy, resizable, false);
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -1031,17 +1017,12 @@ public class BufferBitSet implements Cloneable {
 	private void expandTo(int byteIndex) {
 
 		if (byteIndex >= buffer.limit()) {
-			if (resizeBehavior == NO_RESIZE)
+			if (!resizable)
 				throw new IndexOutOfBoundsException("could not resize to accomodate byte index: " + byteIndex);
 
 			// allocate new buffer with twice as much space
 			final int capacity = Math.max(buffer.limit() * 2, byteIndex + 1);
-			final ByteBuffer buffer;
-
-			if (resizeBehavior == ALLOCATE)
-				buffer = ByteBuffer.allocate(capacity);
-			else
-				buffer = ByteBuffer.allocateDirect(capacity);
+			final ByteBuffer buffer = allocate(capacity);
 
 			// copy old buffer and replace with new one
 			this.buffer.flip();
@@ -1134,19 +1115,5 @@ public class BufferBitSet implements Cloneable {
 	 */
 	private static int numberOfLeadingZeros(byte b) {
 		return Integer.numberOfLeadingZeros(b & 0xFF) & 7;
-	}
-
-	/**
-	 * Allocate the initial buffer used to back this bitset.
-	 */
-	private static ByteBuffer allocateInitialBuffer(ResizeBehavior resizeBehavior) {
-		switch (resizeBehavior) {
-		case ALLOCATE:
-			return ByteBuffer.allocate(DEFAULT_INITIAL_SIZE);
-		case ALLOCATE_DIRECT:
-			return ByteBuffer.allocateDirect(DEFAULT_INITIAL_SIZE);
-		default:
-			return ByteBuffer.allocate(0);
-		}
 	}
 }

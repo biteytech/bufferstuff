@@ -23,6 +23,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.BufferUtils;
 
 abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E, I, C>, N extends NullableColumn<E, I, C, N>> extends AbstractColumn<E, I, N> {
 
@@ -42,7 +43,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		
 		if(nullCounts == null) {
 			final int words = (size - 1) / 32;
-			this.nullCounts = Allocator.allocate(words * 4).asIntBuffer();
+			this.nullCounts = BufferUtils.allocate(words * 4).asIntBuffer();
 			for(int i = 0, w = 0, count = 0; w < words; w++) {
 				for(int j = 0; i < size && j < 32; j++, i++)
 					if(!nonNulls.get(i))
@@ -275,8 +276,8 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 		if(keep.equals(nonNulls))
 			return column;
 		
-		BufferBitSet filteredNonNulls = Allocator.newBitSet();
-		BufferBitSet keepNonNulls = Allocator.newBitSet();
+		BufferBitSet filteredNonNulls = new BufferBitSet();
+		BufferBitSet keepNonNulls = new BufferBitSet();
 		
 		int nullCount = 0;
 		for(int i = offset, j = 0; i <= lastIndex(); i++) {
@@ -303,7 +304,7 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	@Override
 	Column<E> select0(IntColumn indices) {
 		
-		BufferBitSet decodedNonNulls = Allocator.newBitSet();
+		BufferBitSet decodedNonNulls = new BufferBitSet();
 		int cardinality = 0;
 		for(int i = 0; i < indices.size(); i++) {
 			if(nonNulls.get(indices.getInt(i)+offset)) {

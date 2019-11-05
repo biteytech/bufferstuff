@@ -101,7 +101,7 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 		if (nulls == null)
 			return column;
 		else {
-			BufferBitSet nonNulls = Allocator.newBitSet();
+			BufferBitSet nonNulls = new BufferBitSet();
 
 			for (int i = 0; i < size; i++)
 				if (!nulls.get(i))
@@ -122,7 +122,7 @@ abstract class AbstractColumnBuilder<E, C extends Column<E>, B extends AbstractC
 			throw new NullPointerException("cannot add null when NONNULL is set");
 
 		if (nulls == null)
-			nulls = Allocator.newBitSet();
+			nulls = new BufferBitSet();
 
 		nulls.set(size, size += count);
 

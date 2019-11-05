@@ -19,7 +19,7 @@ import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.SORTED;
 import static tech.bitey.bufferstuff.BufferSort.inplaceSort;
 import static tech.bitey.bufferstuff.BufferUtils.isSortedAndDistinct;
-import static tech.bitey.dataframe.Allocator.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import static tech.bitey.dataframe.guava.DfPreconditions.checkElementIndex;
 
 import java.nio.ByteBuffer;

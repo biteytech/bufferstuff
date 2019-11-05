@@ -14,7 +14,7 @@
 
 package tech.bitey.dataframe;
 
-import static tech.bitey.dataframe.Allocator.EMPTY_BITSET;
+import static tech.bitey.bufferstuff.BufferBitSet.EMPTY_BITSET;
 
 import java.nio.IntBuffer;
 

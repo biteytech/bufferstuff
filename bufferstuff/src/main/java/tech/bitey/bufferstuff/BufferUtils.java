@@ -1,6 +1,7 @@
 package tech.bitey.bufferstuff;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -13,6 +14,25 @@ import java.nio.LongBuffer;
  */
 public enum BufferUtils {
 	; // static methods only, enum prevents instantiation
+
+	private static final boolean DIRECT = "true".equalsIgnoreCase(System.getProperty("tech.bitey.allocateDirect"));
+	
+	/** An empty {@link ByteBuffer} which has {@link ByteOrder#nativeOrder() native order} */
+	public static final ByteBuffer EMPTY_BUFFER = allocate(0);
+
+	/**
+	 * Allocates a new {@link ByteBuffer}. The buffer will be direct if system
+	 * property {@code tech.bitey.allocateDirect is "true"}, and will have
+	 * {@link ByteOrder#nativeOrder() native order}.
+	 * 
+	 * @param capacity the new buffer's capacity, in bytes
+	 * 
+	 * @return the new native order byte buffer
+	 */
+	public static ByteBuffer allocate(int capacity) {
+		return (DIRECT ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity))
+				.order(ByteOrder.nativeOrder());
+	}
 
 	/**
 	 * Duplicate a {@link ByteBuffer} and preserve the order. Equivalent to:

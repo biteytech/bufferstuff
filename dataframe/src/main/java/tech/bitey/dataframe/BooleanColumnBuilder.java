@@ -42,7 +42,7 @@ public final class BooleanColumnBuilder extends AbstractColumnBuilder<Boolean, B
 	}
 
 	private int nonNullSize = 0;
-	private BufferBitSet elements = Allocator.newBitSet();
+	private BufferBitSet elements = new BufferBitSet();
 
 	@Override
 	void addNonNull(Boolean element) {

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Spliterator;
 
 import tech.bitey.bufferstuff.BufferBitSet;
+import tech.bitey.bufferstuff.BufferUtils;
 
 /**
  * A builder for creating {@link StringColumn} instances. Example:
@@ -106,8 +107,8 @@ public final class StringColumnBuilder extends AbstractColumnBuilder<String, Str
 		for (int i = 0; i < elements.size(); i++)
 			byteLength += elements.get(i).getBytes(UTF_8).length;
 
-		ByteBuffer elements = Allocator.allocate(byteLength);
-		ByteBuffer pointers = Allocator.allocate(this.elements.size() * 4);
+		ByteBuffer elements = BufferUtils.allocate(byteLength);
+		ByteBuffer pointers = BufferUtils.allocate(this.elements.size() * 4);
 
 		int destPos = 0;
 		for (String e : this.elements) {

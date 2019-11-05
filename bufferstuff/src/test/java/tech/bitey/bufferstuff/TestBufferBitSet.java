@@ -1,9 +1,5 @@
 package tech.bitey.bufferstuff;
 
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE;
-import static tech.bitey.bufferstuff.ResizeBehavior.ALLOCATE_DIRECT;
-import static tech.bitey.bufferstuff.ResizeBehavior.NO_RESIZE;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -33,13 +29,11 @@ public class TestBufferBitSet {
 	public void basicGetAndSet() {
 		Map<BufferBitSet, Boolean> setsAndIfThrows = new IdentityHashMap<>();
 		setsAndIfThrows.put(new BufferBitSet(), false);
-		setsAndIfThrows.put(new BufferBitSet(NO_RESIZE), true);
-		setsAndIfThrows.put(new BufferBitSet(ALLOCATE), false);
-		setsAndIfThrows.put(new BufferBitSet(ALLOCATE_DIRECT), false);
+		setsAndIfThrows.put(new BufferBitSet(false), true);
 		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(0)), true);
-		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(0), NO_RESIZE), true);
-		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(2000), NO_RESIZE), false);
-		setsAndIfThrows.put(new BufferBitSet().withResizeBehavior(NO_RESIZE), true);
+		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(0), false), true);
+		setsAndIfThrows.put(new BufferBitSet(ByteBuffer.allocate(2000), false), false);
+		setsAndIfThrows.put(new BufferBitSet().resizable(false), true);
 		setsAndIfThrows.put(BufferBitSet.valueOf(new byte[0]), false);
 		setsAndIfThrows.put(BufferBitSet.valueOf(new byte[] { 0 }), false);
 
@@ -358,7 +352,7 @@ public class TestBufferBitSet {
 		BufferBitSet bs = new BufferBitSet();
 		populateWithSampleIndices(bs);
 
-		bs = bs.withResizeBehavior(ResizeBehavior.NO_RESIZE);
+		bs = bs.resizable(false);
 
 		bs.set(bs.size() - 1);
 		try {
@@ -475,7 +469,7 @@ public class TestBufferBitSet {
 						if(b[i])
 							expected.set(i);
 					
-					BufferBitSet actual = BufferBitSet.random(n, size, ALLOCATE, new Random(r*r*r));
+					BufferBitSet actual = BufferBitSet.random(n, size, new Random(r*r*r));
 					
 					Assertions.assertEquals(expected, actual);
 				}

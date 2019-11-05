@@ -16,7 +16,7 @@ package tech.bitey.dataframe;
 
 import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.SORTED;
-import static tech.bitey.dataframe.Allocator.EMPTY_BUFFER;
+import static tech.bitey.bufferstuff.BufferUtils.EMPTY_BUFFER;
 import static tech.bitey.dataframe.LongArrayPacker.LOCAL_DATE_TIME;
 
 import java.nio.ByteBuffer;
