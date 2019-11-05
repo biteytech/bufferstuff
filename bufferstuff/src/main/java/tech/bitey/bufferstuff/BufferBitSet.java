@@ -7,6 +7,7 @@ import static tech.bitey.bufferstuff.ResizeBehavior.NO_RESIZE;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;
+import java.util.Random;
 
 /**
  * Similar to {@link java.util.BitSet BitSet}, but backed by a
@@ -215,6 +216,49 @@ public class BufferBitSet implements Cloneable {
 	 */
 	public BufferBitSet withResizeBehavior(ResizeBehavior resizeBehavior) {
 		return new BufferBitSet(duplicate(buffer), resizeBehavior, false);
+	}
+
+	/**
+	 * Returns a new {@link BufferBitSet} with {@code n} bits set randomly in the
+	 * range zero to {@code size} (exclusive), and with the specified resize
+	 * behavior.
+	 * 
+	 * @param n              - the number of bits to set
+	 * @param size           - bits are set within the range zero to size
+	 *                       (exclusive)
+	 * @param resizeBehavior - {@link ResizeBehavior}
+	 * 
+	 * @return a new bitset with n bits set randomly in the range zero to size
+	 *         (exclusive)
+	 * 
+	 * @throws IllegalArgumentException if {@code size < 0}
+	 * @throws IllegalArgumentException if {@code n < 0 || n > size}
+	 */
+	public static BufferBitSet random(int n, int size, ResizeBehavior resizeBehavior) {
+		final Random random = new Random();
+		return random(n, size, resizeBehavior, random);
+	}
+
+	public static BufferBitSet random(int n, int size, ResizeBehavior resizeBehavior, Random random) {
+		if (size < 0)
+			throw new IllegalArgumentException("size must be > 1");
+		if (n < 0 || n > size)
+			throw new IllegalArgumentException("n must between 0 and size inclusive");
+
+		ByteBuffer buffer = resizeBehavior == ALLOCATE_DIRECT ? ByteBuffer.allocateDirect(size >>> 3)
+				: ByteBuffer.allocate(size >>> 3);
+		BufferBitSet bbs = new BufferBitSet(buffer, resizeBehavior, false);
+
+		bbs.set(0, n);
+
+		for (int i = size; i > 1; i--) {
+			int r = random.nextInt(i);
+			boolean temp = bbs.get(r);
+			bbs.set(r, bbs.get(i - 1));
+			bbs.set(i - 1, temp);
+		}
+
+		return bbs;
 	}
 
 	/*--------------------------------------------------------------------------------

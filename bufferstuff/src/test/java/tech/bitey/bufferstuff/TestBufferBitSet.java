@@ -7,8 +7,10 @@ import static tech.bitey.bufferstuff.ResizeBehavior.NO_RESIZE;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.ObjIntConsumer;
@@ -16,9 +18,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import tech.bitey.bufferstuff.BufferBitSet;
-import tech.bitey.bufferstuff.ResizeBehavior;
 
 public class TestBufferBitSet {
 
@@ -458,6 +457,30 @@ public class TestBufferBitSet {
 		
 		BufferBitSet clone2 = (BufferBitSet)bs2.clone();
 		Assertions.assertEquals(bs2, clone2);
+	}
+	
+	@Test
+	public void testRandom() {
+		
+		for(int r = 0; r < 4; r++) {
+			for(int size = 0; size <= 100; size++) {
+				for(int n = 0; n <= size; n++) {
+					
+					Boolean[] b = new Boolean[size];
+					Arrays.fill(b, Boolean.FALSE);
+					Arrays.fill(b, 0, n, Boolean.TRUE);
+					Collections.shuffle(Arrays.asList(b), new Random(r*r*r));
+					BufferBitSet expected = new BufferBitSet();
+					for(int i = 0; i < b.length; i++)
+						if(b[i])
+							expected.set(i);
+					
+					BufferBitSet actual = BufferBitSet.random(n, size, ALLOCATE, new Random(r*r*r));
+					
+					Assertions.assertEquals(expected, actual);
+				}
+			}
+		}
 	}
 
 	@Test
