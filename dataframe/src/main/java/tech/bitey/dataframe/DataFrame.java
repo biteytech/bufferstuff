@@ -275,72 +275,438 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 */
 	List<ColumnType> columnTypes();
 
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but including
+	 * the specified column and column name. If a column already exists with the
+	 * same name, it will be replaced.
+	 * 
+	 * @param columnName - name of the column to be added or replaced
+	 * @param column     - the column
+	 * 
+	 * @return a new dataframe with the specified column and column name
+	 */
 	DataFrame withColumn(String columnName, Column<?> column);
 
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but including
+	 * the specified columns and column names. If a column already exists with one
+	 * of the specified names, it will be replaced.
+	 * 
+	 * @param columnNames - names of the columns to be added or replaced
+	 * @param columns     - the columns
+	 * 
+	 * @return a new dataframe with the specified columns and column names
+	 * 
+	 * @throws IllegalArgumentException if the two input arrays have different
+	 *                                  lengths
+	 */
 	DataFrame withColumns(String[] columnNames, Column<?>[] columns);
 
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but including
+	 * the specified columns and column names. If a column already exists with one
+	 * of the specified names, it will be replaced.
+	 * 
+	 * @param columns - an ordered list of entries containing columns and column
+	 *                names
+	 * 
+	 * @return a new dataframe with the specified columns and column names
+	 */
 	DataFrame withColumns(LinkedHashMap<String, Column<?>> columns);
 
+	/**
+	 * Returns a new dataframe which is a shallow copy of this one, but including
+	 * the columns and column names from the provided dataframe. If a column already
+	 * exists with one of the provided names, it will be replaced.
+	 * 
+	 * @param df - a dataframe whose columns will be included in the result
+	 * 
+	 * @return a new dataframe with the specified columns and column names
+	 */
 	DataFrame withColumns(DataFrame df);
 
+	/**
+	 * Returns a new dataframe which contains only the specified columns, in the
+	 * specified order.
+	 * 
+	 * @param columnNames - the columns names to be included in the result
+	 * 
+	 * @return a new dataframe which contains only the specified columns, in the
+	 *         specified order.
+	 */
 	DataFrame selectColumns(List<String> columnNames);
 
+	/**
+	 * Returns a new dataframe which contains only the specified columns, in the
+	 * specified order.
+	 * 
+	 * @param columnNames - the columns names to be included in the result
+	 * 
+	 * @return a new dataframe which contains only the specified columns, in the
+	 *         specified order.
+	 */
 	DataFrame selectColumns(String... columnNames);
 
+	/**
+	 * Returns a new dataframe which contains only the specified columns, in the
+	 * specified order.
+	 * 
+	 * @param columnIndices - the columns to be included in the result
+	 * 
+	 * @return a new dataframe which contains only the specified columns, in the
+	 *         specified order.
+	 */
 	DataFrame selectColumns(int... columnIndices);
 
+	/**
+	 * Returns a new dataframe which excludes the specified columns.
+	 * 
+	 * @param columnIndices - the columns to be excluded from the result
+	 * 
+	 * @return a new dataframe which excludes the specified columns.
+	 */
 	DataFrame dropColumns(Collection<String> columnNames);
 
+	/**
+	 * Returns a new dataframe which excludes the specified columns.
+	 * 
+	 * @param columnIndices - the columns to be excluded from the result
+	 * 
+	 * @return a new dataframe which excludes the specified columns.
+	 */
 	DataFrame dropColumns(String... columnNames);
 
+	/**
+	 * Returns a new dataframe which excludes the specified columns.
+	 * 
+	 * @param columnIndices - the columns to be excluded from the result
+	 * 
+	 * @return a new dataframe which excludes the specified columns.
+	 */
 	DataFrame dropColumns(int... columnIndices);
 
+	/**
+	 * Returns the {@link Column} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @param <T>         - the return type. Must be compatible with the column
+	 *                    type. No attempt is made to convert between types beyond a
+	 *                    cast.
+	 * 
+	 * @return the column at the specified index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column type does not match the
+	 *                                   return type.
+	 */
 	<T> Column<T> column(int columnIndex);
 
+	/**
+	 * Returns the {@link StringColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code StringColumn}
+	 */
 	StringColumn stringColumn(int columnIndex);
 
+	/**
+	 * Returns the {@link BooleanColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code BooleanColumn}
+	 */
 	BooleanColumn booleanColumn(int columnIndex);
 
+	/**
+	 * Returns the {@link IntColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code IntColumn}
+	 */
 	IntColumn intColumn(int columnIndex);
 
+	/**
+	 * Returns the {@link LongColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code LongColumn}
+	 */
 	LongColumn longColumn(int columnIndex);
 
+	/**
+	 * Returns the {@link DoubleColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code DoubleColumn}
+	 */
 	DoubleColumn doubleColumn(int columnIndex);
 
+	/**
+	 * Returns the {@link FloatColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code FloatColumn}
+	 */
 	FloatColumn floatColumn(int columnIndex);
 
+	/**
+	 * Returns the {@link DateColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code DateColumn}
+	 */
 	DateColumn dateColumn(int columnIndex);
 
+	/**
+	 * Returns the {@link DateTimeColumn} at the specified index.
+	 * 
+	 * @param columnIndex - index of the column
+	 * 
+	 * @return the column at the specified index
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code DateTimeColumn}
+	 */
 	DateTimeColumn dateTimeColumn(int columnIndex);
 
+	/**
+	 * Returns the specified {@link Column}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @param <T>        - the return type. Must be compatible with the column type.
+	 *                   No attempt is made to convert between types beyond a cast.
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column type does not match the return
+	 *                                  type.
+	 */
 	<T> Column<T> column(String columnName);
 
+	/**
+	 * Returns the specified {@link StringColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code StringColumn}
+	 */
 	StringColumn stringColumn(String columnName);
 
+	/**
+	 * Returns the specified {@link BooleanColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code BooleanColumn}
+	 */
 	BooleanColumn booleanColumn(String columnName);
 
+	/**
+	 * Returns the specified {@link IntColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code IntColumn}
+	 */
 	IntColumn intColumn(String columnName);
 
+	/**
+	 * Returns the specified {@link LongColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code LongColumn}
+	 */
 	LongColumn longColumn(String columnName);
 
+	/**
+	 * Returns the specified {@link DoubleColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code DoubleColumn}
+	 */
 	DoubleColumn doubleColumn(String columnName);
 
+	/**
+	 * Returns the specified {@link FloatColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code FloatColumn}
+	 */
 	FloatColumn floatColumn(String columnName);
 
+	/**
+	 * Returns the specified {@link DateColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@code DateColumn}
+	 */
 	DateColumn dateColumn(String columnName);
 
+	/**
+	 * Returns the specified {@link DateTimeColumn}
+	 * 
+	 * @param columnName - column name
+	 * 
+	 * @return the specified column
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a
+	 *                                  {@code DateTimeColumn}
+	 */
 	DateTimeColumn dateTimeColumn(String columnName);
 
+	/**
+	 * Derive a new {@link Column} from the rows of this dataframe. The new column
+	 * will have the same size as this dataframe, and each element will have been
+	 * derived from the corresponding row.
+	 * 
+	 * @param type     - the new column's {@link ColumnType type}
+	 * @param function - the function used to compute column elements from dataframe
+	 *                 rows
+	 * 
+	 * @param <T>      - the return type. Must be compatible with the column type.
+	 *                 No attempt is made to convert between types beyond a cast.
+	 * 
+	 * @return the derived column
+	 * 
+	 * @throws ClassCastException if the column type does not match the return type.
+	 */
 	<T> Column<T> deriveColumn(ColumnType type, Function<Row, T> function);
 
+	/**
+	 * Derive a new {@link IntColumn} from the rows of this dataframe. The new
+	 * column will have the same size as this dataframe, and each element will have
+	 * been derived from the corresponding row.
+	 * 
+	 * @param function - the function used to compute column elements from dataframe
+	 *                 rows
+	 * 
+	 * @return the derived column
+	 */
 	IntColumn deriveColumn(ToIntFunction<Row> function);
 
+	/**
+	 * Derive a new {@link LongColumn} from the rows of this dataframe. The new
+	 * column will have the same size as this dataframe, and each element will have
+	 * been derived from the corresponding row.
+	 * 
+	 * @param function - the function used to compute column elements from dataframe
+	 *                 rows
+	 * 
+	 * @return the derived column
+	 */
 	LongColumn deriveColumn(ToLongFunction<Row> function);
 
+	/**
+	 * Derive a new {@link DoubleColumn} from the rows of this dataframe. The new
+	 * column will have the same size as this dataframe, and each element will have
+	 * been derived from the corresponding row.
+	 * 
+	 * @param function - the function used to compute column elements from dataframe
+	 *                 rows
+	 * 
+	 * @return the derived column
+	 */
 	DoubleColumn deriveColumn(ToDoubleFunction<Row> function);
 
+	/**
+	 * Derive a new {@link FloatColumn} from the rows of this dataframe. The new
+	 * column will have the same size as this dataframe, and each element will have
+	 * been derived from the corresponding row.
+	 * 
+	 * @param function - the function used to compute column elements from dataframe
+	 *                 rows
+	 * 
+	 * @return the derived column
+	 */
 	FloatColumn deriveColumn(ToFloatFunction<Row> function);
 
+	/**
+	 * Derive a new {@link BooleanColumn} from the rows of this dataframe. The new
+	 * column will have the same size as this dataframe, and each element will have
+	 * been derived from the corresponding row.
+	 * 
+	 * @param function - the function used to compute column elements from dataframe
+	 *                 rows
+	 * 
+	 * @return the derived column
+	 */
 	BooleanColumn deriveColumn(Predicate<Row> function);
 
 	/*--------------------------------------------------------------------------------
