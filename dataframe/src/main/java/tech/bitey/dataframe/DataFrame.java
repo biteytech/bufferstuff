@@ -361,7 +361,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/**
 	 * Returns a new dataframe which excludes the specified columns.
 	 * 
-	 * @param columnIndices - the columns to be excluded from the result
+	 * @param columnNames - the columns names to be excluded from the result
 	 * 
 	 * @return a new dataframe which excludes the specified columns.
 	 */
@@ -370,7 +370,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/**
 	 * Returns a new dataframe which excludes the specified columns.
 	 * 
-	 * @param columnIndices - the columns to be excluded from the result
+	 * @param columnNames - the columns names to be excluded from the result
 	 * 
 	 * @return a new dataframe which excludes the specified columns.
 	 */
@@ -849,7 +849,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 
 	/**
 	 * Returns the rows from this dataframe whose key column values are greater than
-	 * or equal to {@code fromKey} and strictly less than {@toKey}.
+	 * or equal to {@code fromKey} and strictly less than {@code toKey}.
 	 *
 	 * @param fromKey low endpoint (inclusive) of the key column values in the
 	 *                returned dataframe
@@ -857,7 +857,7 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 *                returned dataframe
 	 * 
 	 * @return the rows from this dataframe whose key column values are greater than
-	 *         or equal to {@code fromKey} and strictly less than {@toKey}.
+	 *         or equal to {@code fromKey} and strictly less than {@code toKey}.
 	 * 
 	 * @throws UnsupportedOperationException if this dataframe does not contain a
 	 *                                       key column
