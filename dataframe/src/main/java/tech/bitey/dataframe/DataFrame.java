@@ -712,34 +712,171 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/*--------------------------------------------------------------------------------
 	 *	Row Selection Methods
 	 *--------------------------------------------------------------------------------*/
-	DataFrame sampleN(int size);
 
+	/**
+	 * Returns a dataframe containing {@code sampleSize} rows selected at random.
+	 * The rows in the resulting dataframe will be in the same order as in this one.
+	 * 
+	 * @param sampleSize - the number of rows to sample from this dataframe
+	 * 
+	 * @return a dataframe containing {@code sampleSize} rows selected at random.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code sampleSize} is negative or is
+	 *                                   greater than {@code #size()}
+	 */
+	DataFrame sampleN(int sampleSize);
+
+	/**
+	 * Returns a dataframe containing {@code size()*proportion} rows selected at
+	 * random. The rows in the resulting dataframe will be in the same order as in
+	 * this one.
+	 * 
+	 * @param proportion - a number between 0.0 and 1.0 inclusive
+	 * 
+	 * @return a dataframe containing {@code size()*proportion} rows selected at
+	 *         random.
+	 */
 	DataFrame sampleX(double proportion);
 
+	/**
+	 * Returns a dataframe containing the first {@code count} rows from this
+	 * dataframe, or this dataframe if it contains fewer than {@code count} rows.
+	 * 
+	 * @param count - number of rows to return from the "top" or "head" of this
+	 *              dataframe.
+	 * 
+	 * @return a dataframe containing the first {@code count} rows from this
+	 *         dataframe.
+	 */
 	DataFrame head(int count);
 
+	/**
+	 * Returns an empty dataframe. The resulting dataframe will have the same
+	 * meta-data (column names, key column index) as this dataframe, but all of the
+	 * columns will be empty.
+	 * 
+	 * @return an empty dataframe with the same meta-data as this dataframe.
+	 */
 	default DataFrame empty() {
 		return head(0);
 	}
 
+	/**
+	 * Returns a dataframe containing the first 10 rows from this dataframe, or this
+	 * dataframe if it contains fewer than 10 rows.
+	 * 
+	 * @return a dataframe containing the first 10 rows from this dataframe.
+	 */
 	default DataFrame head() {
 		return head(10);
 	}
 
+	/**
+	 * Returns a dataframe containing the last {@code count} rows from this
+	 * dataframe, or this dataframe if it contains fewer than {@code count} rows.
+	 * 
+	 * @param count - number of rows to return from the "end" or "tail" of this
+	 *              dataframe.
+	 * 
+	 * @return a dataframe containing the last {@code count} rows from this
+	 *         dataframe.
+	 */
 	DataFrame tail(int count);
 
+	/**
+	 * Returns a dataframe containing the last 10 rows from this dataframe, or this
+	 * dataframe if it contains fewer than 10 rows.
+	 * 
+	 * @return a dataframe containing the last 10 rows from this dataframe.
+	 */
 	default DataFrame tail() {
 		return tail(10);
 	}
 
+	/**
+	 * Returns a dataframe containing the rows between the specified
+	 * <tt>fromIndex</tt>, inclusive, and <tt>toIndex</tt>, exclusive (if
+	 * <tt>fromIndex</tt> and <tt>toIndex</tt> are equal, the returned dataframe is
+	 * empty).
+	 * 
+	 * @param fromIndex - index of the lowest row (inclusive)
+	 * @param toIndex   - index of the highest row (exclusive)
+	 * 
+	 * @return a dataframe containing the rows between the specified
+	 *         <tt>fromIndex</tt>, inclusive, and <tt>toIndex</tt>, exclusive
+	 * 
+	 * @throws IndexOutOfBoundsException if either index is negative or is greater
+	 *                                   than {@link #size()}, or if {@code toIndex}
+	 *                                   is less than {@code fromIndex}
+	 */
 	DataFrame subFrame(int fromIndex, int toIndex);
 
-	DataFrame headTo(Object to);
+	/**
+	 * Returns the rows from this dataframe whose key column values are strictly
+	 * less than {@code toKey}.
+	 *
+	 * @param toKey high endpoint (exclusive) of the key column values in the
+	 *              returned dataframe
+	 * 
+	 * @return the rows from this dataframe whose key column values are strictly
+	 *         less than {@code toKey}.
+	 * 
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 * @throws ClassCastException            if {@code toKey} is not compatible with
+	 *                                       this dataframe's key column type
+	 * @throws NullPointerException          if {@code toKey} is null
+	 */
+	DataFrame headTo(Object toKey);
 
-	DataFrame tailFrom(Object from);
+	/**
+	 * Returns the rows from this dataframe whose key column values are greater than
+	 * or equal to {@code fromKey}.
+	 *
+	 * @param fromKey low endpoint (inclusive) of the key column values in the
+	 *                returned dataframe
+	 * 
+	 * @return the rows from this dataframe whose key column values are greater than
+	 *         or equal to {@code fromKey}.
+	 * 
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 * @throws ClassCastException            if {@code fromKey} is not compatible
+	 *                                       with this dataframe's key column type
+	 * @throws NullPointerException          if {@code fromKey} is null
+	 */
+	DataFrame tailFrom(Object fromKey);
 
-	DataFrame subFrameByValue(Object from, Object to);
+	/**
+	 * Returns the rows from this dataframe whose key column values are greater than
+	 * or equal to {@code fromKey} and strictly less than {@toKey}.
+	 *
+	 * @param fromKey low endpoint (inclusive) of the key column values in the
+	 *                returned dataframe
+	 * @param toKey   high endpoint (exclusive) of the key column values in the
+	 *                returned dataframe
+	 * 
+	 * @return the rows from this dataframe whose key column values are greater than
+	 *         or equal to {@code fromKey} and strictly less than {@toKey}.
+	 * 
+	 * @throws UnsupportedOperationException if this dataframe does not contain a
+	 *                                       key column
+	 * @throws ClassCastException            if either key is not compatible with
+	 *                                       this dataframe's key column type
+	 * @throws NullPointerException          if either key is null
+	 */
+	DataFrame subFrameByValue(Object fromKey, Object toKey);
 
+	/**
+	 * Returns a dataframe containing the rows which pass the specified
+	 * {@link Predicate}.
+	 * 
+	 * @param criteria - the {@code Predicate} used to the the rows in this
+	 *                 dataframe
+	 * 
+	 * @return a dataframe containing the rows which pass the specified
+	 *         {@code Predicate}.
+	 */
 	DataFrame filter(Predicate<Row> criteria);
 
 	/*--------------------------------------------------------------------------------
