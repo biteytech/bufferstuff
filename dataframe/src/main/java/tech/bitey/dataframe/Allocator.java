@@ -25,4 +25,8 @@ enum Allocator {;
 	static BufferBitSet newBitSet() {
 		return new BufferBitSet(DIRECT ? ALLOCATE_DIRECT : ALLOCATE);
 	}
+	
+	static BufferBitSet randomBitSet(int n, int size) {
+		return BufferBitSet.random(n, size, DIRECT ? ALLOCATE_DIRECT : ALLOCATE);
+	}
 }

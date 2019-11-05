@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -593,17 +592,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		else if(size == size())
 			return this;
 		
-		int[] indices = new int[size()];
-		for(int i = 0; i < indices.length; i++)
-			indices[i] = i;
-		
-		ArrayUtils.shuffle(indices);
-		
-		BufferBitSet keep = Allocator.newBitSet();
-		for(int i = 0; i < size; i++)
-			keep.set(indices[i]);
-		
-		return filter(keep);
+		return filter(Allocator.randomBitSet(size, size()));
 	}
 
 	@Override
@@ -1303,78 +1292,5 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 			
 			rowIndex--;
 		}
-	}
-	
-
-	/*--------------------------------------------------------------------------------
-	 *	org.apache.commons.lang3
-	 *--------------------------------------------------------------------------------*/
-	private static class ArrayUtils {
-		/**
-	     * Randomly permutes the elements of the specified array using the Fisher-Yates algorithm.
-	     *
-	     * @param array   the array to shuffle
-	     * @see <a href="https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle">Fisher-Yates shuffle algorithm</a>
-	     * @since 3.6
-	     */
-	    public static void shuffle(final int[] array) {
-	        shuffle(array, new Random());
-	    }
-
-	    /**
-	     * Randomly permutes the elements of the specified array using the Fisher-Yates algorithm.
-	     *
-	     * @param array   the array to shuffle
-	     * @param random  the source of randomness used to permute the elements
-	     * @see <a href="https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle">Fisher-Yates shuffle algorithm</a>
-	     * @since 3.6
-	     */
-	    public static void shuffle(final int[] array, final Random random) {
-	        for (int i = array.length; i > 1; i--) {
-	            swap(array, i - 1, random.nextInt(i), 1);
-	        }
-	    }
-	    
-	    /**
-	     * Swaps a series of elements in the given int array.
-	     *
-	     * <p>This method does nothing for a {@code null} or empty input array or
-	     * for overflow indices. Negative indices are promoted to 0(zero). If any
-	     * of the sub-arrays to swap falls outside of the given array, then the
-	     * swap is stopped at the end of the array and as many as possible elements
-	     * are swapped.</p>
-	     *
-	     * Examples:
-	     * <ul>
-	     *     <li>ArrayUtils.swap([1, 2, 3, 4], 0, 2, 1) -&gt; [3, 2, 1, 4]</li>
-	     *     <li>ArrayUtils.swap([1, 2, 3, 4], 0, 0, 1) -&gt; [1, 2, 3, 4]</li>
-	     *     <li>ArrayUtils.swap([1, 2, 3, 4], 2, 0, 2) -&gt; [3, 4, 1, 2]</li>
-	     *     <li>ArrayUtils.swap([1, 2, 3, 4], -3, 2, 2) -&gt; [3, 4, 1, 2]</li>
-	     *     <li>ArrayUtils.swap([1, 2, 3, 4], 0, 3, 3) -&gt; [4, 2, 3, 1]</li>
-	     * </ul>
-	     *
-	     * @param array the array to swap, may be {@code null}
-	     * @param offset1 the index of the first element in the series to swap
-	     * @param offset2 the index of the second element in the series to swap
-	     * @param len the number of elements to swap starting with the given indices
-	     * @since 3.5
-	     */
-	    public static void swap(final int[] array,  int offset1, int offset2, int len) {
-	        if (array == null || array.length == 0 || offset1 >= array.length || offset2 >= array.length) {
-	            return;
-	        }
-	        if (offset1 < 0) {
-	            offset1 = 0;
-	        }
-	        if (offset2 < 0) {
-	            offset2 = 0;
-	        }
-	        len = Math.min(Math.min(len, array.length - offset1), array.length - offset2);
-	        for (int i = 0; i < len; i++, offset1++, offset2++) {
-	            final int aux = array[offset1];
-	            array[offset1] = array[offset2];
-	            array[offset2] = aux;
-	        }
-	    }
 	}
 }
