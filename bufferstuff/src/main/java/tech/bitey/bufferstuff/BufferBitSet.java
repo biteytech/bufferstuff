@@ -305,7 +305,7 @@ public class BufferBitSet implements Cloneable {
 	 * {@code fromIndex} (inclusive) to {@code toIndex} (exclusive).
 	 * <p>
 	 * The resulting bitset will always be stored in newly allocated space, and will
-	 * have the same {@link ResizeBehavior} as this bitset.
+	 * have the same resizable settings as this bitset.
 	 *
 	 * @param fromIndex - index of the first bit to include
 	 * @param toIndex   - index after the last bit to include
@@ -803,7 +803,7 @@ public class BufferBitSet implements Cloneable {
 	/**
 	 * Returns a copy of this bitset with each bit shifted right by {@code offset}.
 	 * The resulting bitset will always be stored in newly allocated space, and will
-	 * have the same {@link ResizeBehavior} as this bitset.
+	 * have the same resizable setting as this bitset.
 	 * 
 	 * @param offset - number of bits to shift by
 	 * 
