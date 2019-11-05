@@ -882,8 +882,36 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/*--------------------------------------------------------------------------------
 	 *	Database-like Methods
 	 *--------------------------------------------------------------------------------*/
+	/**
+	 * Appends the specified dataframe to this one by calling
+	 * {@link Column#append(Column)} on each pair of columns, and keeping the
+	 * meta-data from this dataframe.
+	 * 
+	 * @param df - the dataframe to be appended to this one
+	 * 
+	 * @return a new dataframe resulting from appended the specified dataframe to
+	 *         this one.
+	 * 
+	 * @throws IllegalArgumentException if the column counts or types do not match
+	 *                                  between the two dataframes
+	 */
 	DataFrame append(DataFrame df); // union all
 
+	/**
+	 * Appends the specified dataframe to this one by calling
+	 * {@link Column#append(Column,boolean)} on each pair of columns, and keeping
+	 * the meta-data from this dataframe.
+	 * 
+	 * @param df     - the dataframe to be appended to this one
+	 * @param coerce - specifies if a sole sorted column should be converted to a
+	 *               heap
+	 * 
+	 * @return a new dataframe resulting from appended the specified dataframe to
+	 *         this one.
+	 * 
+	 * @throws IllegalArgumentException if the column counts or types do not match
+	 *                                  between the two dataframes
+	 */
 	DataFrame append(DataFrame df, boolean coerce);
 
 	DataFrame join(DataFrame df); // one-to-one, inner O(n)
@@ -901,79 +929,554 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	/*--------------------------------------------------------------------------------
 	 *	Cell Accessors
 	 *--------------------------------------------------------------------------------*/
+	/**
+	 * Returns true if the value is null in the specified {@link Column} at the
+	 * specified row index.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return true if the value is null in the specified {@code Column} at the
+	 *         specified row index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 */
 	boolean isNull(int rowIndex, int columnIndex);
 
+	/**
+	 * Returns true if the value is null in the specified {@link Column} at the
+	 * specified row index.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return true if the value is null in the specified {@code Column} at the
+	 *         specified row index.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 */
 	boolean isNull(int rowIndex, String columnName);
 
+	/**
+	 * Returns the value for the specified row in the specified {@link Column}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @param <T>         - the return type. Must be compatible with the column
+	 *                    type. No attempt is made to convert between types beyond a
+	 *                    cast.
+	 * 
+	 * @return the value for the specified row in the specified {@code Column}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column type does not match the
+	 *                                   return type.
+	 */
 	<T> T get(int rowIndex, int columnIndex);
 
+	/**
+	 * Returns the value for the specified row in the specified {@link Column}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @param <T>        - the return type. Must be compatible with the column type.
+	 *                   No attempt is made to convert between types beyond a cast.
+	 * 
+	 * @return the value for the specified row in the specified {@code Column}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column type does not match the
+	 *                                   return type.
+	 */
 	<T> T get(int rowIndex, String columnName);
 
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link StringColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code StringColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code StringColumn}
+	 */
 	String getString(int rowIndex, int columnIndex);
 
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link StringColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code StringColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@code DateColumn}
+	 */
 	String getString(int rowIndex, String columnName);
 
+	/**
+	 * {@code boolean} primitive specialization of {@link #get(int,int)}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code BooleanColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@link BooleanColumn}
+	 */
 	boolean getBoolean(int rowIndex, int columnIndex);
 
+	/**
+	 * {@code boolean} primitive specialization of {@link #get(int,String)}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code BooleanColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@link BooleanColumn}
+	 */
 	boolean getBoolean(int rowIndex, String columnName);
 
+	/**
+	 * {@code int} primitive specialization of {@link #get(int,int)}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code IntColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link IntColumn}
+	 */
 	int getInt(int rowIndex, int columnIndex);
 
+	/**
+	 * {@code int} primitive specialization of {@link #get(int,String)}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code IntColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not an {@link IntColumn}
+	 */
 	int getInt(int rowIndex, String columnName);
 
+	/**
+	 * Returns the value for the specified row in the specified {@link IntColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnIndex  - index of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code IntColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not an {@link IntColumn}
+	 */
 	default int getOrDefaultInt(int rowIndex, int columnIndex, int defaultValue) {
 		return isNull(rowIndex, columnIndex) ? defaultValue : getInt(rowIndex, columnIndex);
 	}
 
+	/**
+	 * Returns the value for the specified row in the specified {@link IntColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnName   - name of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code IntColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not an {@link IntColumn}
+	 */
 	default int getOrDefaultInt(int rowIndex, String columnName, int defaultValue) {
 		return isNull(rowIndex, columnName) ? defaultValue : getInt(rowIndex, columnName);
 	}
 
+	/**
+	 * {@code long} primitive specialization of {@link #get(int,int)}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code LongColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link LongColumn}
+	 */
 	long getLong(int rowIndex, int columnIndex);
 
+	/**
+	 * {@code long} primitive specialization of {@link #get(int,String)}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code LongColumn}.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not a {@link LongColumn}
+	 */
 	long getLong(int rowIndex, String columnName);
 
+	/**
+	 * Returns the value for the specified row in the specified {@link LongColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnIndex  - index of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code LongColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not an {@link LongColumn}
+	 */
 	default long getOrDefaultLong(int rowIndex, int columnIndex, long defaultValue) {
 		return isNull(rowIndex, columnIndex) ? defaultValue : getLong(rowIndex, columnIndex);
 	}
 
+	/**
+	 * Returns the value for the specified row in the specified {@link LongColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnName   - name of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DoubleColumn}, or the specified {@code defaultValue} if the
+	 *         value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not an {@link LongColumn}
+	 */
 	default long getOrDefaultLong(int rowIndex, String columnName, long defaultValue) {
 		return isNull(rowIndex, columnName) ? defaultValue : getLong(rowIndex, columnName);
 	}
 
+	/**
+	 * {@code double} primitive specialization of {@link #get(int,int)}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DoubleColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link DoubleColumn}
+	 */
 	double getDouble(int rowIndex, int columnIndex);
 
+	/**
+	 * {@code double} primitive specialization of {@link #get(int,String)}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DoubleColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@link DoubleColumn}
+	 */
 	double getDouble(int rowIndex, String columnName);
 
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link DoubleColumn}, or the specified {@code defaultValue} if the value is
+	 * null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnIndex  - index of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DoubleColumn}, or the specified {@code defaultValue} if the
+	 *         value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not an
+	 *                                   {@link DoubleColumn}
+	 */
 	default double getOrDefaultDouble(int rowIndex, int columnIndex, double defaultValue) {
 		return isNull(rowIndex, columnIndex) ? defaultValue : getDouble(rowIndex, columnIndex);
 	}
 
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link DoubleColumn}, or the specified {@code defaultValue} if the value is
+	 * null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnName   - name of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DoubleColumn}, or the specified {@code defaultValue} if the
+	 *         value is null.
+	 * 
+	 * @throws IllegalArgumentException if {@code columnName} is not a recognized
+	 *                                  column name in this dataframe.
+	 * @throws ClassCastException       if the column is not an {@link DoubleColumn}
+	 */
 	default double getOrDefaultDouble(int rowIndex, String columnName, double defaultValue) {
 		return isNull(rowIndex, columnName) ? defaultValue : getDouble(rowIndex, columnName);
 	}
 
+	/**
+	 * {@code float} primitive specialization of {@link #get(int,int)}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code FloatColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link FloatColumn}
+	 */
 	float getFloat(int rowIndex, int columnIndex);
 
+	/**
+	 * {@code float} primitive specialization of {@link #get(int,String)}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code FloatColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@link FloatColumn}
+	 */
 	float getFloat(int rowIndex, String columnName);
 
+	/**
+	 * Returns the value for the specified row in the specified {@link FloatColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnIndex  - index of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code FloatColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not an {@link FloatColumn}
+	 */
 	default float getOrDefaultFloat(int rowIndex, int columnIndex, float defaultValue) {
 		return isNull(rowIndex, columnIndex) ? defaultValue : getFloat(rowIndex, columnIndex);
 	}
 
+	/**
+	 * Returns the value for the specified row in the specified {@link FloatColumn},
+	 * or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @param rowIndex     - the row index
+	 * @param columnName   - name of the column in this {@link DataFrame}.
+	 * @param defaultValue - the value to return instead of null
+	 * 
+	 * @return the value for the specified row in the specified {@code FloatColumn},
+	 *         or the specified {@code defaultValue} if the value is null.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not an {@link FloatColumn}
+	 */
 	default float getOrDefaultFloat(int rowIndex, String columnName, float defaultValue) {
 		return isNull(rowIndex, columnName) ? defaultValue : getFloat(rowIndex, columnName);
 	}
 
+	/**
+	 * Returns the value for the specified row in the specified {@link DateColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code DateColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@code DateColumn}
+	 */
 	LocalDate getDate(int rowIndex, int columnIndex);
 
+	/**
+	 * Returns the value for the specified row in the specified {@link DateColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified {@code DateColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@code DateColumn}
+	 */
 	LocalDate getDate(int rowIndex, String columnName);
 
+	/**
+	 * Returns the {@code yyyymmdd} date for the specified row in the specified
+	 * {@link DateColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the {@code yyyymmdd} date for the specified row in the specified
+	 *         {@code DateColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a {@link DateColumn}
+	 */
 	int yyyymmdd(int rowIndex, int columnIndex);
 
+	/**
+	 * Returns the {@code yyyymmdd} date for the specified row in the specified
+	 * {@link DateColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the {@code yyyymmdd} date for the specified row in the specified
+	 *         {@code DateColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a {@link DateColumn}
+	 */
 	int yyyymmdd(int rowIndex, String columnName);
 
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link DateTimeColumn}.
+	 * 
+	 * @param rowIndex    - the row index
+	 * @param columnIndex - index of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DateTimeColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IndexOutOfBoundsException if {@code columnIndex} is negative or is
+	 *                                   not less than {@link #columnCount()}
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code DateTimeColumn}
+	 */
 	LocalDateTime getDateTime(int rowIndex, int columnIndex);
 
+	/**
+	 * Returns the value for the specified row in the specified
+	 * {@link DateTimeColumn}.
+	 * 
+	 * @param rowIndex   - the row index
+	 * @param columnName - name of the column in this {@link DataFrame}.
+	 * 
+	 * @return the value for the specified row in the specified
+	 *         {@code DateTimeColumn}.
+	 * 
+	 * @throws IndexOutOfBoundsException if {@code rowIndex} is negative or is not
+	 *                                   less than {@link #size()}
+	 * @throws IllegalArgumentException  if {@code columnName} is not a recognized
+	 *                                   column name in this dataframe.
+	 * @throws ClassCastException        if the column is not a
+	 *                                   {@code DateTimeColumn}
+	 */
 	LocalDateTime getDateTime(int rowIndex, String columnName);
 }
