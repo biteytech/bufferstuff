@@ -256,4 +256,36 @@ public class TestBufferSearch {
 			}
 		}
 	}
+	
+	@Test
+	public void binaryFindFirstDouble() {
+		
+		for(int i = 0; i < 100; i++) {
+			for(int j = 1; j < 100; j++) {
+				
+				double[] array = new double[i + j];
+				Arrays.fill(array, 0, i, 888);
+				Arrays.fill(array, i, i+j, 999);
+				
+				Assertions.assertEquals(i, BufferSearch.binaryFindFirst(DoubleBuffer.wrap(array), 0, array.length-1));
+			}
+		}
+		
+		
+	}
+	
+	@Test
+	public void binaryFindLastDouble() {
+		
+		for(int i = 1; i < 100; i++) {
+			for(int j = 0; j < 100; j++) {
+				
+				double[] array = new double[i + j];
+				Arrays.fill(array, 0, i, 888);
+				Arrays.fill(array, i, i+j, 999);
+				
+				Assertions.assertEquals(i-1, BufferSearch.binaryFindLast(DoubleBuffer.wrap(array), array.length, 0));
+			}
+		}
+	}
 }
