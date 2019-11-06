@@ -80,7 +80,7 @@ public class TestDoubleColumn extends TestFloatingColumn<Double> {
 
 	@Override
 	Double[] minMax() {
-		return new Double[] { Double.MIN_VALUE, Double.MAX_VALUE };
+		return new Double[] { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
 	}
 
 	@Override

@@ -205,7 +205,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	 *--------------------------------------------------------------------------------*/
 	@Override
 	public Cursor cursor(int index) {
-		checkElementIndex(index, size());
+		checkPositionIndex(index, size());
 		return new CursorImpl(index);
 	}
 
@@ -757,38 +757,43 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public DataFrame joinSingleIndex(DataFrame df, String columnName) {
-		return joinSingleIndex(df, true, columnName);
+	public DataFrame joinOneToMany(DataFrame df, String columnName) {
+		return joinSingleIndex(df, columnName).df;
 	}
 
 	@Override
-	public DataFrame joinSingleIndex(DataFrame df, boolean leftIndex, String nonIndexColumnName) {
-		if (leftIndex)
-			return (DataFrame) joinSingleIndex0(df, nonIndexColumnName)[0];
-		else {
-			DataFrameImpl backasswards = (DataFrameImpl) ((DataFrameImpl) df).joinSingleIndex0(this,
-					nonIndexColumnName)[0];
+	public DataFrame joinManyToOne(DataFrame df, String columnName) {
 
-			Column<?>[] columns = new Column<?>[backasswards.columnCount()];
-			System.arraycopy(backasswards.columns, df.columnCount(), columns, 0, this.columnCount() - 1);
-			System.arraycopy(backasswards.columns, 0, columns, this.columnCount() - 1, df.columnCount());
+		DataFrameImpl backasswards = ((DataFrameImpl) df).joinSingleIndex(this, columnName).df;
 
-			int idx = this.columnCount() - 1 + df.keyColumnIndex();
-			Column<?> indexColumn = columns[idx];
+		Column<?>[] columns = new Column<?>[backasswards.columnCount()];
+		System.arraycopy(backasswards.columns, df.columnCount(), columns, 0, this.columnCount() - 1);
+		System.arraycopy(backasswards.columns, 0, columns, this.columnCount() - 1, df.columnCount());
 
-			List<Column<?>> columnList = new ArrayList<>(Arrays.asList(columns));
-			columnList.remove(idx);
-			columnList.add(columnIndex(nonIndexColumnName), indexColumn);
+		int idx = this.columnCount() - 1 + df.keyColumnIndex();
+		Column<?> indexColumn = columns[idx];
 
-			String[] columnNames = jointColumnNames(df, df.keyColumnIndex());
+		List<Column<?>> columnList = new ArrayList<>(Arrays.asList(columns));
+		columnList.remove(idx);
+		columnList.add(columnIndex(columnName), indexColumn);
 
-			return new DataFrameImpl(columnList.toArray(new Column<?>[0]), columnNames, null);
+		String[] columnNames = jointColumnNames(df, df.keyColumnIndex());
+
+		return new DataFrameImpl(columnList.toArray(new Column<?>[0]), columnNames, null);
+	}
+
+	private static class JoinSingleIndexResult {
+		final DataFrameImpl df;
+		final IntColumn indices;
+
+		JoinSingleIndexResult(DataFrameImpl data, IntColumn indices) {
+			this.df = data;
+			this.indices = indices;
 		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	// returns pair<DataFrame, int[] indices>
-	private Object[] joinSingleIndex0(DataFrame df, String columnName) {
+	private JoinSingleIndexResult joinSingleIndex(DataFrame df, String columnName) {
 
 		checkArgument(hasKeyColumn(), "missing key column");
 
@@ -798,12 +803,6 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		int rightColumnIndex = rhs.columnToIndexMap.get(columnName);
 
 		checkArgument(leftKey.getType() == rightColumn.getType(), "columns being joined on must have the same type");
-
-		if (!rightColumn.isNonnull()) {
-			// remove nulls
-			rhs = rhs.filter(((NullableColumn) rightColumn).nonNulls);
-			rightColumn = (AbstractColumn) rhs.column(columnName);
-		}
 
 		BufferBitSet keepRight = new BufferBitSet();
 		IntColumn indices = leftKey.intersectLeftSorted(rightColumn, keepRight);
@@ -820,18 +819,16 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 				columns[j++ + columnCount()] = rhs.columns[i];
 		}
 
-		Object[] pair = new Object[2];
-		pair[0] = new DataFrameImpl(columns, columnNames, null);
-		pair[1] = indices;
-		return pair;
+		DataFrameImpl result = new DataFrameImpl(columns, columnNames, null);
+		return new JoinSingleIndexResult(result, indices);
 	}
 
 	@Override
-	public DataFrame leftJoinSingleIndex(DataFrame df, String columnName) {
+	public DataFrame joinLeftOneToMany(DataFrame df, String rightColumnName) {
 
-		Object[] pair = joinSingleIndex0(df, columnName);
-		DataFrameImpl inner = (DataFrameImpl) pair[0];
-		IntColumn indices = (IntColumn) pair[1];
+		JoinSingleIndexResult pair = joinSingleIndex(df, rightColumnName);
+		DataFrameImpl inner = pair.df;
+		IntColumn indices = pair.indices;
 
 		BufferBitSet unmatchedLeft = new BufferBitSet();
 		unmatchedLeft.set(0, this.size());
@@ -847,7 +844,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 		Column<?>[] columns = new Column<?>[columnCount() + df.columnCount() - 1];
 		for (int i = 0; i < columnCount(); i++)
 			columns[i] = left.columns[i];
-		int rightColumnIndex = rhs.columnToIndexMap.get(columnName);
+		int rightColumnIndex = rhs.columnToIndexMap.get(rightColumnName);
 		for (int i = 0, j = 0; i < rhs.columnCount(); i++) {
 			if (i != rightColumnIndex)
 				columns[j++ + columnCount()] = rhs.columns[i].getType().nullColumn(left.size());
@@ -859,7 +856,7 @@ class DataFrameImpl extends AbstractList<Row> implements DataFrame {
 	}
 
 	@Override
-	public DataFrame joinHash(DataFrame df, String[] leftColumnNames, String[] rightColumnNames) {
+	public DataFrame join(DataFrame df, String[] leftColumnNames, String[] rightColumnNames) {
 
 		DataFrameImpl rhs = (DataFrameImpl) df;
 

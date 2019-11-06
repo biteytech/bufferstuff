@@ -914,17 +914,176 @@ public interface DataFrame extends List<Row>, RandomAccess {
 	 */
 	DataFrame append(DataFrame df, boolean coerce);
 
-	DataFrame join(DataFrame df); // one-to-one, inner O(n)
+	/**
+	 * Perform a one-to-one inner join on this (left) dataframe with the specified
+	 * (right) dataframe by their key columns. The resulting dataframe will have a
+	 * key column which is the intersection of the left and right key columns.
+	 * <p>
+	 * If the left dataframe has {@code N} columns and the right has {@code M}
+	 * columns then the resulting dataframe will have {@code N + M - 1} columns,
+	 * starting with all N columns from the left dataframe, followed by the columns
+	 * from the right dataframe excluding the right key column. If the right
+	 * dataframe has any column names in common with the left, the duplicate right
+	 * column names will have a suffix appended to them in the result.
+	 * <p>
+	 * If the left dataframe has {@code S} rows and the right has {@code T} rows
+	 * then this join operation will use {@code O(S + T)} space and time. The space
+	 * overhead is approximately {@code S + T} bits. The result will contain at most
+	 * {@code min(S, T)} rows, and will be empty if the two key columns do not have
+	 * any elements in common.
+	 * 
+	 * @param df - the right dataframe to be joined with this left one
+	 * 
+	 * @return a new dataframe formed by the intersection of the left and right key
+	 *         columns.
+	 * 
+	 * @throws IllegalArgumentException if either dataframe does not have a key
+	 *                                  column, or if the key columns do not have
+	 *                                  the same type.
+	 */
+	DataFrame join(DataFrame df);
 
-	DataFrame joinSingleIndex(DataFrame df, String columnName); // one-to-many, inner O(n*log(n))
+	/**
+	 * Perform a one-to-many inner join on this (left) dataframe with the specified
+	 * (right) dataframe using the key column from the left dataframe. Elements from
+	 * the specified column in the right dataframe will be matched against the key
+	 * column using a binary search.
+	 * <p>
+	 * If the left dataframe has {@code N} columns and the right has {@code M}
+	 * columns then the resulting dataframe will have {@code N + M - 1} columns,
+	 * starting with all N columns from the left dataframe, followed by the columns
+	 * from the right dataframe excluding the specified non-index column. If the
+	 * right dataframe has any column names in common with the left, the duplicate
+	 * right column names will have a suffix appended to them in the result.
+	 * <p>
+	 * If the left dataframe has {@code S} rows and the right has {@code T} rows
+	 * then this join operation will use {@code O(T)} space and run in
+	 * {@code O(T*log(S))} time. The space overhead is approximately
+	 * {@code T*(4 bytes + 1 bit)}.
+	 * 
+	 * @param df              - the right dataframe to be joined with this left one
+	 * @param rightColumnName - name of the column in the right dataframe which will
+	 *                        be matched against the key column from the left
+	 *                        dataframe
+	 * 
+	 * @return a new dataframe formed by the one-to-many inner join of this
+	 *         dataframe with the specified dataframe on the specified column
+	 * 
+	 * @throws IllegalArgumentException if this dataframe does not have a key
+	 *                                  column, or the specified column name is not
+	 *                                  recognized in the right dataframe, or the
+	 *                                  key column and specified column do not have
+	 *                                  the same type.
+	 */
+	DataFrame joinOneToMany(DataFrame df, String rightColumnName);
 
-	DataFrame joinSingleIndex(DataFrame df, boolean leftIndex, String nonIndexColumnName); // one-to-many, inner
-																							// O(n*log(n))
+	/**
+	 * Perform a many-to-one inner join on this (left) dataframe with the specified
+	 * (right) dataframe using the key column from the right dataframe. Elements
+	 * from the specified column in the left dataframe will be matched against the
+	 * key column using a binary search.
+	 * <p>
+	 * If the left dataframe has {@code N} columns and the right has {@code M}
+	 * columns then the resulting dataframe will have {@code N + M - 1} columns,
+	 * starting with all N columns from the left dataframe, followed by the columns
+	 * from the right dataframe excluding the key column. If the right dataframe has
+	 * any column names in common with the left, the duplicate right column names
+	 * will have a suffix appended to them in the result.
+	 * <p>
+	 * If the left dataframe has {@code S} rows and the right has {@code T} rows
+	 * then this join operation will use {@code O(S)} space and run in
+	 * {@code O(S*log(T))} time. The space overhead is approximately
+	 * {@code S*(4 bytes + 1 bit)}.
+	 * 
+	 * @param df             - the right dataframe to be joined with this left one
+	 * @param leftColumnName - name of the column in the left dataframe which will
+	 *                       be matched against the key column from the right
+	 *                       dataframe
+	 * 
+	 * @return a new dataframe formed by the many-to-one inner join of this
+	 *         dataframe with the specified dataframe on the specified column
+	 * 
+	 * @throws IllegalArgumentException if the specified dataframe does not have a
+	 *                                  key column, or the specified column name is
+	 *                                  not recognized in this dataframe, or the key
+	 *                                  column and specified column do not have the
+	 *                                  same type.
+	 */
+	DataFrame joinManyToOne(DataFrame df, String leftColumnName);
 
-	DataFrame leftJoinSingleIndex(DataFrame df, String columnName); // one-to-many, left O(n*log(n))
+	/**
+	 * Perform a one-to-many left join on this (left) dataframe with the specified
+	 * (right) dataframe using the key column from the left dataframe. Elements from
+	 * the specified column in the right dataframe will be matched against the key
+	 * column using a binary search. Any unmatched rows from this dataframe will
+	 * appear in the resulting dataframe with {@code null} values filled in for the
+	 * columns from the right dataframe.
+	 * <p>
+	 * If the left dataframe has {@code N} columns and the right has {@code M}
+	 * columns then the resulting dataframe will have {@code N + M - 1} columns,
+	 * starting with all N columns from the left dataframe, followed by the columns
+	 * from the right dataframe excluding the specified non-index column. If the
+	 * right dataframe has any column names in common with the left, the duplicate
+	 * right column names will have a suffix appended to them in the result.
+	 * <p>
+	 * If the left dataframe has {@code S} rows and the right has {@code T} rows
+	 * then this join operation will use {@code O(S + T)} space and run in
+	 * {@code O(T*log(S))} time. The space overhead is approximately S bits, plus
+	 * {@code T*(4 bytes + 1 bit)}.
+	 * 
+	 * @param df              - the right dataframe to be joined with this left one
+	 * @param rightColumnName - name of the column in the right dataframe which will
+	 *                        be matched against the key column from the left
+	 *                        dataframe
+	 * 
+	 * @return a new dataframe formed by the one-to-many left join of this dataframe
+	 *         with the specified dataframe on the specified column
+	 * 
+	 * @throws IllegalArgumentException if this dataframe does not have a key
+	 *                                  column, or the specified column name is not
+	 *                                  recognized in the right dataframe, or the
+	 *                                  key column and specified column do not have
+	 *                                  the same type.
+	 */
+	DataFrame joinLeftOneToMany(DataFrame df, String rightColumnName);
 
-	DataFrame joinHash(DataFrame df, String[] leftColumnNames, String[] rightColumnNames); // one-to-many, inner, O(n),
-																							// large overhead
+	/**
+	 * Perform a one-to-many inner join on this (left) dataframe with the specified
+	 * (right) dataframe by building a hashtable index on the specified left
+	 * columns. The left columns taken together must form a unique index.
+	 * <p>
+	 * If the left dataframe has {@code N} columns, the right has {@code M} columns,
+	 * and the hashtable index has {@code H} columns then the resulting dataframe
+	 * will have {@code N + M - H} columns, starting with all N columns from the
+	 * left dataframe, followed by the columns from the right dataframe excluding
+	 * the hashtable index columns. If the right dataframe has any column names in
+	 * common with the left, the duplicate right column names will have a suffix
+	 * appended to them in the result.
+	 * <p>
+	 * If the left dataframe has {@code S} rows and the right has {@code T} rows
+	 * then this join operation will use {@code O(S + T)} space and time. The space
+	 * overhead is approximately T bits, plus the space required by an
+	 * {@code <Integer,Integer>} {@link java.util.HashMap} with {@code S} entries,
+	 * plus an additional {@code S*8} bytes.
+	 * 
+	 * @param df               - the right dataframe to be joined with this left one
+	 * @param leftColumnNames  - names of columns in this (left) dataframe, which
+	 *                         taken together form a unique index
+	 * @param rightColumnNames - corresponding columns in the specified (right)
+	 *                         dataframe
+	 * 
+	 * @return a new dataframe formed by the one-to-many inner join of this
+	 *         dataframe with the specified dataframe on the specified columns
+	 * 
+	 * @throws IllegalStateException    if the left columns taken together do not
+	 *                                  form a unique index
+	 * @throws IllegalArgumentException if either list of column names is empty, if
+	 *                                  the two lists do not have the same length,
+	 *                                  if the respective columns do not have the
+	 *                                  same types, or if any of the column names
+	 *                                  are not recognized.
+	 */
+	DataFrame join(DataFrame df, String[] leftColumnNames, String[] rightColumnNames);
 
 	/*--------------------------------------------------------------------------------
 	 *	Cell Accessors

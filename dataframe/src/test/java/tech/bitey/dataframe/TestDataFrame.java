@@ -4,6 +4,7 @@ import static java.util.Spliterator.DISTINCT;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,6 +78,26 @@ public class TestDataFrame {
 	}
 	
 	@Test
+	public void testCursorVsIterator() {
+		for(Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
+			
+			DataFrame df = e.getValue();
+			
+			final String test = e.getKey()+", cursor and iter";
+			
+			Iterator<Row> iter = df.iterator();
+			for(Cursor cursor = df.cursor(); cursor.hasNext(); cursor.next()) {
+				Row row = iter.next();
+				Assertions.assertEquals(cursor.columnCount(), row.columnCount(), test);
+				Assertions.assertEquals(cursor.columnCount(), df.columnCount(), test);
+				for(int i = 0; i < df.columnCount(); i++)
+					Assertions.assertEquals(cursor.<Object>get(i), row.<Object>get(i), test);
+			}
+			Assertions.assertFalse(iter.hasNext(), test);
+		}
+	}
+	
+	@Test
 	public void testHashJoin() {
 		
 		for(Map.Entry<String, DataFrame> e : DF_MAP.entrySet()) {
@@ -87,7 +108,7 @@ public class TestDataFrame {
 				continue;
 			
 			String[] columnNames = expected.columnNames().stream().toArray(String[]::new);
-			DataFrame actual = expected.joinHash(expected, columnNames, columnNames);
+			DataFrame actual = expected.join(expected, columnNames, columnNames);
 			
 			Assertions.assertEquals(expected, actual, e.getKey()+", hashJoin");
 		}
@@ -103,7 +124,7 @@ public class TestDataFrame {
 			if(!df.column(0).isDistinct())
 				continue;
 			
-			DataFrame expected = df.joinHash(df, new String[] {df.columnName(0)}, new String[] {df.columnName(0)});
+			DataFrame expected = df.join(df, new String[] {df.columnName(0)}, new String[] {df.columnName(0)});
 						
 			DataFrame actual = df.withKeyColumn(0);
 			actual = actual.join(actual);
@@ -113,7 +134,7 @@ public class TestDataFrame {
 	}
 	
 	@Test
-	public void testSingleColumnJoin() {
+	public void testManyToOneJoin() {
 				
 		StringColumn c11 = StringColumn.of("A", "B", "C");
 		IntColumn c21 = IntColumn.builder().addAll(1, 2, 3).build();
@@ -124,7 +145,7 @@ public class TestDataFrame {
 		StringColumn c32 = StringColumn.of("one", "two", "three");
 		DataFrame df2 = DataFrameFactory.create(new Column<?>[] {c12, c22, c32}, new String[] {"C1", "C2", "C3"}, "C2");
 		
-		DataFrame joint = df1.joinSingleIndex(df2, false, "C2");		
+		DataFrame joint = df1.joinManyToOne(df2, "C2");		
 		DataFrame expected = DataFrameFactory.create(new Column<?>[] {c11, c22, c12, c32}, new String[] {"C1", "C2", "C1_2", "C3"});		
 		Assertions.assertEquals(expected, joint);
 	}
@@ -142,7 +163,7 @@ public class TestDataFrame {
 		StringColumn c32 = StringColumn.of("bar", "bar", "bar", "bar", "bar", "bar");
 		DataFrame df2 = DataFrameFactory.create(new Column<?>[] {c12, c22, c32}, new String[] {"KEY1", "KEY2", "BAR"});
 		
-		DataFrame actual = df1.joinHash(df2, new String[] {"KEY1","KEY2"}, new String[] {"KEY1","KEY2"});
+		DataFrame actual = df1.join(df2, new String[] {"KEY1","KEY2"}, new String[] {"KEY1","KEY2"});
 		
 		StringColumn e1 = StringColumn.of("B", "C");
 		IntColumn e2 = IntColumn.of(3, 2);

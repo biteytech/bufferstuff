@@ -80,7 +80,7 @@ public class TestFloatColumn extends TestFloatingColumn<Float> {
 
 	@Override
 	Float[] minMax() {
-		return new Float[] { Float.MIN_VALUE, Float.MAX_VALUE };
+		return new Float[] { Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY };
 	}
 
 	@Override
