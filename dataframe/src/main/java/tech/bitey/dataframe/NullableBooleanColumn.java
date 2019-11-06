@@ -53,4 +53,9 @@ final class NullableBooleanColumn extends NullableColumn<Boolean, BooleanColumn,
 	boolean checkType(Object o) {
 		return o instanceof Boolean;
 	}
+
+	@Override
+	void intersectRightSorted(NonNullBooleanColumn rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
+		throw new UnsupportedOperationException();
+	}
 }

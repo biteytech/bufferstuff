@@ -57,7 +57,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
 		return new NonNullDoubleColumn(buffer, offset, size, characteristics, view);
 	}
 	
-	private double at(int index) {
+	double at(int index) {
 		return elements.get(index);
 	}
 	
@@ -86,7 +86,7 @@ final class NonNullDoubleColumn extends NonNullSingleBufferColumn<Double, Double
         return xbar + (correction/size);
 	}
 
-	private int search(double value) {
+	int search(double value) {
 		return BufferSearch.binarySearch(elements, offset, offset+size, value);
 	}
 	

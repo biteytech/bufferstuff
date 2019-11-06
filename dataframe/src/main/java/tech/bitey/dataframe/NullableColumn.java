@@ -392,9 +392,11 @@ abstract class NullableColumn<E, I extends Column<E>, C extends NonNullColumn<E,
 	}
 	
 	@Override
-	IntColumn intersectLeftSorted(N rhs, BufferBitSet keepRight) {
+	IntColumn intersectLeftSorted(I rhs, BufferBitSet keepRight) {
 		throw new UnsupportedOperationException("intersectLeftSorted");
 	}
+	
+	abstract void intersectRightSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepLeft);
 	
 	// does not implement navigableset methods
 

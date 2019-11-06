@@ -171,10 +171,14 @@ abstract class NonNullColumn<E, I extends Column<E>, C extends NonNullColumn<E, 
 	
 	abstract void intersectLeftSorted(C rhs, IntColumnBuilder indices, BufferBitSet keepRight);
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	IntColumn intersectLeftSorted(C rhs, BufferBitSet keepRight) {		
+	IntColumn intersectLeftSorted(I rhs, BufferBitSet keepRight) {		
 		IntColumnBuilder indices = IntColumn.builder();
-		intersectLeftSorted(rhs, indices, keepRight);		
+		if(rhs.isNonnull())
+			intersectLeftSorted((C)rhs, indices, keepRight);
+		else
+			((NullableColumn)rhs).intersectRightSorted(this, indices, keepRight);
 		return indices.build();
 	}
 	

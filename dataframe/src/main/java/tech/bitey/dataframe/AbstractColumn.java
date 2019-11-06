@@ -134,7 +134,7 @@ abstract class AbstractColumn<E, I extends Column<E>, C extends AbstractColumn<E
 	}
 	
 	abstract int intersectBothSorted(C rhs, BufferBitSet keepLeft, BufferBitSet keepRight);
-	abstract IntColumn intersectLeftSorted(C rhs, BufferBitSet keepRight);
+	abstract IntColumn intersectLeftSorted(I rhs, BufferBitSet keepRight);
 	
 	@Override
 	public int size() {

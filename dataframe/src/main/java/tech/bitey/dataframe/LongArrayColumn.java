@@ -46,7 +46,7 @@ abstract class LongArrayColumn<E, I extends Column<E>, C extends LongArrayColumn
 		return packer.unpack(at(index));
 	}
 	
-	private int search(long packed) {
+	int search(long packed) {
 		return BufferSearch.binarySearch(elements, offset, offset+size, packed);		
 	}
 	

@@ -48,4 +48,21 @@ final class NullableStringColumn extends NullableColumn<String, StringColumn, No
 	boolean checkType(Object o) {
 		return o instanceof String;
 	}
+
+	@Override
+	void intersectRightSorted(NonNullStringColumn rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
+		
+		for(int i = offset; i <= lastIndex(); i++) {
+			
+			if(!nonNulls.get(i))
+				continue;
+			
+			int rightIndex = rhs.search(column.getNoOffset(nonNullIndex(i)));			
+			if(rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
+				
+				indices.add(rightIndex - rhs.offset);
+				keepLeft.set(i - offset);
+			}
+		}
+	}
 }

@@ -59,4 +59,21 @@ final class NullableDoubleColumn extends NullableColumn<Double, DoubleColumn, No
 	boolean checkType(Object o) {
 		return o instanceof Double;
 	}
+
+	@Override
+	void intersectRightSorted(NonNullDoubleColumn rhs, IntColumnBuilder indices, BufferBitSet keepLeft) {
+		
+		for(int i = offset; i <= lastIndex(); i++) {
+			
+			if(!nonNulls.get(i))
+				continue;
+			
+			int rightIndex = rhs.search(column.at(nonNullIndex(i)));			
+			if(rightIndex >= rhs.offset && rightIndex <= rhs.lastIndex()) {
+				
+				indices.add(rightIndex - rhs.offset);
+				keepLeft.set(i - offset);
+			}
+		}
+	}
 }

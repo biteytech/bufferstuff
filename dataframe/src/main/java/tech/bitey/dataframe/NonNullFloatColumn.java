@@ -57,7 +57,7 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
 		return new NonNullFloatColumn(buffer, offset, size, characteristics, view);
 	}
 	
-	private float at(int index) {
+	float at(int index) {
 		return elements.get(index);
 	}
 	
@@ -86,7 +86,7 @@ final class NonNullFloatColumn extends NonNullSingleBufferColumn<Float, FloatCol
         return xbar + (correction/size);
 	}
 
-	private int search(float value) {
+	int search(float value) {
 		return BufferSearch.binarySearch(elements, offset, offset+size, value);
 	}
 	

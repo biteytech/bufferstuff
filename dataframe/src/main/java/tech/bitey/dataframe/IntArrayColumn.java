@@ -47,7 +47,7 @@ abstract class IntArrayColumn<E, I extends Column<E>, C extends IntArrayColumn<E
 		return packer.unpack(at(index));
 	}
 	
-	private int search(int packed) {
+	int search(int packed) {
 		return BufferSearch.binarySearch(elements, offset, offset+size, packed);		
 	}
 	
