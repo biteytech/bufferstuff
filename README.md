@@ -7,7 +7,7 @@ To add a dependency on bufferstuff using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>bufferstuff</artifactId>
-  <version>0.4.0</version>
+  <version>0.4.1</version>
 </dependency>
 ```
 

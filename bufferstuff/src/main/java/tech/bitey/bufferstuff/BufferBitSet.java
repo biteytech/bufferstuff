@@ -1,9 +1,14 @@
 package tech.bitey.bufferstuff;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
 import static tech.bitey.bufferstuff.BufferUtils.allocate;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
+import static tech.bitey.bufferstuff.BufferUtils.slice;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.BitSet;
 import java.util.Random;
 
@@ -284,6 +289,115 @@ public class BufferBitSet implements Cloneable {
 	 */
 	public BitSet toBitSet() {
 		return BitSet.valueOf(toByteArray());
+	}
+
+	/*--------------------------------------------------------------------------------
+	 *  Methods for read from and writing to a channel
+	 *-------------------------------------------------------------------------------*/
+
+	/**
+	 * Write this bitset to the specified {@link WritableByteChannel}. Equivalent to
+	 * {@link #writeTo(WritableByteChannel, int, int) writeTo(channel, 0, length())}
+	 * 
+	 * @param channel - the channel to write to
+	 * 
+	 * @throws IOException if some I/O error occurs
+	 */
+	public void writeTo(WritableByteChannel channel) throws IOException {
+		writeTo(channel, 0, length());
+	}
+
+	/**
+	 * Write a range from this bitset to the specified {@link WritableByteChannel}.
+	 * This method will write a 5-byte header followed by the bytes which store the
+	 * bits in the specified range.
+	 * 
+	 * @param channel   - the channel to write to
+	 * @param fromIndex - index of the first bit to write
+	 * @param toIndex   - index after the last bit to write
+	 * 
+	 * @throws IOException               if some I/O error occurs
+	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
+	 *                                   {@code toIndex} is negative, or
+	 *                                   {@code fromIndex} is larger than
+	 *                                   {@code toIndex}
+	 */
+	public void writeTo(WritableByteChannel channel, int fromIndex, int toIndex) throws IOException {
+		checkRange(fromIndex, toIndex);
+
+		final int length = length();
+
+		if (fromIndex >= length) {
+			fromIndex = 0;
+			toIndex = 0;
+		} else if (toIndex > length)
+			toIndex = length;
+
+		ByteBuffer buffer = slice(this.buffer, byteIndex(fromIndex), byteIndex(toIndex - 1) + 1);
+
+		// find last set bit		
+		int n = buffer.limit() - 1;
+		while (n >= 0 && buffer.get(n) == 0)
+			n--;
+		buffer.limit(n + 1);
+		final int limit = buffer.limit();
+
+		ByteBuffer header = ByteBuffer.allocate(5).order(BIG_ENDIAN);
+		header.put(0, (byte) (fromIndex & 7));
+		header.putInt(1, limit);
+
+		channel.write(header);
+
+		if (limit > 0) {
+			if (limit > 1) {
+				// write everything except last byte
+				channel.write(slice(buffer, 0, limit - 1));
+			}
+
+			// handle last byte
+			ByteBuffer lastByte = ByteBuffer.allocate(1);
+			lastByte.put(0, (byte) (buffer.get(limit - 1) & (MASK >>> ((-toIndex) & 7))));
+			channel.write(lastByte);
+		}
+	}
+
+	/**
+	 * Read a bitset from the specified {@link ReadableByteChannel}. The bitset must
+	 * have been previously written with one of the {@code writeTo} methods.
+	 * 
+	 * @param channel - the channel to read from
+	 * 
+	 * @return a non-resizable bitset from the specified channel
+	 * 
+	 * @throws IOException if some I/O error occurs
+	 */
+	public static BufferBitSet readFrom(ReadableByteChannel channel) throws IOException {
+
+		ByteBuffer header = ByteBuffer.allocate(5).order(BIG_ENDIAN);
+		channel.read(header);
+
+		int offset = header.get(0);
+		int capacity = header.getInt(1);
+
+		if (capacity == 0)
+			return EMPTY_BITSET;
+
+		ByteBuffer buffer = allocate(capacity);
+		channel.read(buffer);
+
+		if (offset == 0)
+			return new BufferBitSet(buffer, false, false);
+
+		// left shift by offset
+		int limit = buffer.limit();
+		for (int i = 0; i < limit - 1; i++)
+			buffer.put(i, (byte) (((buffer.get(i) & 0xFF) >>> offset) | (buffer.get(i + 1) << ((-offset) & 7))));
+		
+		// handle last byte
+		buffer.put(limit - 1, (byte) ((buffer.get(limit - 1) & 0xFF) >>> offset));
+
+		buffer.clear();
+		return new BufferBitSet(buffer, false, true);
 	}
 
 	/*--------------------------------------------------------------------------------

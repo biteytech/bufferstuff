@@ -1,6 +1,13 @@
 package tech.bitey.bufferstuff;
 
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.WRITE;
+
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
@@ -195,6 +202,73 @@ public class TestBufferBitSet {
 					SAMPLE_INDICES.stream().map(i -> i - s).filter(i -> i >= 0).collect(Collectors.toSet()));
 
 			Assertions.assertEquals(expected.toString(), bs.get(s, 9001).toString());
+		}
+	}
+
+	@Test
+	public void readWrite() throws IOException {
+		
+		// test writeTo(WritableByteChannel, int, int)
+		readWrite(new BufferBitSet(), 0, 0);
+		
+		BufferBitSet test = new BufferBitSet();
+		test.set(0, 16);
+		readWrite(test, 5, 10);
+		
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		
+		readWrite(bs, 0, 0);
+		readWrite(bs, 10000, 20000);
+		readWrite(bs, 10, 40);
+		readWrite(bs, 0, 9001);
+		readWrite(bs, 0, 10000);
+
+		for (int shift = 1; shift <= 100; shift++)
+			readWrite(bs, shift, 9001);
+		
+		BufferBitSet test2 = new BufferBitSet();
+		test.set(0, 128);
+		for (int shift = 1; shift <= 100; shift++) {
+			readWrite(test2, shift, 128);
+			readWrite(test2, 0, 128-shift);
+		}
+		
+		
+		// test writeTo(WritableByteChannel)
+		File file = File.createTempFile("readWrite", "dat");
+		file.deleteOnExit();
+		
+		try (
+			FileChannel fileChannel = FileChannel.open(file.toPath(), CREATE, WRITE);
+		) {
+			bs.writeTo(fileChannel);	
+		}		
+		try (
+			FileChannel fileChannel = FileChannel.open(file.toPath(), READ);
+		) {
+			BufferBitSet actual = BufferBitSet.readFrom(fileChannel);
+			Assertions.assertEquals(bs, actual);		
+		}
+	}
+	
+	private int readWriteNext = 0;
+	
+	public void readWrite(BufferBitSet bbs, int fromIndex, int toIndex) throws IOException {
+		
+		File file = File.createTempFile("readWrite"+readWriteNext++, "dat");
+		file.deleteOnExit();
+		
+		try (
+			FileChannel fileChannel = FileChannel.open(file.toPath(), CREATE, WRITE);
+		) {
+			bbs.writeTo(fileChannel, fromIndex, toIndex);	
+		}		
+		try (
+			FileChannel fileChannel = FileChannel.open(file.toPath(), READ);
+		) {
+			BufferBitSet actual = BufferBitSet.readFrom(fileChannel);
+			Assertions.assertEquals(bbs.get(fromIndex, toIndex), actual);		
 		}
 	}
 
