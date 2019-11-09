@@ -18,7 +18,8 @@ import java.nio.LongBuffer;
  * <li>{@link DoubleBuffer}
  * </ul>
  * 
- * @author biteytech@protonmail.com
+ * @author biteytech@protonmail.com, adpated from <a
+ *         href=https://www.programiz.com/dsa/heap-sort>programiz.com</a>
  */
 public class BufferSort {
 
@@ -227,8 +228,8 @@ public class BufferSort {
 	}
 
 	/**
-	 * Sorts a range of the specified {@link DoubleBuffer} in ascending order (lowest
-	 * first). The sort is guaranteed to be:
+	 * Sorts a range of the specified {@link DoubleBuffer} in ascending order
+	 * (lowest first). The sort is guaranteed to be:
 	 * <ul>
 	 * <li>in-place
 	 * <li>{@code O(n*log(n))} in the worst case

@@ -24,14 +24,12 @@ import java.nio.LongBuffer;
  * <li>{@link DoubleBuffer}
  * </ul>
  * 
- * @author biteytech@protonmail.com
+ * @author biteytech@protonmail.com, adapted from java.util.Arrays
  */
 public enum BufferSearch {
 	; // static methods only, enum prevents instantiation
 
 	/**
-	 * Copied from {@code java.util.Arrays}
-	 * <p>
 	 * Searches a range of the specified {@link IntBuffer} for the specified value
 	 * using the binary search algorithm. The range must be sorted in ascending
 	 * order prior to making this call. If it is not sorted, the results are
@@ -80,8 +78,6 @@ public enum BufferSearch {
 	}
 
 	/**
-	 * Copied from {@code java.util.Arrays}
-	 * <p>
 	 * Searches a range of the specified {@link LongBuffer} for the specified value
 	 * using the binary search algorithm. The range must be sorted in ascending
 	 * order prior to making this call. If it is not sorted, the results are
@@ -130,8 +126,6 @@ public enum BufferSearch {
 	}
 
 	/**
-	 * Copied from {@code java.util.Arrays}
-	 * <p>
 	 * Searches a range of the specified {@link FloatBuffer} for the specified value
 	 * using the binary search algorithm. The range must be sorted in ascending
 	 * order prior to making this call. If it is not sorted, the results are
@@ -189,8 +183,6 @@ public enum BufferSearch {
 	}
 
 	/**
-	 * Copied from {@code java.util.Arrays}
-	 * <p>
 	 * Searches a range of the specified {@link DoubleBuffer} for the specified
 	 * value using the binary search algorithm. The range must be sorted in
 	 * ascending order prior to making this call. If it is not sorted, the results

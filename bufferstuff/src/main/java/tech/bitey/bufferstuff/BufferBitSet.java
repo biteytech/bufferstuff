@@ -36,10 +36,7 @@ import java.util.Random;
  * {@link BufferUtils#allocate(int)}. The allocated buffers will be direct if
  * the {@code tech.bitey.allocateDirect} system property is set to "true".
  * 
- * @author biteytech@protonmail.com
- * @author Arthur van Hoff (java.util.BitSet)
- * @author Michael McCloskey (java.util.BitSet)
- * @author Martin Buchholz (java.util.BitSet)
+ * @author biteytech@protonmail.com, adapted from java.util.BitSet
  * 
  * @see java.util.BitSet
  * @see java.nio.ByteBuffer
