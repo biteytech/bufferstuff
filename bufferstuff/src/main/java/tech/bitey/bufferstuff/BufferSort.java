@@ -18,17 +18,18 @@ import java.nio.LongBuffer;
  * <li>{@link DoubleBuffer}
  * </ul>
  * 
- * @author biteytech@protonmail.com, adpated from <a
+ * @author biteytech@protonmail.com, heap-sort adapted from <a
  *         href=https://www.programiz.com/dsa/heap-sort>programiz.com</a>
  */
 public class BufferSort {
 
 	/**
 	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
-	 * first). The sort is guaranteed to be:
+	 * first). The sort is:
 	 * <ul>
 	 * <li>in-place
 	 * <li>{@code O(n*log(n))} in the worst case
+	 * <li>a good general-purpose sorting algorithm
 	 * </ul>
 	 *
 	 * @param b         the buffer to be sorted
@@ -39,13 +40,8 @@ public class BufferSort {
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
-	public static void inplaceSort(IntBuffer b, int fromIndex, int toIndex) {
+	public static void heapSort(IntBuffer b, int fromIndex, int toIndex) {
 		rangeCheck(b.capacity(), fromIndex, toIndex);
-		heapSort(b, fromIndex, toIndex);
-	}
-
-	// based on https://www.programiz.com/dsa/heap-sort
-	private static void heapSort(IntBuffer b, int fromIndex, int toIndex) {
 
 		int n = toIndex - fromIndex;
 		if (n <= 1)
@@ -92,10 +88,11 @@ public class BufferSort {
 
 	/**
 	 * Sorts a range of the specified {@link LongBuffer} in ascending order (lowest
-	 * first). The sort is guaranteed to be:
+	 * first). The sort is:
 	 * <ul>
 	 * <li>in-place
 	 * <li>{@code O(n*log(n))} in the worst case
+	 * <li>a good general-purpose sorting algorithm
 	 * </ul>
 	 *
 	 * @param b         the buffer to be sorted
@@ -106,13 +103,8 @@ public class BufferSort {
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
-	public static void inplaceSort(LongBuffer b, int fromIndex, int toIndex) {
+	public static void heapSort(LongBuffer b, int fromIndex, int toIndex) {
 		rangeCheck(b.capacity(), fromIndex, toIndex);
-		heapSort(b, fromIndex, toIndex);
-	}
-
-	// based on https://www.programiz.com/dsa/heap-sort
-	private static void heapSort(LongBuffer b, int fromIndex, int toIndex) {
 
 		int n = toIndex - fromIndex;
 		if (n <= 1)
@@ -159,12 +151,12 @@ public class BufferSort {
 
 	/**
 	 * Sorts a range of the specified {@link FloatBuffer} in ascending order (lowest
-	 * first). The sort is guaranteed to be:
+	 * first). The sort is:
 	 * <ul>
 	 * <li>in-place
 	 * <li>{@code O(n*log(n))} in the worst case
+	 * <li>a good general-purpose sorting algorithm
 	 * </ul>
-	 * <p>
 	 * This method considers all NaN values to be equal to each other and greater
 	 * than all other values (including {@code Float.POSITIVE_INFINITY}).
 	 *
@@ -176,13 +168,8 @@ public class BufferSort {
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
-	public static void inplaceSort(FloatBuffer b, int fromIndex, int toIndex) {
+	public static void heapSort(FloatBuffer b, int fromIndex, int toIndex) {
 		rangeCheck(b.capacity(), fromIndex, toIndex);
-		heapSort(b, fromIndex, toIndex);
-	}
-
-	// based on https://www.programiz.com/dsa/heap-sort
-	private static void heapSort(FloatBuffer b, int fromIndex, int toIndex) {
 
 		int n = toIndex - fromIndex;
 		if (n <= 1)
@@ -229,12 +216,12 @@ public class BufferSort {
 
 	/**
 	 * Sorts a range of the specified {@link DoubleBuffer} in ascending order
-	 * (lowest first). The sort is guaranteed to be:
+	 * (lowest first). The sort is:
 	 * <ul>
 	 * <li>in-place
 	 * <li>{@code O(n*log(n))} in the worst case
+	 * <li>a good general-purpose sorting algorithm
 	 * </ul>
-	 * <p>
 	 * This method considers all NaN values to be equal to each other and greater
 	 * than all other values (including {@code Double.POSITIVE_INFINITY}).
 	 *
@@ -246,13 +233,8 @@ public class BufferSort {
 	 * @throws IndexOutOfBoundsException if
 	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
 	 */
-	public static void inplaceSort(DoubleBuffer b, int fromIndex, int toIndex) {
+	public static void heapSort(DoubleBuffer b, int fromIndex, int toIndex) {
 		rangeCheck(b.capacity(), fromIndex, toIndex);
-		heapSort(b, fromIndex, toIndex);
-	}
-
-	// based on https://www.programiz.com/dsa/heap-sort
-	private static void heapSort(DoubleBuffer b, int fromIndex, int toIndex) {
 
 		int n = toIndex - fromIndex;
 		if (n <= 1)
@@ -295,5 +277,383 @@ public class BufferSort {
 		double swap = b.get(i);
 		b.put(i, b.get(j));
 		b.put(j, swap);
+	}
+
+	/**
+	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
+	 * first). The sort is:
+	 * <ul>
+	 * <li>in-place
+	 * <li>{@code O(n)} in the worst case. However, insertion sort has more overhead
+	 * than heat sort, and is only faster for large ranges.
+	 * </ul>
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void radixSort(IntBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+		radixSort0(b, fromIndex, toIndex, INT_HIGH_BIT);
+	}
+
+	private static final int INT_HIGH_BIT = 1 << 31;
+
+	private static void radixSort0(IntBuffer b, int fromIndex, int toIndex, int bit) {
+
+		int zero = fromIndex;
+		int one = toIndex;
+
+		final int direction = bit == INT_HIGH_BIT ? bit : 0;
+
+		while (zero < one) {
+			if ((b.get(zero) & bit) == direction)
+				zero++;
+			else
+				swap(b, zero, --one);
+		}
+
+		if (bit != 1) {
+			if (fromIndex < zero)
+				radixSort0(b, fromIndex, zero, bit >>> 1);
+			if (one < toIndex)
+				radixSort0(b, one, toIndex, bit >>> 1);
+		}
+	}
+
+	/**
+	 * Sorts a range of the specified {@link LongBuffer} in ascending order (lowest
+	 * first). The sort is:
+	 * <ul>
+	 * <li>in-place
+	 * <li>{@code O(n)} in the worst case. However, insertion sort has more overhead
+	 * than heat sort, and is only faster for large ranges.
+	 * </ul>
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void radixSort(LongBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+		radixSort0(b, fromIndex, toIndex, LONG_HIGH_BIT);
+	}
+
+	private static final long LONG_HIGH_BIT = 1L << 63;
+
+	private static void radixSort0(LongBuffer b, int fromIndex, int toIndex, long bit) {
+
+		int zero = fromIndex;
+		int one = toIndex;
+
+		final long direction = bit == LONG_HIGH_BIT ? bit : 0;
+
+		while (zero < one) {
+			if ((b.get(zero) & bit) == direction)
+				zero++;
+			else
+				swap(b, zero, --one);
+		}
+
+		if (bit != 1) {
+			if (fromIndex < zero)
+				radixSort0(b, fromIndex, zero, bit >>> 1);
+			if (one < toIndex)
+				radixSort0(b, one, toIndex, bit >>> 1);
+		}
+	}
+
+	/**
+	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
+	 * first). The sort is:
+	 * <ul>
+	 * <li>in-place
+	 * <li>{@code O(n^2)} in the worst case. However, insertion sort has less
+	 * overhead than heat sort, and is faster for small ranges.
+	 * </ul>
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void insertionSort(IntBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			int x = b.get(i);
+			int j = i - 1;
+			for (int xj; j >= fromIndex && (xj = b.get(j)) > x; j--)
+				b.put(j + 1, xj);
+			b.put(j + 1, x);
+		}
+	}
+
+	/**
+	 * Sorts a range of the specified {@link LongBuffer} in ascending order (lowest
+	 * first). The sort is:
+	 * <ul>
+	 * <li>in-place
+	 * <li>{@code O(n^2)} in the worst case. However, insertion sort has less
+	 * overhead than heat sort, and is faster for small ranges.
+	 * </ul>
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void insertionSort(LongBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			long x = b.get(i);
+			int j = i - 1;
+			for (long xj; j >= fromIndex && (xj = b.get(j)) > x; j--)
+				b.put(j + 1, xj);
+			b.put(j + 1, x);
+		}
+	}
+
+	/**
+	 * Sorts a range of the specified {@link FloatBuffer} in ascending order (lowest
+	 * first). The sort is:
+	 * <ul>
+	 * <li>in-place
+	 * <li>{@code O(n^2)} in the worst case. However, insertion sort has less
+	 * overhead than heat sort, and is faster for small ranges.
+	 * </ul>
+	 * This method considers all NaN values to be equal to each other and greater
+	 * than all other values (including {@code Float.POSITIVE_INFINITY}).
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void insertionSort(FloatBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			float x = b.get(i);
+			int j = i - 1;
+			for (float xj; j >= fromIndex && Float.compare(xj = b.get(j), x) > 0; j--)
+				b.put(j + 1, xj);
+			b.put(j + 1, x);
+		}
+	}
+
+	/**
+	 * Sorts a range of the specified {@link DoubleBuffer} in ascending order
+	 * (lowest first). The sort is:
+	 * <ul>
+	 * <li>in-place
+	 * <li>{@code O(n^2)} in the worst case. However, insertion sort has less
+	 * overhead than heat sort, and is faster for small ranges.
+	 * </ul>
+	 * This method considers all NaN values to be equal to each other and greater
+	 * than all other values (including {@code Double.POSITIVE_INFINITY}).
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void insertionSort(DoubleBuffer b, int fromIndex, int toIndex) {
+		rangeCheck(b.capacity(), fromIndex, toIndex);
+
+		for (int i = fromIndex + 1; i < toIndex; i++) {
+			double x = b.get(i);
+			int j = i - 1;
+			for (double xj; j >= fromIndex && Double.compare(xj = b.get(j), x) > 0; j--)
+				b.put(j + 1, xj);
+			b.put(j + 1, x);
+		}
+	}
+
+	private static final int SMALL_RANGE = 100;
+	private static final int LARGE_RANGE = 10_000_000;
+
+	/**
+	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
+	 * first). The actual sorting algorithm used depends on the length of the range:
+	 * <table border=1 cellpadding=3>
+	 * <caption></caption>
+	 * <tr>
+	 * <th>Length</th>
+	 * <th>Algorithm</th>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code [0 - 100)}</td>
+	 * <td>{@link BufferSort#insertionSort(IntBuffer, int, int) insertionSort}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code [100 - 10^7)}</td>
+	 * <td>{@link BufferSort#heapSort(IntBuffer, int, int) heapSort}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code 10^7+}</td>
+	 * <td>{@link BufferSort#radixSort(IntBuffer, int, int) radixSort}</td>
+	 * </tr>
+	 * </table>
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void sort(IntBuffer b, int fromIndex, int toIndex) {
+
+		final int length = toIndex - fromIndex;
+
+		if (length < SMALL_RANGE)
+			insertionSort(b, fromIndex, toIndex);
+		else if (length < LARGE_RANGE)
+			heapSort(b, fromIndex, toIndex);
+		else
+			radixSort(b, fromIndex, toIndex);
+	}
+
+	/**
+	 * Sorts a range of the specified {@link LongBuffer} in ascending order (lowest
+	 * first). The actual sorting algorithm used depends on the length of the range:
+	 * <table border=1 cellpadding=3>
+	 * <caption></caption>
+	 * <tr>
+	 * <th>Length</th>
+	 * <th>Algorithm</th>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code [0 - 100)}</td>
+	 * <td>{@link BufferSort#insertionSort(LongBuffer, int, int) insertionSort}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code [100 - 10^7)}</td>
+	 * <td>{@link BufferSort#heapSort(LongBuffer, int, int) heapSort}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code 10^7+}</td>
+	 * <td>{@link BufferSort#radixSort(LongBuffer, int, int) radixSort}</td>
+	 * </tr>
+	 * </table>
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void sort(LongBuffer b, int fromIndex, int toIndex) {
+
+		final int length = toIndex - fromIndex;
+
+		if (length < SMALL_RANGE)
+			insertionSort(b, fromIndex, toIndex);
+		else if (length < LARGE_RANGE)
+			heapSort(b, fromIndex, toIndex);
+		else
+			radixSort(b, fromIndex, toIndex);
+	}
+
+	/**
+	 * Sorts a range of the specified {@link FloatBuffer} in ascending order (lowest
+	 * first). The actual sorting algorithm used depends on the length of the range:
+	 * <table border=1 cellpadding=3>
+	 * <caption></caption>
+	 * <tr>
+	 * <th>Length</th>
+	 * <th>Algorithm</th>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code [0 - 100)}</td>
+	 * <td>{@link BufferSort#insertionSort(FloatBuffer, int, int)
+	 * insertionSort}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code 100+}</td>
+	 * <td>{@link BufferSort#heapSort(FloatBuffer, int, int) heapSort}</td>
+	 * </tr>
+	 * </table>
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void sort(FloatBuffer b, int fromIndex, int toIndex) {
+
+		final int length = toIndex - fromIndex;
+
+		if (length < SMALL_RANGE)
+			insertionSort(b, fromIndex, toIndex);
+		else
+			heapSort(b, fromIndex, toIndex);
+	}
+
+	/**
+	 * Sorts a range of the specified {@link DoubleBuffer} in ascending order
+	 * (lowest first). The actual sorting algorithm used depends on the length of
+	 * the range:
+	 * <table border=1 cellpadding=3>
+	 * <caption></caption>
+	 * <tr>
+	 * <th>Length</th>
+	 * <th>Algorithm</th>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code [0 - 100)}</td>
+	 * <td>{@link BufferSort#insertionSort(DoubleBuffer, int, int)
+	 * insertionSort}</td>
+	 * </tr>
+	 * <tr>
+	 * <td>{@code 100+}</td>
+	 * <td>{@link BufferSort#heapSort(DoubleBuffer, int, int) heapSort}</td>
+	 * </tr>
+	 * </table>
+	 *
+	 * @param b         the buffer to be sorted
+	 * @param fromIndex the index of the first element (inclusive) to be sorted
+	 * @param toIndex   the index of the last element (exclusive) to be sorted
+	 * 
+	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
+	 * @throws IndexOutOfBoundsException if
+	 *                                   {@code fromIndex < 0 or toIndex > b.capacity()}
+	 */
+	public static void sort(DoubleBuffer b, int fromIndex, int toIndex) {
+
+		final int length = toIndex - fromIndex;
+
+		if (length < SMALL_RANGE)
+			insertionSort(b, fromIndex, toIndex);
+		else
+			heapSort(b, fromIndex, toIndex);
 	}
 }

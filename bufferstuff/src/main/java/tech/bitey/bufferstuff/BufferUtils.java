@@ -35,20 +35,19 @@ public enum BufferUtils {
 	public static ByteBuffer allocate(int capacity) {
 		return allocate(capacity, ByteOrder.nativeOrder());
 	}
-	
+
 	/**
 	 * Allocates a new {@link ByteBuffer} with the specified capacity. The buffer
 	 * will be direct if the {@code tech.bitey.allocateDirect} system property is
 	 * set to "true", and will have the specified {@link ByteOrder}.
 	 * 
 	 * @param capacity the new buffer's capacity, in bytes
-	 * @param order the {@code ByteOrder}
+	 * @param order    the {@code ByteOrder}
 	 * 
 	 * @return the new {@code ByteBuffer}
 	 */
 	public static ByteBuffer allocate(int capacity, ByteOrder order) {
-		return (DIRECT ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity))
-				.order(order);
+		return (DIRECT ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity)).order(order);
 	}
 
 	/**

@@ -207,17 +207,17 @@ public class TestBufferBitSet {
 
 	@Test
 	public void readWrite() throws IOException {
-		
+
 		// test writeTo(WritableByteChannel, int, int)
 		readWrite(new BufferBitSet(), 0, 0);
-		
+
 		BufferBitSet test = new BufferBitSet();
 		test.set(0, 16);
 		readWrite(test, 5, 10);
-		
+
 		BufferBitSet bs = new BufferBitSet();
 		populateWithSampleIndices(bs);
-		
+
 		readWrite(bs, 0, 0);
 		readWrite(bs, 10000, 20000);
 		readWrite(bs, 10, 40);
@@ -226,49 +226,40 @@ public class TestBufferBitSet {
 
 		for (int shift = 1; shift <= 100; shift++)
 			readWrite(bs, shift, 9001);
-		
+
 		BufferBitSet test2 = new BufferBitSet();
 		test.set(0, 128);
 		for (int shift = 1; shift <= 100; shift++) {
 			readWrite(test2, shift, 128);
-			readWrite(test2, 0, 128-shift);
+			readWrite(test2, 0, 128 - shift);
 		}
-		
-		
+
 		// test writeTo(WritableByteChannel)
 		File file = File.createTempFile("readWrite", "dat");
 		file.deleteOnExit();
-		
-		try (
-			FileChannel fileChannel = FileChannel.open(file.toPath(), CREATE, WRITE);
-		) {
-			bs.writeTo(fileChannel);	
-		}		
-		try (
-			FileChannel fileChannel = FileChannel.open(file.toPath(), READ);
-		) {
+
+		try (FileChannel fileChannel = FileChannel.open(file.toPath(), CREATE, WRITE);) {
+			bs.writeTo(fileChannel);
+		}
+		try (FileChannel fileChannel = FileChannel.open(file.toPath(), READ);) {
 			BufferBitSet actual = BufferBitSet.readFrom(fileChannel);
-			Assertions.assertEquals(bs, actual);		
+			Assertions.assertEquals(bs, actual);
 		}
 	}
-	
+
 	private int readWriteNext = 0;
-	
+
 	public void readWrite(BufferBitSet bbs, int fromIndex, int toIndex) throws IOException {
-		
-		File file = File.createTempFile("readWrite"+readWriteNext++, "dat");
+
+		File file = File.createTempFile("readWrite" + readWriteNext++, "dat");
 		file.deleteOnExit();
-		
-		try (
-			FileChannel fileChannel = FileChannel.open(file.toPath(), CREATE, WRITE);
-		) {
-			bbs.writeTo(fileChannel, fromIndex, toIndex);	
-		}		
-		try (
-			FileChannel fileChannel = FileChannel.open(file.toPath(), READ);
-		) {
+
+		try (FileChannel fileChannel = FileChannel.open(file.toPath(), CREATE, WRITE);) {
+			bbs.writeTo(fileChannel, fromIndex, toIndex);
+		}
+		try (FileChannel fileChannel = FileChannel.open(file.toPath(), READ);) {
 			BufferBitSet actual = BufferBitSet.readFrom(fileChannel);
-			Assertions.assertEquals(bbs.get(fromIndex, toIndex), actual);		
+			Assertions.assertEquals(bbs.get(fromIndex, toIndex), actual);
 		}
 	}
 
@@ -510,41 +501,41 @@ public class TestBufferBitSet {
 			Assertions.assertEquals(expected.toString(), bs.shiftRight(shift).toString());
 		}
 	}
-	
+
 	@Test
 	public void testClone() {
 		BufferBitSet bs1 = new BufferBitSet();
 		populateWithSampleIndices(bs1);
-		
-		BufferBitSet clone1 = (BufferBitSet)bs1.clone();
+
+		BufferBitSet clone1 = (BufferBitSet) bs1.clone();
 		Assertions.assertEquals(bs1, clone1);
-		
+
 		BufferBitSet bs2 = new BufferBitSet();
 		populateWithSampleIndices(bs2);
 		bs2.set(9010);
-		
-		BufferBitSet clone2 = (BufferBitSet)bs2.clone();
+
+		BufferBitSet clone2 = (BufferBitSet) bs2.clone();
 		Assertions.assertEquals(bs2, clone2);
 	}
-	
+
 	@Test
 	public void testRandom() {
-		
-		for(int r = 0; r < 4; r++) {
-			for(int size = 0; size <= 100; size++) {
-				for(int n = 0; n <= size; n++) {
-					
+
+		for (int r = 0; r < 4; r++) {
+			for (int size = 0; size <= 100; size++) {
+				for (int n = 0; n <= size; n++) {
+
 					Boolean[] b = new Boolean[size];
 					Arrays.fill(b, Boolean.FALSE);
 					Arrays.fill(b, 0, n, Boolean.TRUE);
-					Collections.shuffle(Arrays.asList(b), new Random(r*r*r));
+					Collections.shuffle(Arrays.asList(b), new Random(r * r * r));
 					BufferBitSet expected = new BufferBitSet();
-					for(int i = 0; i < b.length; i++)
-						if(b[i])
+					for (int i = 0; i < b.length; i++)
+						if (b[i])
 							expected.set(i);
-					
-					BufferBitSet actual = BufferBitSet.random(n, size, new Random(r*r*r));
-					
+
+					BufferBitSet actual = BufferBitSet.random(n, size, new Random(r * r * r));
+
 					Assertions.assertEquals(expected, actual);
 				}
 			}

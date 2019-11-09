@@ -197,239 +197,238 @@ public class TestBufferUtils {
 		for (double[] array : NOT_SORTED_DISTINCT_DOUBLE)
 			Assertions.assertFalse(BufferUtils.isSortedAndDistinct(DoubleBuffer.wrap(array), 0, array.length));
 	}
-	
+
 	@Test
 	public void testDuplicate() {
 		ByteBuffer b = ByteBuffer.allocate(10);
 		b.limit(8);
 		b.position(5);
-		
+
 		ByteBuffer b2 = BufferUtils.duplicate(b.order(LITTLE_ENDIAN));
 		Assertions.assertEquals(b.position(), b2.position());
 		Assertions.assertEquals(b.limit(), b2.limit());
 		Assertions.assertEquals(b.order(), b2.order());
-		
+
 		ByteBuffer b3 = BufferUtils.duplicate(b.order(BIG_ENDIAN));
 		Assertions.assertEquals(b.position(), b3.position());
 		Assertions.assertEquals(b.limit(), b3.limit());
 		Assertions.assertEquals(b.order(), b3.order());
 	}
-	
+
 	@Test
 	public void testSlice() {
 		ByteBuffer b = ByteBuffer.allocate(10);
 		b.limit(8);
 		b.position(5);
-		
+
 		ByteBuffer b2 = BufferUtils.slice(b.order(LITTLE_ENDIAN));
 		Assertions.assertEquals(0, b2.position());
 		Assertions.assertEquals(b.remaining(), b2.limit());
 		Assertions.assertEquals(b.order(), b2.order());
-		
+
 		ByteBuffer b3 = BufferUtils.slice(b.order(BIG_ENDIAN));
 		Assertions.assertEquals(0, b3.position());
 		Assertions.assertEquals(b.remaining(), b3.limit());
 		Assertions.assertEquals(b.order(), b3.order());
 	}
-	
+
 	@Test
 	public void testReadOnly() {
 		ByteBuffer b = BufferUtils.allocate(1);
 		Assertions.assertEquals(b.order(), ByteOrder.nativeOrder());
-		b.put(0, (byte)0x66);
+		b.put(0, (byte) 0x66);
 		Assertions.assertEquals(b.get(0), 0x66);
-		
+
 		b = BufferUtils.asReadOnlyBuffer(b);
 		Assertions.assertEquals(b.order(), ByteOrder.nativeOrder());
 		try {
-			b.put(0, (byte)0x77);
+			b.put(0, (byte) 0x77);
 			throw new IllegalStateException();
-		}
-		catch(ReadOnlyBufferException e) {
+		} catch (ReadOnlyBufferException e) {
 			// good
 		}
 		Assertions.assertEquals(b.get(0), 0x66);
 	}
-	
+
 	@Test
 	public void testSliceRange() {
-		ByteBuffer b = ByteBuffer.wrap(new byte[] {(byte)0, (byte)1, (byte)2, (byte)3, (byte)4});
-		
+		ByteBuffer b = ByteBuffer.wrap(new byte[] { (byte) 0, (byte) 1, (byte) 2, (byte) 3, (byte) 4 });
+
 		ByteBuffer b2 = BufferUtils.slice(b.order(LITTLE_ENDIAN), 1, 5);
 		Assertions.assertEquals(1, b2.get(0));
 		Assertions.assertEquals(4, b2.get(3));
 		Assertions.assertEquals(b.order(), b2.order());
-		
+
 		ByteBuffer b3 = BufferUtils.slice(b.order(BIG_ENDIAN), 0, 4);
 		Assertions.assertEquals(0, b3.get(0));
 		Assertions.assertEquals(3, b3.get(3));
 		Assertions.assertEquals(b.order(), b3.order());
 	}
-	
+
 	@Test
 	public void testCopyByte() {
-		ByteBuffer b = ByteBuffer.wrap(new byte[] {(byte)-1, (byte)0, (byte)1, (byte)2, (byte)3});
-		ByteBuffer b2 = BufferUtils.copy(b, 0, b.capacity());		
+		ByteBuffer b = ByteBuffer.wrap(new byte[] { (byte) -1, (byte) 0, (byte) 1, (byte) 2, (byte) 3 });
+		ByteBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
 		Assertions.assertArrayEquals(b.array(), b2.array());
-		Assertions.assertArrayEquals(new byte[] {(byte)0, (byte)1, (byte)2}, BufferUtils.copy(b, 1, 4).array());
+		Assertions.assertArrayEquals(new byte[] { (byte) 0, (byte) 1, (byte) 2 }, BufferUtils.copy(b, 1, 4).array());
 	}
-	
+
 	@Test
 	public void testCopyInt() {
-		int[] a = new int[] {-1, 0, 1, 2, 3};
+		int[] a = new int[] { -1, 0, 1, 2, 3 };
 		IntBuffer b = IntBuffer.wrap(a);
 		IntBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
-		int[] a2 = new int[a.length];		
+		int[] a2 = new int[a.length];
 		b2.get(a2);
 		Assertions.assertArrayEquals(a, a2);
-		
+
 		int[] a3 = new int[3];
 		BufferUtils.copy(b, 1, 4).get(a3);
-		Assertions.assertArrayEquals(new int[] {0, 1, 2}, a3);
+		Assertions.assertArrayEquals(new int[] { 0, 1, 2 }, a3);
 	}
-	
+
 	@Test
 	public void testCopyLong() {
-		long[] a = new long[] {-1, 0, 1, 2, 3};
+		long[] a = new long[] { -1, 0, 1, 2, 3 };
 		LongBuffer b = LongBuffer.wrap(a);
 		LongBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
-		long[] a2 = new long[a.length];		
+		long[] a2 = new long[a.length];
 		b2.get(a2);
 		Assertions.assertArrayEquals(a, a2);
-		
+
 		long[] a3 = new long[3];
 		BufferUtils.copy(b, 1, 4).get(a3);
-		Assertions.assertArrayEquals(new long[] {0, 1, 2}, a3);
+		Assertions.assertArrayEquals(new long[] { 0, 1, 2 }, a3);
 	}
-	
+
 	@Test
 	public void testCopyFloat() {
-		float[] a = new float[] {-1, 0, 1, 2, 3};
+		float[] a = new float[] { -1, 0, 1, 2, 3 };
 		FloatBuffer b = FloatBuffer.wrap(a);
 		FloatBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
-		float[] a2 = new float[a.length];		
+		float[] a2 = new float[a.length];
 		b2.get(a2);
 		Assertions.assertArrayEquals(a, a2);
-		
+
 		float[] a3 = new float[3];
 		BufferUtils.copy(b, 1, 4).get(a3);
-		Assertions.assertArrayEquals(new float[] {0, 1, 2}, a3);
+		Assertions.assertArrayEquals(new float[] { 0, 1, 2 }, a3);
 	}
-	
+
 	@Test
 	public void testCopyDouble() {
-		double[] a = new double[] {-1, 0, 1, 2, 3};
+		double[] a = new double[] { -1, 0, 1, 2, 3 };
 		DoubleBuffer b = DoubleBuffer.wrap(a);
 		DoubleBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
-		double[] a2 = new double[a.length];		
+		double[] a2 = new double[a.length];
 		b2.get(a2);
 		Assertions.assertArrayEquals(a, a2);
-		
+
 		double[] a3 = new double[3];
 		BufferUtils.copy(b, 1, 4).get(a3);
-		Assertions.assertArrayEquals(new double[] {0, 1, 2}, a3);
+		Assertions.assertArrayEquals(new double[] { 0, 1, 2 }, a3);
 	}
-	
+
 	@Test
 	public void deduplicateInt() {
-		
-		deuplicateInt(new int[] {0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4}, new int[] {0, 1, 2, 3, 4});
-		deuplicateInt(new int[] {0, 1, 2, 3, 4}, new int[] {0, 1, 2, 3, 4});
+
+		deuplicateInt(new int[] { 0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4 }, new int[] { 0, 1, 2, 3, 4 });
+		deuplicateInt(new int[] { 0, 1, 2, 3, 4 }, new int[] { 0, 1, 2, 3, 4 });
 		deuplicateInt(new int[] {}, new int[] {});
-		deuplicateInt(new int[] {0}, new int[] {0});
-		deuplicateInt(new int[] {0, 0}, new int[] {0});
-		deuplicateInt(new int[] {0, 0, 0}, new int[] {0});
-		deuplicateInt(new int[] {0, 0, 1, 1}, new int[] {0, 1});
-		deuplicateInt(new int[] {0, 0, 0, 1, 1}, new int[] {0, 1});
-		deuplicateInt(new int[] {0, 0, 1, 1}, new int[] {0, 1});
-		deuplicateInt(new int[] {0, 0, 0, 1, 1}, new int[] {0, 1});
-		deuplicateInt(new int[] {0, 1, 1}, new int[] {0, 1});
-		deuplicateInt(new int[] {0, 1, 1, 2}, new int[] {0, 1, 2});
+		deuplicateInt(new int[] { 0 }, new int[] { 0 });
+		deuplicateInt(new int[] { 0, 0 }, new int[] { 0 });
+		deuplicateInt(new int[] { 0, 0, 0 }, new int[] { 0 });
+		deuplicateInt(new int[] { 0, 0, 1, 1 }, new int[] { 0, 1 });
+		deuplicateInt(new int[] { 0, 0, 0, 1, 1 }, new int[] { 0, 1 });
+		deuplicateInt(new int[] { 0, 0, 1, 1 }, new int[] { 0, 1 });
+		deuplicateInt(new int[] { 0, 0, 0, 1, 1 }, new int[] { 0, 1 });
+		deuplicateInt(new int[] { 0, 1, 1 }, new int[] { 0, 1 });
+		deuplicateInt(new int[] { 0, 1, 1, 2 }, new int[] { 0, 1, 2 });
 	}
-	
+
 	private static void deuplicateInt(int[] before, int[] after) {
-		
+
 		int highest = BufferUtils.deduplicate(IntBuffer.wrap(before), 0, before.length);
 		Assertions.assertEquals(after.length, highest);
-		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length)); 
+		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length));
 	}
-	
+
 	@Test
 	public void deduplicateLong() {
-		
-		deduplicateLong(new long[] {0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4}, new long[] {0, 1, 2, 3, 4});
-		deduplicateLong(new long[] {0, 1, 2, 3, 4}, new long[] {0, 1, 2, 3, 4});
+
+		deduplicateLong(new long[] { 0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4 }, new long[] { 0, 1, 2, 3, 4 });
+		deduplicateLong(new long[] { 0, 1, 2, 3, 4 }, new long[] { 0, 1, 2, 3, 4 });
 		deduplicateLong(new long[] {}, new long[] {});
-		deduplicateLong(new long[] {0}, new long[] {0});
-		deduplicateLong(new long[] {0, 0}, new long[] {0});
-		deduplicateLong(new long[] {0, 0, 0}, new long[] {0});
-		deduplicateLong(new long[] {0, 0, 1, 1}, new long[] {0, 1});
-		deduplicateLong(new long[] {0, 0, 0, 1, 1}, new long[] {0, 1});
-		deduplicateLong(new long[] {0, 0, 1, 1}, new long[] {0, 1});
-		deduplicateLong(new long[] {0, 0, 0, 1, 1}, new long[] {0, 1});
-		deduplicateLong(new long[] {0, 1, 1}, new long[] {0, 1});
-		deduplicateLong(new long[] {0, 1, 1, 2}, new long[] {0, 1, 2});
+		deduplicateLong(new long[] { 0 }, new long[] { 0 });
+		deduplicateLong(new long[] { 0, 0 }, new long[] { 0 });
+		deduplicateLong(new long[] { 0, 0, 0 }, new long[] { 0 });
+		deduplicateLong(new long[] { 0, 0, 1, 1 }, new long[] { 0, 1 });
+		deduplicateLong(new long[] { 0, 0, 0, 1, 1 }, new long[] { 0, 1 });
+		deduplicateLong(new long[] { 0, 0, 1, 1 }, new long[] { 0, 1 });
+		deduplicateLong(new long[] { 0, 0, 0, 1, 1 }, new long[] { 0, 1 });
+		deduplicateLong(new long[] { 0, 1, 1 }, new long[] { 0, 1 });
+		deduplicateLong(new long[] { 0, 1, 1, 2 }, new long[] { 0, 1, 2 });
 	}
-	
+
 	private static void deduplicateLong(long[] before, long[] after) {
-		
+
 		long highest = BufferUtils.deduplicate(LongBuffer.wrap(before), 0, before.length);
 		Assertions.assertEquals(after.length, highest);
-		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length)); 
+		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length));
 	}
-	
+
 	@Test
 	public void deduplicateFloat() {
-		
-		deduplicateFloat(new float[] {0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4}, new float[] {0, 1, 2, 3, 4});
-		deduplicateFloat(new float[] {0, 1, 2, 3, 4}, new float[] {0, 1, 2, 3, 4});
+
+		deduplicateFloat(new float[] { 0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4 }, new float[] { 0, 1, 2, 3, 4 });
+		deduplicateFloat(new float[] { 0, 1, 2, 3, 4 }, new float[] { 0, 1, 2, 3, 4 });
 		deduplicateFloat(new float[] {}, new float[] {});
-		deduplicateFloat(new float[] {0}, new float[] {0});
-		deduplicateFloat(new float[] {0, 0}, new float[] {0});
-		deduplicateFloat(new float[] {0, 0, 0}, new float[] {0});
-		deduplicateFloat(new float[] {0, 0, 1, 1}, new float[] {0, 1});
-		deduplicateFloat(new float[] {0, 0, 0, 1, 1}, new float[] {0, 1});
-		deduplicateFloat(new float[] {0, 0, 1, 1}, new float[] {0, 1});
-		deduplicateFloat(new float[] {0, 0, 0, 1, 1}, new float[] {0, 1});
-		deduplicateFloat(new float[] {0, 1, 1}, new float[] {0, 1});
-		deduplicateFloat(new float[] {0, 1, 1, 2}, new float[] {0, 1, 2});
-		deduplicateFloat(new float[] {Float.NaN}, new float[] {Float.NaN});
-		deduplicateFloat(new float[] {Float.NaN, Float.NaN}, new float[] {Float.NaN});
-		deduplicateFloat(new float[] {0, Float.NaN, Float.NaN}, new float[] {0, Float.NaN});
+		deduplicateFloat(new float[] { 0 }, new float[] { 0 });
+		deduplicateFloat(new float[] { 0, 0 }, new float[] { 0 });
+		deduplicateFloat(new float[] { 0, 0, 0 }, new float[] { 0 });
+		deduplicateFloat(new float[] { 0, 0, 1, 1 }, new float[] { 0, 1 });
+		deduplicateFloat(new float[] { 0, 0, 0, 1, 1 }, new float[] { 0, 1 });
+		deduplicateFloat(new float[] { 0, 0, 1, 1 }, new float[] { 0, 1 });
+		deduplicateFloat(new float[] { 0, 0, 0, 1, 1 }, new float[] { 0, 1 });
+		deduplicateFloat(new float[] { 0, 1, 1 }, new float[] { 0, 1 });
+		deduplicateFloat(new float[] { 0, 1, 1, 2 }, new float[] { 0, 1, 2 });
+		deduplicateFloat(new float[] { Float.NaN }, new float[] { Float.NaN });
+		deduplicateFloat(new float[] { Float.NaN, Float.NaN }, new float[] { Float.NaN });
+		deduplicateFloat(new float[] { 0, Float.NaN, Float.NaN }, new float[] { 0, Float.NaN });
 	}
-	
+
 	private static void deduplicateFloat(float[] before, float[] after) {
-		
+
 		float highest = BufferUtils.deduplicate(FloatBuffer.wrap(before), 0, before.length);
 		Assertions.assertEquals(after.length, highest);
-		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length)); 
+		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length));
 	}
-	
+
 	@Test
 	public void deduplicateDouble() {
-		
-		deduplicateDouble(new double[] {0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4}, new double[] {0, 1, 2, 3, 4});
-		deduplicateDouble(new double[] {0, 1, 2, 3, 4}, new double[] {0, 1, 2, 3, 4});
+
+		deduplicateDouble(new double[] { 0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4 }, new double[] { 0, 1, 2, 3, 4 });
+		deduplicateDouble(new double[] { 0, 1, 2, 3, 4 }, new double[] { 0, 1, 2, 3, 4 });
 		deduplicateDouble(new double[] {}, new double[] {});
-		deduplicateDouble(new double[] {0}, new double[] {0});
-		deduplicateDouble(new double[] {0, 0}, new double[] {0});
-		deduplicateDouble(new double[] {0, 0, 0}, new double[] {0});
-		deduplicateDouble(new double[] {0, 0, 1, 1}, new double[] {0, 1});
-		deduplicateDouble(new double[] {0, 0, 0, 1, 1}, new double[] {0, 1});
-		deduplicateDouble(new double[] {0, 0, 1, 1}, new double[] {0, 1});
-		deduplicateDouble(new double[] {0, 0, 0, 1, 1}, new double[] {0, 1});
-		deduplicateDouble(new double[] {0, 1, 1}, new double[] {0, 1});
-		deduplicateDouble(new double[] {0, 1, 1, 2}, new double[] {0, 1, 2});
-		deduplicateDouble(new double[] {Double.NaN}, new double[] {Double.NaN});
-		deduplicateDouble(new double[] {Double.NaN, Double.NaN}, new double[] {Double.NaN});
-		deduplicateDouble(new double[] {0, Double.NaN, Double.NaN}, new double[] {0, Double.NaN});
+		deduplicateDouble(new double[] { 0 }, new double[] { 0 });
+		deduplicateDouble(new double[] { 0, 0 }, new double[] { 0 });
+		deduplicateDouble(new double[] { 0, 0, 0 }, new double[] { 0 });
+		deduplicateDouble(new double[] { 0, 0, 1, 1 }, new double[] { 0, 1 });
+		deduplicateDouble(new double[] { 0, 0, 0, 1, 1 }, new double[] { 0, 1 });
+		deduplicateDouble(new double[] { 0, 0, 1, 1 }, new double[] { 0, 1 });
+		deduplicateDouble(new double[] { 0, 0, 0, 1, 1 }, new double[] { 0, 1 });
+		deduplicateDouble(new double[] { 0, 1, 1 }, new double[] { 0, 1 });
+		deduplicateDouble(new double[] { 0, 1, 1, 2 }, new double[] { 0, 1, 2 });
+		deduplicateDouble(new double[] { Double.NaN }, new double[] { Double.NaN });
+		deduplicateDouble(new double[] { Double.NaN, Double.NaN }, new double[] { Double.NaN });
+		deduplicateDouble(new double[] { 0, Double.NaN, Double.NaN }, new double[] { 0, Double.NaN });
 	}
-	
+
 	private static void deduplicateDouble(double[] before, double[] after) {
-		
+
 		double highest = BufferUtils.deduplicate(DoubleBuffer.wrap(before), 0, before.length);
 		Assertions.assertEquals(after.length, highest);
-		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length)); 
+		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length));
 	}
 
 	@Test

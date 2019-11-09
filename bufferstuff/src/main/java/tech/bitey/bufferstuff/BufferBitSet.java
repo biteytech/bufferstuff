@@ -332,7 +332,7 @@ public class BufferBitSet implements Cloneable {
 
 		ByteBuffer buffer = slice(this.buffer, byteIndex(fromIndex), byteIndex(toIndex - 1) + 1);
 
-		// find last set bit		
+		// find last set bit
 		int n = buffer.limit() - 1;
 		while (n >= 0 && buffer.get(n) == 0)
 			n--;
@@ -389,7 +389,7 @@ public class BufferBitSet implements Cloneable {
 		int limit = buffer.limit();
 		for (int i = 0; i < limit - 1; i++)
 			buffer.put(i, (byte) (((buffer.get(i) & 0xFF) >>> offset) | (buffer.get(i + 1) << ((-offset) & 7))));
-		
+
 		// handle last byte
 		buffer.put(limit - 1, (byte) ((buffer.get(limit - 1) & 0xFF) >>> offset));
 
@@ -1171,12 +1171,8 @@ public class BufferBitSet implements Cloneable {
 		if (bytesInCommon < set.buffer.position()) {
 			expandTo(set.buffer.position() - 1);
 
-			ByteBuffer remaining = set.buffer.duplicate();
-			remaining.position(bytesInCommon);
-			remaining.limit(set.buffer.position());
-
 			buffer.position(bytesInCommon);
-			buffer.put(remaining);
+			buffer.put(slice(set.buffer, bytesInCommon, set.buffer.position()));
 		}
 	}
 
