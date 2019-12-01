@@ -1,9 +1,11 @@
 package tech.bitey.bufferstuff;
 
+import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
@@ -48,6 +50,8 @@ public class TestBufferSearch {
 		}
 	}
 
+	// ================================================================================================
+
 	private static final long LMIN = Long.MIN_VALUE;
 	private static final long LMAX = Long.MAX_VALUE;
 
@@ -84,6 +88,86 @@ public class TestBufferSearch {
 			}
 		}
 	}
+
+	// ================================================================================================
+
+	private static final short SMIN = Short.MIN_VALUE;
+	private static final short SMAX = Short.MAX_VALUE;
+
+	private static final short[][][] BINARY_SEARCH_SHORT = {
+			// {fromIndex, toIndex}, {array to search}, {values to search for}
+			{ { 0, 0 }, {}, { SMIN, -1, 0, 1, 2, SMAX } }, { { 0, 1 }, { 0 }, { SMIN, -1, 0, 1, 2, SMAX } },
+			{ { 0, 2 }, { SMIN, SMAX }, { SMIN, -1, 0, 1, 2, SMAX } },
+			{ { 0, 3 }, { SMIN, 0, SMAX }, { SMIN, -1, 0, 1, 2, SMAX } },
+			{ { 0, 5 }, { 1, 2, 3, 4, 5 }, { 0, 1, 2, 3, 4, 5, 6 } },
+			{ { 0, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 1, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 2, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 3, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 4, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 0, 3 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 0, 2 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 0, 1 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } }, };
+
+	@Test
+	public void binarySearchShort() {
+
+		for (short[][] config : BINARY_SEARCH_SHORT) {
+
+			final int fromIndex = config[0][0];
+			final int toIndex = config[0][1];
+			final short[] a = config[1];
+			final ShortBuffer b = ShortBuffer.wrap(a);
+
+			for (short value : config[2]) {
+
+				int expected = Arrays.binarySearch(a, fromIndex, toIndex, value);
+				int actual = BufferSearch.binarySearch(b, fromIndex, toIndex, value);
+				Assertions.assertEquals(expected, actual);
+			}
+		}
+	}
+
+	// ================================================================================================
+
+	private static final byte BMIN = Byte.MIN_VALUE;
+	private static final byte BMAX = Byte.MAX_VALUE;
+
+	private static final byte[][][] BINARY_SEARCH_BYTE = {
+			// {fromIndex, toIndex}, {array to search}, {values to search for}
+			{ { 0, 0 }, {}, { BMIN, -1, 0, 1, 2, BMAX } }, { { 0, 1 }, { 0 }, { BMIN, -1, 0, 1, 2, BMAX } },
+			{ { 0, 2 }, { BMIN, BMAX }, { BMIN, -1, 0, 1, 2, BMAX } },
+			{ { 0, 3 }, { BMIN, 0, BMAX }, { BMIN, -1, 0, 1, 2, BMAX } },
+			{ { 0, 5 }, { 1, 2, 3, 4, 5 }, { 0, 1, 2, 3, 4, 5, 6 } },
+			{ { 0, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 1, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 2, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 3, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 4, 4 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 0, 3 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 0, 2 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } },
+			{ { 0, 1 }, { -3, -1, 1, 3 }, { -4, -3, -2, -1, 0, 1, 2, 3, 4 } }, };
+
+	@Test
+	public void binarySearchByte() {
+
+		for (byte[][] config : BINARY_SEARCH_BYTE) {
+
+			final int fromIndex = config[0][0];
+			final int toIndex = config[0][1];
+			final byte[] a = config[1];
+			final ByteBuffer b = ByteBuffer.wrap(a);
+
+			for (byte value : config[2]) {
+
+				int expected = Arrays.binarySearch(a, fromIndex, toIndex, value);
+				int actual = BufferSearch.binarySearch(b, fromIndex, toIndex, value);
+				Assertions.assertEquals(expected, actual);
+			}
+		}
+	}
+
+	// ================================================================================================
 
 	private static final float FMIN = Float.NEGATIVE_INFINITY;
 	private static final float FMAX = Float.POSITIVE_INFINITY;
@@ -124,6 +208,8 @@ public class TestBufferSearch {
 		}
 	}
 
+	// ================================================================================================
+
 	private static final double DMIN = Double.NEGATIVE_INFINITY;
 	private static final double DMAX = Double.POSITIVE_INFINITY;
 	private static final double DNAN = Double.NaN;
@@ -163,6 +249,8 @@ public class TestBufferSearch {
 		}
 	}
 
+	// ================================================================================================
+
 	@Test
 	public void binaryFindFirstInt() {
 
@@ -192,6 +280,8 @@ public class TestBufferSearch {
 			}
 		}
 	}
+
+	// ================================================================================================
 
 	@Test
 	public void binaryFindFirstLong() {
@@ -223,6 +313,72 @@ public class TestBufferSearch {
 		}
 	}
 
+	// ================================================================================================
+
+	@Test
+	public void binaryFindFirstShort() {
+
+		for (int i = 0; i < 100; i++) {
+			for (int j = 1; j < 100; j++) {
+
+				short[] array = new short[i + j];
+				Arrays.fill(array, 0, i, (short) 888);
+				Arrays.fill(array, i, i + j, (short) 999);
+
+				Assertions.assertEquals(i, BufferSearch.binaryFindFirst(ShortBuffer.wrap(array), 0, array.length - 1));
+			}
+		}
+	}
+
+	@Test
+	public void binaryFindLastShort() {
+
+		for (int i = 1; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+
+				short[] array = new short[i + j];
+				Arrays.fill(array, 0, i, (short) 888);
+				Arrays.fill(array, i, i + j, (short) 999);
+
+				Assertions.assertEquals(i - 1, BufferSearch.binaryFindLast(ShortBuffer.wrap(array), array.length, 0));
+			}
+		}
+	}
+
+	// ================================================================================================
+
+	@Test
+	public void binaryFindFirstByte() {
+
+		for (int i = 0; i < 100; i++) {
+			for (int j = 1; j < 100; j++) {
+
+				byte[] array = new byte[i + j];
+				Arrays.fill(array, 0, i, (byte) 88);
+				Arrays.fill(array, i, i + j, (byte) 99);
+
+				Assertions.assertEquals(i, BufferSearch.binaryFindFirst(ByteBuffer.wrap(array), 0, array.length - 1));
+			}
+		}
+	}
+
+	@Test
+	public void binaryFindLastByte() {
+
+		for (int i = 1; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+
+				byte[] array = new byte[i + j];
+				Arrays.fill(array, 0, i, (byte) 88);
+				Arrays.fill(array, i, i + j, (byte) 99);
+
+				Assertions.assertEquals(i - 1, BufferSearch.binaryFindLast(ByteBuffer.wrap(array), array.length, 0));
+			}
+		}
+	}
+
+	// ================================================================================================
+
 	@Test
 	public void binaryFindFirstFloat() {
 
@@ -253,6 +409,8 @@ public class TestBufferSearch {
 			}
 		}
 	}
+
+	// ================================================================================================
 
 	@Test
 	public void binaryFindFirstDouble() {

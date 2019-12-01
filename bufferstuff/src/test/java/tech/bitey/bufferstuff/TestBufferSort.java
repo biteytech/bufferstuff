@@ -1,9 +1,11 @@
 package tech.bitey.bufferstuff;
 
+import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
@@ -60,6 +62,8 @@ public class TestBufferSort {
 		}
 	}
 
+	// =============================================================================================
+
 	private final long[] lsorted = { 1, 2, 3 };
 	private final long[] lreverse = { 3, 2, 1 };
 
@@ -108,6 +112,110 @@ public class TestBufferSort {
 					Arrays.copyOfRange(actual.array(), fromIndex, toIndex));
 		}
 	}
+
+	// =============================================================================================
+
+	private final short[] ssorted = { 1, 2, 3 };
+	private final short[] sreverse = { 3, 2, 1 };
+
+	private final short[] srandom = { -311, -509, -74, -128, -695, 859, 852, -888, -149, -431, 589, -354, 71, -110, 236,
+			74, 976, -653, -80, 420, -340, -686, -275, 740, 265, -937, 118, -948, 667, -743, -194, 186, -498, -830, 995,
+			-847, -334, 922, -521, -786, -179, 117, -971, -823, 593, -235, 344, -827, -246, 324, -662, -489, 153, 969,
+			-593, -214, 75, -643, 26, -188, 2, 640, -799, -231, 299, -927, -870, 473, 388, -96, -505, -891, 423, -660,
+			140, 64, -364, -636, 280, 930, 701, 278, 180, 554, 113, 910, -883, 924, 986, 374, 4, 616, 443, 444, 261,
+			-843, -25, -252, -837, -43, Short.MAX_VALUE, Short.MAX_VALUE, Short.MIN_VALUE, Short.MIN_VALUE };
+
+	@Test
+	public void sortShort() {
+
+		sort(new short[] {}, 0, 0);
+		sort(new short[] { 0 }, 0, 1);
+		sort(new short[] { 0, 0 }, 0, 2);
+		sort(ssorted, 0, 3);
+		sort(sreverse, 0, 3);
+
+		for (int l = 2; l <= srandom.length; l++) {
+			for (int fromIndex = 0;; fromIndex++) {
+				int toIndex = fromIndex + l;
+				if (toIndex > srandom.length)
+					break;
+				sort(srandom, fromIndex, toIndex);
+			}
+		}
+	}
+
+	@FunctionalInterface
+	private interface ShortBufferSort {
+		void sort(ShortBuffer b, int fromIndex, int toIndex);
+	}
+
+	public void sort(short[] array, int fromIndex, int toIndex) {
+
+		short[] expected = Arrays.copyOf(array, array.length);
+		Arrays.sort(expected, fromIndex, toIndex);
+
+		for (ShortBufferSort sort : new ShortBufferSort[] { BufferSort::insertionSort, BufferSort::heapSort,
+				BufferSort::countingSort, BufferSort::sort }) {
+			ShortBuffer actual = ShortBuffer.wrap(Arrays.copyOf(array, array.length));
+			sort.sort(actual, fromIndex, toIndex);
+
+			Assertions.assertArrayEquals(Arrays.copyOfRange(expected, fromIndex, toIndex),
+					Arrays.copyOfRange(actual.array(), fromIndex, toIndex));
+		}
+	}
+
+	// =============================================================================================
+
+	private final byte[] bsorted = { 1, 2, 3 };
+	private final byte[] breverse = { 3, 2, 1 };
+
+	private final byte[] brandom = { -111, -109, -74, -128, -95, 59, 52, -88, -49, -31, 89, -54, 71, -110, 36, 74, 76,
+			-53, -80, 120, -40, -86, -75, 40, 65, -37, 118, -48, 67, -43, -94, 86, -98, -30, 95, -47, -34, 122, -121,
+			-86, -79, 117, -71, -123, 93, -35, 44, -127, -46, 124, -62, -89, 53, 69, -93, -114, 75, -3, 26, -8, 2, 40,
+			-99, -13, 99, -127, -70, 73, 18, -96, -105, -91, 123, -16, 40, 64, -16, -13, 18, 0, 101, 78, 80, 54, 113,
+			110, -83, 124, 18, 74, 4, 116, 43, 44, 61, -43, -25, -52, -37, -43, Byte.MAX_VALUE, Byte.MAX_VALUE,
+			Byte.MIN_VALUE, Byte.MIN_VALUE };
+
+	@Test
+	public void sortByte() {
+
+		sort(new byte[] {}, 0, 0);
+		sort(new byte[] { 0 }, 0, 1);
+		sort(new byte[] { 0, 0 }, 0, 2);
+		sort(bsorted, 0, 3);
+		sort(breverse, 0, 3);
+
+		for (int l = 2; l <= brandom.length; l++) {
+			for (int fromIndex = 0;; fromIndex++) {
+				int toIndex = fromIndex + l;
+				if (toIndex > brandom.length)
+					break;
+				sort(brandom, fromIndex, toIndex);
+			}
+		}
+	}
+
+	@FunctionalInterface
+	private interface ByteBufferSort {
+		void sort(ByteBuffer b, int fromIndex, int toIndex);
+	}
+
+	public void sort(byte[] array, int fromIndex, int toIndex) {
+
+		byte[] expected = Arrays.copyOf(array, array.length);
+		Arrays.sort(expected, fromIndex, toIndex);
+
+		for (ByteBufferSort sort : new ByteBufferSort[] { BufferSort::insertionSort, BufferSort::heapSort,
+				BufferSort::countingSort, BufferSort::sort }) {
+			ByteBuffer actual = ByteBuffer.wrap(Arrays.copyOf(array, array.length));
+			sort.sort(actual, fromIndex, toIndex);
+
+			Assertions.assertArrayEquals(Arrays.copyOfRange(expected, fromIndex, toIndex),
+					Arrays.copyOfRange(actual.array(), fromIndex, toIndex));
+		}
+	}
+
+	// =============================================================================================
 
 	private final float[] fsorted = { 1, 2, 3 };
 	private final float[] freverse = { 3, 2, 1 };
@@ -160,6 +268,8 @@ public class TestBufferSort {
 					Arrays.copyOfRange(actual.array(), fromIndex, toIndex));
 		}
 	}
+
+	// =============================================================================================
 
 	private final double[] dsorted = { 1, 2, 3 };
 	private final double[] dreverse = { 3, 2, 1 };

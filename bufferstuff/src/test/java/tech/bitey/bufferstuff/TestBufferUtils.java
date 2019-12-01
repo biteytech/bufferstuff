@@ -10,6 +10,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ReadOnlyBufferException;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
@@ -61,6 +62,8 @@ public class TestBufferUtils {
 			Assertions.assertFalse(BufferUtils.isSortedAndDistinct(IntBuffer.wrap(array), 0, array.length));
 	}
 
+	// ======================================================================================
+
 	private static final long LMIN = Long.MIN_VALUE;
 	private static final long LMAX = Long.MAX_VALUE;
 
@@ -104,6 +107,100 @@ public class TestBufferUtils {
 		for (long[] array : NOT_SORTED_DISTINCT_LONG)
 			Assertions.assertFalse(BufferUtils.isSortedAndDistinct(LongBuffer.wrap(array), 0, array.length));
 	}
+
+	// ======================================================================================
+
+	private static final short SMIN = Short.MIN_VALUE;
+	private static final short SMAX = Short.MAX_VALUE;
+
+	private static final short[][] SORTED_SHORT = { {}, { 0 }, { 0, 0 }, { SMIN, SMIN }, { SMAX, SMAX }, { SMIN, SMAX },
+			{ SMIN, 0, SMAX }, { -2, -1, 1, 2 }, };
+	private static final short[][] NOT_SORTED_SHORT = { { 1, 0 }, { SMAX, SMIN }, { 3, 2, 1 }, };
+
+	@Test
+	public void isSortedShort() {
+		Assertions.assertTrue(BufferUtils.isSorted(ShortBuffer.allocate(0), 0, 0));
+		Assertions.assertTrue(BufferUtils.isSorted(ShortBuffer.allocate(1), 0, 0));
+		Assertions.assertTrue(BufferUtils.isSorted(ShortBuffer.allocate(1), 0, 1));
+
+		for (short[] array : SORTED_SHORT) {
+			ShortBuffer b = ShortBuffer.wrap(array);
+			Assertions.assertTrue(BufferUtils.isSorted(b, 0, array.length));
+			if (array.length > 0) {
+				Assertions.assertTrue(BufferUtils.isSorted(b, 0, array.length - 1));
+				Assertions.assertTrue(BufferUtils.isSorted(b, 1, array.length));
+			}
+		}
+
+		for (short[] array : NOT_SORTED_SHORT)
+			Assertions.assertFalse(BufferUtils.isSorted(ShortBuffer.wrap(array), 0, array.length));
+	}
+
+	private static final short[][] SORTED_DISTINCT_SHORT = { {}, { 0 }, { SMIN, SMAX }, { SMIN, 0, SMAX },
+			{ -2, -1, 1, 2 }, };
+	private static final short[][] NOT_SORTED_DISTINCT_SHORT = { { 1, 0 }, { SMAX, SMIN }, { 3, 2, 1 }, { 0, 0 },
+			{ SMIN, SMIN }, { SMAX, SMAX }, { -2, -1, -1 } };
+
+	@Test
+	public void isSortedAndDistinctShort() {
+		Assertions.assertTrue(BufferUtils.isSortedAndDistinct(ShortBuffer.allocate(0), 0, 0));
+		Assertions.assertTrue(BufferUtils.isSortedAndDistinct(ShortBuffer.allocate(1), 0, 0));
+		Assertions.assertTrue(BufferUtils.isSortedAndDistinct(ShortBuffer.allocate(1), 0, 1));
+
+		for (short[] array : SORTED_DISTINCT_SHORT)
+			Assertions.assertTrue(BufferUtils.isSortedAndDistinct(ShortBuffer.wrap(array), 0, array.length));
+
+		for (short[] array : NOT_SORTED_DISTINCT_SHORT)
+			Assertions.assertFalse(BufferUtils.isSortedAndDistinct(ShortBuffer.wrap(array), 0, array.length));
+	}
+
+	// ======================================================================================
+
+	private static final byte BMIN = Byte.MIN_VALUE;
+	private static final byte BMAX = Byte.MAX_VALUE;
+
+	private static final byte[][] SORTED_BYTE = { {}, { 0 }, { 0, 0 }, { BMIN, BMIN }, { BMAX, BMAX }, { BMIN, BMAX },
+			{ BMIN, 0, BMAX }, { -2, -1, 1, 2 }, };
+	private static final byte[][] NOT_SORTED_BYTE = { { 1, 0 }, { BMAX, BMIN }, { 3, 2, 1 }, };
+
+	@Test
+	public void isSortedByte() {
+		Assertions.assertTrue(BufferUtils.isSorted(ByteBuffer.allocate(0), 0, 0));
+		Assertions.assertTrue(BufferUtils.isSorted(ByteBuffer.allocate(1), 0, 0));
+		Assertions.assertTrue(BufferUtils.isSorted(ByteBuffer.allocate(1), 0, 1));
+
+		for (byte[] array : SORTED_BYTE) {
+			ByteBuffer b = ByteBuffer.wrap(array);
+			Assertions.assertTrue(BufferUtils.isSorted(b, 0, array.length));
+			if (array.length > 0) {
+				Assertions.assertTrue(BufferUtils.isSorted(b, 0, array.length - 1));
+				Assertions.assertTrue(BufferUtils.isSorted(b, 1, array.length));
+			}
+		}
+
+		for (byte[] array : NOT_SORTED_BYTE)
+			Assertions.assertFalse(BufferUtils.isSorted(ByteBuffer.wrap(array), 0, array.length));
+	}
+
+	private static final byte[][] SORTED_DISTINCT_BYTE = { {}, { 0 }, { BMIN, BMAX }, { BMIN, 0, BMAX },
+			{ -2, -1, 1, 2 }, };
+	private static final byte[][] NOT_SORTED_DISTINCT_BYTE = { { 1, 0 }, { BMAX, BMIN }, { 3, 2, 1 }, { 0, 0 },
+			{ BMIN, BMIN }, { BMAX, BMAX }, { -2, -1, -1 } };
+
+	@Test
+	public void isSortedAndDistinctByte() {
+		Assertions.assertTrue(BufferUtils.isSortedAndDistinct(ByteBuffer.allocate(0), 0, 0));
+		Assertions.assertTrue(BufferUtils.isSortedAndDistinct(ByteBuffer.allocate(1), 0, 0));
+		Assertions.assertTrue(BufferUtils.isSortedAndDistinct(ByteBuffer.allocate(1), 0, 1));
+
+		for (byte[] array : SORTED_DISTINCT_BYTE)
+			Assertions.assertTrue(BufferUtils.isSortedAndDistinct(ByteBuffer.wrap(array), 0, array.length));
+
+		for (byte[] array : NOT_SORTED_DISTINCT_BYTE)
+			Assertions.assertFalse(BufferUtils.isSortedAndDistinct(ByteBuffer.wrap(array), 0, array.length));
+	}
+
+	// ======================================================================================
 
 	private static final float FMIN = Float.NEGATIVE_INFINITY;
 	private static final float FMAX = Float.POSITIVE_INFINITY;
@@ -151,6 +248,8 @@ public class TestBufferUtils {
 			Assertions.assertFalse(BufferUtils.isSortedAndDistinct(FloatBuffer.wrap(array), 0, array.length));
 	}
 
+	// ======================================================================================
+
 	private static final double DMIN = Double.NEGATIVE_INFINITY;
 	private static final double DMAX = Double.POSITIVE_INFINITY;
 	private static final double DNAN = Double.NaN;
@@ -197,6 +296,8 @@ public class TestBufferUtils {
 		for (double[] array : NOT_SORTED_DISTINCT_DOUBLE)
 			Assertions.assertFalse(BufferUtils.isSortedAndDistinct(DoubleBuffer.wrap(array), 0, array.length));
 	}
+
+	// ======================================================================================
 
 	@Test
 	public void testDuplicate() {
@@ -265,6 +366,8 @@ public class TestBufferUtils {
 		Assertions.assertEquals(b.order(), b3.order());
 	}
 
+	// ======================================================================================
+
 	@Test
 	public void testCopyByte() {
 		ByteBuffer b = ByteBuffer.wrap(new byte[] { (byte) -1, (byte) 0, (byte) 1, (byte) 2, (byte) 3 });
@@ -302,6 +405,20 @@ public class TestBufferUtils {
 	}
 
 	@Test
+	public void testCopyShort() {
+		short[] a = new short[] { -1, 0, 1, 2, 3 };
+		ShortBuffer b = ShortBuffer.wrap(a);
+		ShortBuffer b2 = BufferUtils.copy(b, 0, b.capacity());
+		short[] a2 = new short[a.length];
+		b2.get(a2);
+		Assertions.assertArrayEquals(a, a2);
+
+		short[] a3 = new short[3];
+		BufferUtils.copy(b, 1, 4).get(a3);
+		Assertions.assertArrayEquals(new short[] { 0, 1, 2 }, a3);
+	}
+
+	@Test
 	public void testCopyFloat() {
 		float[] a = new float[] { -1, 0, 1, 2, 3 };
 		FloatBuffer b = FloatBuffer.wrap(a);
@@ -328,6 +445,8 @@ public class TestBufferUtils {
 		BufferUtils.copy(b, 1, 4).get(a3);
 		Assertions.assertArrayEquals(new double[] { 0, 1, 2 }, a3);
 	}
+
+	// ======================================================================================
 
 	@Test
 	public void deduplicateInt() {
@@ -373,6 +492,54 @@ public class TestBufferUtils {
 	private static void deduplicateLong(long[] before, long[] after) {
 
 		long highest = BufferUtils.deduplicate(LongBuffer.wrap(before), 0, before.length);
+		Assertions.assertEquals(after.length, highest);
+		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length));
+	}
+
+	@Test
+	public void deduplicateShort() {
+
+		deduplicateShort(new short[] { 0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4 }, new short[] { 0, 1, 2, 3, 4 });
+		deduplicateShort(new short[] { 0, 1, 2, 3, 4 }, new short[] { 0, 1, 2, 3, 4 });
+		deduplicateShort(new short[] {}, new short[] {});
+		deduplicateShort(new short[] { 0 }, new short[] { 0 });
+		deduplicateShort(new short[] { 0, 0 }, new short[] { 0 });
+		deduplicateShort(new short[] { 0, 0, 0 }, new short[] { 0 });
+		deduplicateShort(new short[] { 0, 0, 1, 1 }, new short[] { 0, 1 });
+		deduplicateShort(new short[] { 0, 0, 0, 1, 1 }, new short[] { 0, 1 });
+		deduplicateShort(new short[] { 0, 0, 1, 1 }, new short[] { 0, 1 });
+		deduplicateShort(new short[] { 0, 0, 0, 1, 1 }, new short[] { 0, 1 });
+		deduplicateShort(new short[] { 0, 1, 1 }, new short[] { 0, 1 });
+		deduplicateShort(new short[] { 0, 1, 1, 2 }, new short[] { 0, 1, 2 });
+	}
+
+	private static void deduplicateShort(short[] before, short[] after) {
+
+		int highest = BufferUtils.deduplicate(ShortBuffer.wrap(before), 0, before.length);
+		Assertions.assertEquals(after.length, highest);
+		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length));
+	}
+
+	@Test
+	public void deduplicateByte() {
+
+		deduplicateByte(new byte[] { 0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4 }, new byte[] { 0, 1, 2, 3, 4 });
+		deduplicateByte(new byte[] { 0, 1, 2, 3, 4 }, new byte[] { 0, 1, 2, 3, 4 });
+		deduplicateByte(new byte[] {}, new byte[] {});
+		deduplicateByte(new byte[] { 0 }, new byte[] { 0 });
+		deduplicateByte(new byte[] { 0, 0 }, new byte[] { 0 });
+		deduplicateByte(new byte[] { 0, 0, 0 }, new byte[] { 0 });
+		deduplicateByte(new byte[] { 0, 0, 1, 1 }, new byte[] { 0, 1 });
+		deduplicateByte(new byte[] { 0, 0, 0, 1, 1 }, new byte[] { 0, 1 });
+		deduplicateByte(new byte[] { 0, 0, 1, 1 }, new byte[] { 0, 1 });
+		deduplicateByte(new byte[] { 0, 0, 0, 1, 1 }, new byte[] { 0, 1 });
+		deduplicateByte(new byte[] { 0, 1, 1 }, new byte[] { 0, 1 });
+		deduplicateByte(new byte[] { 0, 1, 1, 2 }, new byte[] { 0, 1, 2 });
+	}
+
+	private static void deduplicateByte(byte[] before, byte[] after) {
+
+		int highest = BufferUtils.deduplicate(ByteBuffer.wrap(before), 0, before.length);
 		Assertions.assertEquals(after.length, highest);
 		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length));
 	}
