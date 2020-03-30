@@ -449,7 +449,16 @@ public class TestBufferBitSet {
 		populateWithSampleIndices(bs);
 
 		Assertions.assertEquals(SAMPLE_INDICES.size(), bs.cardinality());
+		Assertions.assertEquals(SAMPLE_INDICES.size(), bs.cardinality(0, 10000));
 		Assertions.assertEquals(0, new BufferBitSet().cardinality());
+		Assertions.assertEquals(0, new BufferBitSet().cardinality(0, 10));
+
+		BufferBitSet bs2 = new BufferBitSet();
+		bs2.set(0, 24);
+		for (int i = 0; i <= 24; i++)
+			Assertions.assertEquals(i, bs2.cardinality(0, i));
+		Assertions.assertEquals(3, bs2.cardinality(3, 6));
+		Assertions.assertEquals(3, bs2.cardinality(6, 9));
 	}
 
 	@Test

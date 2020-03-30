@@ -1,5 +1,6 @@
 package tech.bitey.bufferstuff;
 
+import static java.lang.Integer.bitCount;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static tech.bitey.bufferstuff.BufferUtils.allocate;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
@@ -289,7 +290,7 @@ public class BufferBitSet implements Cloneable {
 	}
 
 	/*--------------------------------------------------------------------------------
-	 *  Methods for read from and writing to a channel
+	 *  Methods for reading from and writing to a channel
 	 *-------------------------------------------------------------------------------*/
 
 	/**
@@ -1030,12 +1031,61 @@ public class BufferBitSet implements Cloneable {
 	public int cardinality() {
 
 		final int position = buffer.position();
-		int sum = 0;
+		int count = 0;
 
 		for (int i = 0; i < position; i++)
-			sum += Integer.bitCount(byt(i) & 0xFF);
+			count += bitCount(byt(i) & 0xFF);
 
-		return sum;
+		return count;
+	}
+
+	/**
+	 * Returns the number of bits set to true within the given range.
+	 *
+	 * @param fromIndex - index of the first bit in the range
+	 * @param toIndex   - index after the last bit in the range
+	 * @return the number of bits set to true within the given range.
+	 * @throws IndexOutOfBoundsException if {@code fromIndex} is negative, or
+	 *                                   {@code toIndex} is negative, or
+	 *                                   {@code fromIndex} is larger than
+	 *                                   {@code toIndex}
+	 */
+	public int cardinality(int fromIndex, int toIndex) {
+		checkRange(fromIndex, toIndex);
+
+		int len = length();
+
+		// If no set bits in range return empty bitset
+		if (len <= fromIndex || fromIndex == toIndex)
+			return 0;
+		else if (toIndex > len)
+			toIndex = len;
+
+		int startByteIndex = byteIndex(fromIndex);
+		int endByteIndex = byteIndex(toIndex - 1);
+
+		int firstByteMask = (MASK << (fromIndex & 7)) & 0xFF;
+		int lastByteMask = MASK >>> ((-toIndex) & 7);
+
+		if (startByteIndex == endByteIndex) {
+			// Case 1: One word
+			return bitCount(byt(startByteIndex) & (firstByteMask & lastByteMask));
+		} else {
+			// Case 2: Multiple words
+			int count = 0;
+
+			// Handle first word
+			count += bitCount(byt(startByteIndex) & firstByteMask);
+
+			// Handle intermediate words, if any
+			for (int i = startByteIndex + 1; i < endByteIndex; i++)
+				count += bitCount(byt(i) & 0xFF);
+
+			// Handle last word
+			count += bitCount(byt(endByteIndex) & lastByteMask);
+
+			return count;
+		}
 	}
 
 	/**
