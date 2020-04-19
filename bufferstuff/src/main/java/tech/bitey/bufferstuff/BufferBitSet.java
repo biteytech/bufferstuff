@@ -51,6 +51,8 @@ public class BufferBitSet implements Cloneable {
 
 	private static final int MASK = 0xFF;
 
+	private static final int MAX_CAPACITY = byteIndex(Integer.MAX_VALUE) + 1;
+
 	/**
 	 * Specifies whether or not the buffer can be replaced with a larger one.
 	 */
@@ -98,6 +100,7 @@ public class BufferBitSet implements Cloneable {
 
 		if (externalBuffer) {
 			this.buffer = buffer.slice();
+			this.buffer.limit(Math.min(this.buffer.limit(), MAX_CAPACITY));
 			this.buffer.position(this.buffer.limit());
 			recalculateBytesInUse();
 		} else {
@@ -302,7 +305,7 @@ public class BufferBitSet implements Cloneable {
 	 * @throws IOException if some I/O error occurs
 	 */
 	public void writeTo(WritableByteChannel channel) throws IOException {
-		writeTo(channel, 0, length());
+		writeTo(channel, 0, lastSetBit() + 1);
 	}
 
 	/**
@@ -323,13 +326,13 @@ public class BufferBitSet implements Cloneable {
 	public void writeTo(WritableByteChannel channel, int fromIndex, int toIndex) throws IOException {
 		checkRange(fromIndex, toIndex);
 
-		final int length = length();
+		final int lastSetBit = lastSetBit();
 
-		if (fromIndex >= length) {
+		if (fromIndex > lastSetBit) {
 			fromIndex = 0;
 			toIndex = 0;
-		} else if (toIndex > length)
-			toIndex = length;
+		} else if (toIndex - 1 > lastSetBit)
+			toIndex = lastSetBit + 1;
 
 		ByteBuffer buffer = slice(this.buffer, byteIndex(fromIndex), byteIndex(toIndex - 1) + 1);
 
@@ -436,15 +439,15 @@ public class BufferBitSet implements Cloneable {
 	public BufferBitSet get(int fromIndex, int toIndex) {
 		checkRange(fromIndex, toIndex);
 
-		int len = length();
+		final int lastSetBit = lastSetBit();
 
 		// If no set bits in range return empty bitset
-		if (len <= fromIndex || fromIndex == toIndex)
+		if (lastSetBit < fromIndex || fromIndex == toIndex)
 			return new BufferBitSet(resizable);
 
 		// An optimization
-		if (toIndex > len)
-			toIndex = len;
+		if (toIndex - 1 > lastSetBit)
+			toIndex = lastSetBit + 1;
 
 		final int targetBytes = byteIndex(toIndex - fromIndex - 1) + 1;
 
@@ -660,13 +663,18 @@ public class BufferBitSet implements Cloneable {
 	public void clear(int fromIndex, int toIndex) {
 		checkRange(fromIndex, toIndex);
 
-		if (fromIndex == toIndex)
+		final int lastSetBit = lastSetBit();
+
+		// If no set bits in range return
+		if (lastSetBit < fromIndex || fromIndex == toIndex)
 			return;
 
-		// Increase capacity if necessary
+		// An optimization
+		if (toIndex - 1 > lastSetBit)
+			toIndex = lastSetBit + 1;
+
 		int startByteIndex = byteIndex(fromIndex);
 		int endByteIndex = byteIndex(toIndex - 1);
-		expandTo(endByteIndex);
 
 		int firstByteMask = MASK << (fromIndex & 7);
 		int lastByteMask = MASK >>> ((-toIndex) & 7);
@@ -773,7 +781,7 @@ public class BufferBitSet implements Cloneable {
 
 		int u = byteIndex(fromIndex);
 		if (u >= buffer.position())
-			return length() - 1;
+			return lastSetBit();
 
 		byte b = (byte) (byt(u) & (MASK >>> ((-(fromIndex + 1)) & 7)));
 
@@ -817,6 +825,23 @@ public class BufferBitSet implements Cloneable {
 				return -1;
 			b = (byte) ~byt(u);
 		}
+	}
+
+	/**
+	 * Returns the index of the highest set bit in the bitset, or -1 if the bitset
+	 * contains no set bits.
+	 *
+	 * @return the index of the highest set bit in the bitset, or -1 if the bitset
+	 *         contains no set bits.
+	 */
+	public int lastSetBit() {
+
+		if (isEmpty())
+			return -1;
+
+		final int lastUsedIndex = buffer.position() - 1;
+
+		return 8 * lastUsedIndex - 1 + (8 - numberOfLeadingZeros(byt(lastUsedIndex)));
 	}
 
 	/*--------------------------------------------------------------------------------
@@ -928,11 +953,17 @@ public class BufferBitSet implements Cloneable {
 	 * @return a new bitset with shifted right by {@code offset}
 	 * 
 	 * @throws IllegalArgumentException if offset is negative
+	 * @throws IllegalStateException    if the shifted size exceeds the maximum
+	 *                                  addressable size ({@code 2^31-1})
 	 */
 	public BufferBitSet shiftRight(int offset) {
 
 		if (offset < 0)
 			throw new IllegalArgumentException("offset < 0: " + offset);
+		else if (offset == 0 || isEmpty())
+			return copy();
+		else if (lastSetBit() + offset < 0)
+			throw new IllegalStateException("shifted size exceeds max addressable size (2^31-1)");
 
 		final int offsetBytes = (offset - 1) / 8 + 1;
 		final int totalBytes = offsetBytes + buffer.position();
@@ -987,22 +1018,6 @@ public class BufferBitSet implements Cloneable {
 	}
 
 	/**
-	 * Returns the "logical size" of this bitset: the index of the highest set bit
-	 * in the bitset plus one. Returns zero if the bitset contains no set bits.
-	 *
-	 * @return the logical size of this bitset
-	 */
-	public int length() {
-
-		if (isEmpty())
-			return 0;
-
-		final int lastUsedIndex = buffer.position() - 1;
-
-		return 8 * lastUsedIndex + (8 - numberOfLeadingZeros(byt(lastUsedIndex)));
-	}
-
-	/**
 	 * Returns the number of bits of space actually in use by this
 	 * {@link BufferBitSet} to represent bit values. The maximum element that can be
 	 * set without resizing is {@code size()-1}
@@ -1053,13 +1068,13 @@ public class BufferBitSet implements Cloneable {
 	public int cardinality(int fromIndex, int toIndex) {
 		checkRange(fromIndex, toIndex);
 
-		int len = length();
+		int lastSetBit = lastSetBit();
 
 		// If no set bits in range return empty bitset
-		if (len <= fromIndex || fromIndex == toIndex)
+		if (lastSetBit < fromIndex || fromIndex == toIndex)
 			return 0;
-		else if (toIndex > len)
-			toIndex = len;
+		else if (toIndex - 1 > lastSetBit)
+			toIndex = lastSetBit + 1;
 
 		int startByteIndex = byteIndex(fromIndex);
 		int endByteIndex = byteIndex(toIndex - 1);
@@ -1187,8 +1202,10 @@ public class BufferBitSet implements Cloneable {
 			if (!resizable)
 				throw new IndexOutOfBoundsException("could not resize to accomodate byte index: " + byteIndex);
 
-			// allocate new buffer with twice as much space
-			final int capacity = Math.max(buffer.limit() * 2, byteIndex + 1);
+			// allocate new buffer
+			int capacity = Math.max(buffer.limit() * 2, byteIndex + 1);
+			capacity = Math.min(capacity, MAX_CAPACITY);
+
 			final ByteBuffer buffer = allocate(capacity);
 
 			// copy old buffer and replace with new one
@@ -1250,7 +1267,7 @@ public class BufferBitSet implements Cloneable {
 		return buffer.get(byteIndex);
 	}
 
-	// canary method used to detect spurious up-conversions from byte to int
+	// canary method used to detect spurious down-conversions from int to byte
 //	private void put(int byteIndex, byte b) {}
 
 	/**

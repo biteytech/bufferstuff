@@ -154,6 +154,17 @@ public class TestBufferBitSet {
 		clearRange(8, 16);
 		clearRange(5, 20);
 		clearRange(1000, 2000);
+
+		BufferBitSet bs = new BufferBitSet();
+		populateWithSampleIndices(bs);
+		bs.set(10000, 20000);
+		BufferBitSet copy = bs.copy();
+		copy.clear(30000, 40000);
+		Assertions.assertEquals(bs, copy);
+		BufferBitSet bs2 = new BufferBitSet();
+		populateWithSampleIndices(bs2);
+		bs.clear(10000, 20000);
+		Assertions.assertEquals(bs2, bs);
 	}
 
 	private void clearRange(int fromIndex, int toIndex) {
@@ -379,7 +390,7 @@ public class TestBufferBitSet {
 		Assertions.assertEquals(expected.toString(), bs1.toString());
 
 		bs1.xor(bs1);
-		Assertions.assertEquals(0, bs1.length());
+		Assertions.assertEquals(0, bs1.lastSetBit() + 1);
 	}
 
 	@Test
@@ -401,15 +412,18 @@ public class TestBufferBitSet {
 	}
 
 	@Test
-	public void length() {
+	public void lastSetBit() {
 		BufferBitSet bs = new BufferBitSet();
-		Assertions.assertEquals(0, bs.length());
+		Assertions.assertEquals(-1, bs.lastSetBit());
 
 		bs.set(0);
-		Assertions.assertEquals(1, bs.length());
+		Assertions.assertEquals(0, bs.lastSetBit());
 
 		populateWithSampleIndices(bs);
-		Assertions.assertEquals(9001, bs.length());
+		Assertions.assertEquals(SAMPLE_INDICES.last(), bs.lastSetBit());
+
+		bs.set(Integer.MAX_VALUE);
+		Assertions.assertEquals(Integer.MAX_VALUE, bs.lastSetBit());
 	}
 
 	@Test
