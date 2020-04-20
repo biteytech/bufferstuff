@@ -437,44 +437,75 @@ public class BufferBitSet implements Cloneable {
 	 *                                   {@code toIndex}
 	 */
 	public BufferBitSet get(int fromIndex, int toIndex) {
-		checkRange(fromIndex, toIndex);
 
-		final int lastSetBit = lastSetBit();
+		final LeftShift shift = new LeftShift(fromIndex, toIndex);
 
-		// If no set bits in range return empty bitset
-		if (lastSetBit < fromIndex || fromIndex == toIndex)
+		// If no bits set in range then return empty bitset
+		if (shift.byteCount == 0)
 			return new BufferBitSet(resizable);
 
-		// An optimization
-		if (toIndex - 1 > lastSetBit)
-			toIndex = lastSetBit + 1;
-
-		final int targetBytes = byteIndex(toIndex - fromIndex - 1) + 1;
-
-		ByteBuffer resultBuffer = allocate(targetBytes);
+		ByteBuffer resultBuffer = allocate(shift.byteCount);
 		BufferBitSet result = new BufferBitSet(resultBuffer, resizable, false);
 
-		int sourceIndex = byteIndex(fromIndex);
-		boolean byteAligned = ((fromIndex & 7) == 0);
+		for (int i = 0; i < shift.byteCount; i++)
+			resultBuffer.put((byte) shift.get(i));
 
-		// Process all bytes but the last one
-		for (int i = 0; i < targetBytes - 1; i++, sourceIndex++) {
-			resultBuffer.put(i, (byte) (byteAligned ? byt(sourceIndex)
-					: ((byt(sourceIndex) & 0xFF) >>> (fromIndex & 7)) | (byt(sourceIndex + 1) << ((-fromIndex) & 7))));
-		}
-
-		// Process the last byte
-		int lastWordMask = MASK >>> ((-toIndex) & 7);
-		resultBuffer.put(targetBytes - 1, (byte) (((toIndex - 1) & 7) < (fromIndex & 7) ? /* straddles source bytes */
-				(((byt(sourceIndex) & 0xFF) >>> (fromIndex & 7))
-						| (byt(sourceIndex + 1) & lastWordMask) << ((-fromIndex) & 7))
-				: ((byt(sourceIndex) & lastWordMask) >>> (fromIndex & 7))));
-
-		// Set position correctly
-		result.buffer.position(targetBytes);
 		result.recalculateBytesInUse();
 
 		return result;
+	}
+
+	private class LeftShift {
+
+		final int fromIndex;
+		final int toIndex;
+		final int byteCount;
+
+		final int sourceIndex;
+		final boolean byteAligned;
+
+		LeftShift(int fromIndex, int toIndex) {
+			checkRange(fromIndex, toIndex);
+
+			final int lastSetBit = lastSetBit();
+
+			if (lastSetBit < fromIndex || fromIndex == toIndex) {
+				// no bits set in range
+				this.fromIndex = this.toIndex = byteCount = sourceIndex = 0;
+				this.byteAligned = false;
+				return;
+			}
+
+			// An optimization
+			if (toIndex - 1 > lastSetBit)
+				toIndex = lastSetBit + 1;
+
+			byteCount = byteIndex(toIndex - fromIndex - 1) + 1;
+
+			this.fromIndex = fromIndex;
+			this.toIndex = toIndex;
+
+			this.sourceIndex = byteIndex(fromIndex);
+			this.byteAligned = ((fromIndex & 7) == 0);
+		}
+
+		int get(int byteIndex) {
+
+			final int index = sourceIndex + byteIndex;
+
+			if (byteIndex < byteCount - 1) {
+				// all bytes but the last one
+				return byteAligned ? byt(index)
+						: ((byt(index) & 0xFF) >>> (fromIndex & 7)) | (byt(index + 1) << ((-fromIndex) & 7));
+			} else {
+				// last byte
+				int lastWordMask = MASK >>> ((-toIndex) & 7);
+				return ((toIndex - 1) & 7) < (fromIndex & 7) ? /* straddles source bytes */
+						(((byt(index) & 0xFF) >>> (fromIndex & 7))
+								| (byt(index + 1) & lastWordMask) << ((-fromIndex) & 7))
+						: ((byt(index) & lastWordMask) >>> (fromIndex & 7));
+			}
+		}
 	}
 
 	/**
@@ -958,31 +989,38 @@ public class BufferBitSet implements Cloneable {
 	 */
 	public BufferBitSet shiftRight(int offset) {
 
+		final int shiftedLastSetBit = lastSetBit() + offset;
+
 		if (offset < 0)
 			throw new IllegalArgumentException("offset < 0: " + offset);
 		else if (offset == 0 || isEmpty())
 			return copy();
-		else if (lastSetBit() + offset < 0)
+		else if (shiftedLastSetBit < 0)
 			throw new IllegalStateException("shifted size exceeds max addressable size (2^31-1)");
 
-		final int offsetBytes = (offset - 1) / 8 + 1;
-		final int totalBytes = offsetBytes + buffer.position();
+		final int offsetBits = offset & 7;
+		final int offsetBytes = offset >>> 3;
 
-		ByteBuffer buffer = allocate(totalBytes);
-
+		ByteBuffer buffer = allocate((shiftedLastSetBit >>> 3) + 1);
 		buffer.position(offsetBytes);
-		ByteBuffer from = this.buffer.duplicate();
-		from.flip();
-		buffer.put(from);
 
-		BufferBitSet bs = new BufferBitSet(buffer, resizable, false);
+		if (offsetBits == 0) { // byte aligned
+			ByteBuffer from = this.buffer.duplicate();
+			from.flip();
+			buffer.put(from);
+		} else {
+			// first byte
+			buffer.put((byte) (byt(0) << offsetBits));
 
-		final int actualOffset = offsetBytes * 8;
-		if (actualOffset > offset) {
-			int leftShift = actualOffset - offset;
-			return bs.get(leftShift, totalBytes * 8 + 1);
-		} else
-			return bs;
+			// remaining bytes
+			if (buffer.position() < buffer.limit()) {
+				LeftShift shift = new LeftShift(8 - offsetBits, lastSetBit() + 1);
+				for (int i = 0; i < shift.byteCount; i++)
+					buffer.put((byte) shift.get(i));
+			}
+		}
+
+		return new BufferBitSet(buffer, resizable, false);
 	}
 
 	/*--------------------------------------------------------------------------------
