@@ -598,6 +598,31 @@ public class TestBufferUtils {
 		Assertions.assertArrayEquals(after, Arrays.copyOf(before, after.length));
 	}
 
+	// ======================================================================================
+
+	@Test
+	public void intStream() {
+		int[] expected = { IMAX, 1, 2, 3, 5, 4, IMIN };
+		int[] actual = BufferUtils.stream(IntBuffer.wrap(expected)).toArray();
+		Assertions.assertArrayEquals(expected, actual);
+	}
+
+	@Test
+	public void longStream() {
+		long[] expected = { LMAX, 1, 2, 3, 5, 4, LMIN };
+		long[] actual = BufferUtils.stream(LongBuffer.wrap(expected)).toArray();
+		Assertions.assertArrayEquals(expected, actual);
+	}
+
+	@Test
+	public void doubleStream() {
+		double[] expected = { DMAX, 1, 2, 3, DNAN, 4, DMIN };
+		double[] actual = BufferUtils.stream(DoubleBuffer.wrap(expected)).toArray();
+		Assertions.assertArrayEquals(expected, actual);
+	}
+
+	// ======================================================================================
+
 	@Test
 	public void rangeCheck() {
 		try {

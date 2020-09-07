@@ -7,7 +7,7 @@ To add a dependency on bufferstuff using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>bufferstuff</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.3</version>
 </dependency>
 ```
 
@@ -64,4 +64,5 @@ System.out.println(index); // 2
   * test if a buffer is sorted, or sorted and distinct
   * deduplicate a sorted buffer
   * copy a buffer
-  * etc.
+  * stream int, long, and double buffers
+

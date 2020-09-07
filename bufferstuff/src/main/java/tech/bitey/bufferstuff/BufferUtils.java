@@ -1,5 +1,9 @@
 package tech.bitey.bufferstuff;
 
+import static java.util.Spliterator.IMMUTABLE;
+import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.ORDERED;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
@@ -7,6 +11,10 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.StreamSupport;
 
 /**
  * Utility methods for working with nio buffers.
@@ -993,6 +1001,124 @@ public enum BufferUtils {
 	}
 
 	/**
+	 * Returns a sequential {@link IntStream} with the specified buffer as its
+	 * source.
+	 * <p>
+	 * <b>Note:</b> ignores {@link IntBuffer#position() position} and
+	 * {@link IntBuffer#limit() limit}, can pass a {@link IntBuffer#slice() slice}
+	 * instead.
+	 *
+	 * @param buffer the buffer, assumed to be unmodified during use
+	 * @return an {@code IntStream} for the buffer
+	 */
+	public static IntStream stream(IntBuffer buffer) {
+		return stream(buffer, 0, buffer.capacity(), 0);
+	}
+
+	/**
+	 * Returns a sequential {@link IntStream} with the specified range of the
+	 * specified buffer as its source.
+	 *
+	 * @param buffer          the buffer, assumed to be unmodified during use
+	 * @param startInclusive  the first index to cover, inclusive
+	 * @param endExclusive    index immediately past the last index to cover
+	 * @param characteristics characteristics of this spliterator's source or
+	 *                        elements beyond {@code SIZED}, {@code SUBSIZED},
+	 *                        {@code ORDERED}, {@code NONNULL}, and
+	 *                        {@code IMMUTABLE}, which are are always reported
+	 * @return an {@code IntStream} for the buffer range
+	 * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is negative,
+	 *                                        {@code endExclusive} is less than
+	 *                                        {@code startInclusive}, or
+	 *                                        {@code endExclusive} is greater than
+	 *                                        the buffer's
+	 *                                        {@link IntBuffer#capacity() capacity}
+	 */
+	public static IntStream stream(IntBuffer buffer, int startInclusive, int endExclusive, int characteristics) {
+		return StreamSupport.intStream(new BufferSpliterators.IntBufferSpliterator(buffer, startInclusive, endExclusive,
+				characteristics | ORDERED | NONNULL | IMMUTABLE), false);
+	}
+
+	/**
+	 * Returns a sequential {@link LongStream} with the specified buffer as its
+	 * source.
+	 * <p>
+	 * <b>Note:</b> ignores {@link LongBuffer#position() position} and
+	 * {@link LongBuffer#limit() limit}, can pass a {@link LongBuffer#slice() slice}
+	 * instead.
+	 *
+	 * @param buffer the buffer, assumed to be unmodified during use
+	 * @return an {@code LongStream} for the buffer
+	 */
+	public static LongStream stream(LongBuffer buffer) {
+		return stream(buffer, 0, buffer.capacity(), 0);
+	}
+
+	/**
+	 * Returns a sequential {@link LongStream} with the specified range of the
+	 * specified buffer as its source.
+	 *
+	 * @param buffer          the buffer, assumed to be unmodified during use
+	 * @param startInclusive  the first index to cover, inclusive
+	 * @param endExclusive    index immediately past the last index to cover
+	 * @param characteristics characteristics of this spliterator's source or
+	 *                        elements beyond {@code SIZED}, {@code SUBSIZED},
+	 *                        {@code ORDERED}, {@code NONNULL}, and
+	 *                        {@code IMMUTABLE}, which are are always reported
+	 * @return an {@code LongStream} for the buffer range
+	 * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is negative,
+	 *                                        {@code endExclusive} is less than
+	 *                                        {@code startInclusive}, or
+	 *                                        {@code endExclusive} is greater than
+	 *                                        the buffer's
+	 *                                        {@link LongBuffer#capacity() capacity}
+	 */
+	public static LongStream stream(LongBuffer buffer, int startInclusive, int endExclusive, int characteristics) {
+		return StreamSupport.longStream(new BufferSpliterators.LongBufferSpliterator(buffer, startInclusive,
+				endExclusive, characteristics | ORDERED | NONNULL | IMMUTABLE), false);
+	}
+
+	/**
+	 * Returns a sequential {@link DoubleStream} with the specified buffer as its
+	 * source.
+	 * <p>
+	 * <b>Note:</b> ignores {@link DoubleBuffer#position() position} and
+	 * {@link DoubleBuffer#limit() limit}, can pass a {@link DoubleBuffer#slice()
+	 * slice} instead.
+	 *
+	 * @param buffer the buffer, assumed to be unmodified during use
+	 * @return an {@code DoubleStream} for the buffer
+	 */
+	public static DoubleStream stream(DoubleBuffer buffer) {
+		return stream(buffer, 0, buffer.capacity(), 0);
+	}
+
+	/**
+	 * Returns a sequential {@link DoubleStream} with the specified range of the
+	 * specified buffer as its source.
+	 *
+	 * @param buffer          the buffer, assumed to be unmodified during use
+	 * @param startInclusive  the first index to cover, inclusive
+	 * @param endExclusive    index immediately past the last index to cover
+	 * @param characteristics characteristics of this spliterator's source or
+	 *                        elements beyond {@code SIZED}, {@code SUBSIZED},
+	 *                        {@code ORDERED}, {@code NONNULL}, and
+	 *                        {@code IMMUTABLE}, which are are always reported
+	 * @return an {@code DoubleStream} for the buffer range
+	 * @throws ArrayIndexOutOfBoundsException if {@code startInclusive} is negative,
+	 *                                        {@code endExclusive} is less than
+	 *                                        {@code startInclusive}, or
+	 *                                        {@code endExclusive} is greater than
+	 *                                        the buffer's
+	 *                                        {@link DoubleBuffer#capacity()
+	 *                                        capacity}
+	 */
+	public static DoubleStream stream(DoubleBuffer buffer, int startInclusive, int endExclusive, int characteristics) {
+		return StreamSupport.doubleStream(new BufferSpliterators.DoubleBufferSpliterator(buffer, startInclusive,
+				endExclusive, characteristics | ORDERED | NONNULL | IMMUTABLE), false);
+	}
+
+	/**
 	 * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws
 	 * an exception if they aren't.
 	 * 
@@ -1035,4 +1161,5 @@ public enum BufferUtils {
 			throw new IndexOutOfBoundsException("toIndex(" + toIndex + ") >= " + bufferCapacity);
 		}
 	}
+
 }
