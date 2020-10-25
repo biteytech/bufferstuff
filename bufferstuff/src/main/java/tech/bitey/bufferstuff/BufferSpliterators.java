@@ -13,7 +13,7 @@ public class BufferSpliterators {
 
 	/**
 	 * A Spliterator.OfInt designed for use by sources that traverse and split
-	 * elements maintained in an unmodifiable {@IntBuffer}.
+	 * elements maintained in an unmodifiable {@link IntBuffer}.
 	 * <p>
 	 * Based on {@code Spliterators.IntArraySpliterator}
 	 */
@@ -110,7 +110,7 @@ public class BufferSpliterators {
 
 	/**
 	 * A Spliterator.OfLong designed for use by sources that traverse and split
-	 * elements maintained in an unmodifiable {@LongBuffer}.
+	 * elements maintained in an unmodifiable {@link LongBuffer}.
 	 * <p>
 	 * Based on {@code Spliterators.LongArraySpliterator}
 	 */
@@ -207,7 +207,7 @@ public class BufferSpliterators {
 
 	/**
 	 * A Spliterator.OfDouble designed for use by sources that traverse and split
-	 * elements maintained in an unmodifiable {@DoubleBuffer}.
+	 * elements maintained in an unmodifiable {@link DoubleBuffer}.
 	 * <p>
 	 * Based on {@code Spliterators.DoubleArraySpliterator}
 	 */
