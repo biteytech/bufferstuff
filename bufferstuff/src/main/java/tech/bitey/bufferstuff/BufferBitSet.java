@@ -222,6 +222,7 @@ public class BufferBitSet implements Cloneable {
 	 * @return a new bitset with the specified resize behavior
 	 */
 	public BufferBitSet resizable(boolean resizable) {
+
 		return new BufferBitSet(duplicate(buffer), resizable, false);
 	}
 
