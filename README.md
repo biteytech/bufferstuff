@@ -1,4 +1,7 @@
 # bufferstuff
+
+[![Build Status](https://travis-ci.org/biteytech/bufferstuff.svg?branch=master)](https://travis-ci.org/biteytech/bufferstuff)
+
 Utilities for working with NIO Buffers. Including a BitSet implementation and sorting algos.
 
 To add a dependency on bufferstuff using Maven, use the following:
