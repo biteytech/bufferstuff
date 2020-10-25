@@ -771,7 +771,7 @@ public class BufferSort {
 	/**
 	 * Sorts a range of the specified {@link IntBuffer} in ascending order (lowest
 	 * first). The actual sorting algorithm used depends on the length of the range:
-	 * <table border=1>
+	 * <table border=1 summary="Sorting algorithm by array length">
 	 * <tr>
 	 * <th>Length</th>
 	 * <th>Algorithm</th>
@@ -813,7 +813,7 @@ public class BufferSort {
 	/**
 	 * Sorts a range of the specified {@link LongBuffer} in ascending order (lowest
 	 * first). The actual sorting algorithm used depends on the length of the range:
-	 * <table border=1>
+	 * <table border=1 summary="Sorting algorithm by array length">
 	 * <tr>
 	 * <th>Length</th>
 	 * <th>Algorithm</th>
@@ -855,7 +855,7 @@ public class BufferSort {
 	/**
 	 * Sorts a range of the specified {@link ShortBuffer} in ascending order (lowest
 	 * first). The actual sorting algorithm used depends on the length of the range:
-	 * <table border=1>
+	 * <table border=1 summary="Sorting algorithm by array length">
 	 * <tr>
 	 * <th>Length</th>
 	 * <th>Algorithm</th>
@@ -898,7 +898,7 @@ public class BufferSort {
 	/**
 	 * Sorts a range of the specified {@link ByteBuffer} in ascending order (lowest
 	 * first). The actual sorting algorithm used depends on the length of the range:
-	 * <table border=1>
+	 * <table border=1 summary="Sorting algorithm by array length">
 	 * <tr>
 	 * <th>Length</th>
 	 * <th>Algorithm</th>
@@ -940,7 +940,7 @@ public class BufferSort {
 	/**
 	 * Sorts a range of the specified {@link FloatBuffer} in ascending order (lowest
 	 * first). The actual sorting algorithm used depends on the length of the range:
-	 * <table border=1>
+	 * <table border=1 summary="Sorting algorithm by array length">
 	 * <tr>
 	 * <th>Length</th>
 	 * <th>Algorithm</th>
@@ -978,7 +978,7 @@ public class BufferSort {
 	 * Sorts a range of the specified {@link DoubleBuffer} in ascending order
 	 * (lowest first). The actual sorting algorithm used depends on the length of
 	 * the range:
-	 * <table border=1>
+	 * <table border=1 summary="Sorting algorithm by array length">
 	 * <tr>
 	 * <th>Length</th>
 	 * <th>Algorithm</th>
