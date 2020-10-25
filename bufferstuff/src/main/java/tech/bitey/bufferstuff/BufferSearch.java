@@ -36,13 +36,13 @@ public enum BufferSearch {
 	 * @param key       the value to be searched for
 	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
-	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
+	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
 	 *         would be inserted into the buffer: the index of the first element in
-	 *         the range greater than the key, or <tt>toIndex</tt> if all elements
-	 *         in the range are less than the specified key. Note that this
-	 *         guarantees that the return value will be &gt;= 0 if and only if the
-	 *         key is found.
+	 *         the range greater than the key, or {@code toIndex} if all elements in
+	 *         the range are less than the specified key. Note that this guarantees
+	 *         that the return value will be &gt;= 0 if and only if the key is
+	 *         found.
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
@@ -84,13 +84,13 @@ public enum BufferSearch {
 	 * @param key       the value to be searched for
 	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
-	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
+	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
 	 *         would be inserted into the buffer: the index of the first element in
-	 *         the range greater than the key, or <tt>toIndex</tt> if all elements
-	 *         in the range are less than the specified key. Note that this
-	 *         guarantees that the return value will be &gt;= 0 if and only if the
-	 *         key is found.
+	 *         the range greater than the key, or {@code toIndex} if all elements in
+	 *         the range are less than the specified key. Note that this guarantees
+	 *         that the return value will be &gt;= 0 if and only if the key is
+	 *         found.
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
@@ -132,13 +132,13 @@ public enum BufferSearch {
 	 * @param key       the value to be searched for
 	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
-	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
+	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
 	 *         would be inserted into the buffer: the index of the first element in
-	 *         the range greater than the key, or <tt>toIndex</tt> if all elements
-	 *         in the range are less than the specified key. Note that this
-	 *         guarantees that the return value will be &gt;= 0 if and only if the
-	 *         key is found.
+	 *         the range greater than the key, or {@code toIndex} if all elements in
+	 *         the range are less than the specified key. Note that this guarantees
+	 *         that the return value will be &gt;= 0 if and only if the key is
+	 *         found.
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
@@ -180,13 +180,13 @@ public enum BufferSearch {
 	 * @param key       the value to be searched for
 	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
-	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
+	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
 	 *         would be inserted into the buffer: the index of the first element in
-	 *         the range greater than the key, or <tt>toIndex</tt> if all elements
-	 *         in the range are less than the specified key. Note that this
-	 *         guarantees that the return value will be &gt;= 0 if and only if the
-	 *         key is found.
+	 *         the range greater than the key, or {@code toIndex} if all elements in
+	 *         the range are less than the specified key. Note that this guarantees
+	 *         that the return value will be &gt;= 0 if and only if the key is
+	 *         found.
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
@@ -229,13 +229,13 @@ public enum BufferSearch {
 	 * @param key       the value to be searched for
 	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
-	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
+	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
 	 *         would be inserted into the buffer: the index of the first element in
-	 *         the range greater than the key, or <tt>toIndex</tt> if all elements
-	 *         in the range are less than the specified key. Note that this
-	 *         guarantees that the return value will be &gt;= 0 if and only if the
-	 *         key is found.
+	 *         the range greater than the key, or {@code toIndex} if all elements in
+	 *         the range are less than the specified key. Note that this guarantees
+	 *         that the return value will be &gt;= 0 if and only if the key is
+	 *         found.
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
@@ -286,13 +286,13 @@ public enum BufferSearch {
 	 * @param key       the value to be searched for
 	 * 
 	 * @return index of the search key, if it is contained in the buffer within the
-	 *         specified range; otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
+	 *         specified range; otherwise, {@code (-(<i>insertion point</i>) - 1)}.
 	 *         The <i>insertion point</i> is defined as the point at which the key
 	 *         would be inserted into the buffer: the index of the first element in
-	 *         the range greater than the key, or <tt>toIndex</tt> if all elements
-	 *         in the range are less than the specified key. Note that this
-	 *         guarantees that the return value will be &gt;= 0 if and only if the
-	 *         key is found.
+	 *         the range greater than the key, or {@code toIndex} if all elements in
+	 *         the range are less than the specified key. Note that this guarantees
+	 *         that the return value will be &gt;= 0 if and only if the key is
+	 *         found.
 	 * 
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 * @throws IndexOutOfBoundsException if
