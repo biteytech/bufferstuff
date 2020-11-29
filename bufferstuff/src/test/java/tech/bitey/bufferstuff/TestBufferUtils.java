@@ -12,6 +12,7 @@ import java.nio.LongBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -608,6 +609,21 @@ public class TestBufferUtils {
 	}
 
 	@Test
+	public void intStream2() {
+		int[] array = new int[100000];
+		Arrays.fill(array, 1);
+		IntBuffer buf = IntBuffer.wrap(array);
+
+		int expected = 0;
+		for (Iterator<Integer> iter = BufferUtils.stream(buf).iterator(); iter.hasNext();)
+			expected += iter.next();
+
+		int actual = BufferUtils.stream(buf).parallel().sum();
+
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
 	public void longStream() {
 		long[] expected = { LMAX, 1, 2, 3, 5, 4, LMIN };
 		long[] actual = BufferUtils.stream(LongBuffer.wrap(expected)).toArray();
@@ -615,10 +631,40 @@ public class TestBufferUtils {
 	}
 
 	@Test
+	public void longStream2() {
+		long[] array = new long[100000];
+		Arrays.fill(array, 1);
+		LongBuffer buf = LongBuffer.wrap(array);
+
+		long expected = 0;
+		for (Iterator<Long> iter = BufferUtils.stream(buf).iterator(); iter.hasNext();)
+			expected += iter.next();
+
+		long actual = BufferUtils.stream(buf).parallel().sum();
+
+		Assertions.assertEquals(expected, actual);
+	}
+
+	@Test
 	public void doubleStream() {
 		double[] expected = { DMAX, 1, 2, 3, DNAN, 4, DMIN };
 		double[] actual = BufferUtils.stream(DoubleBuffer.wrap(expected)).toArray();
 		Assertions.assertArrayEquals(expected, actual);
+	}
+
+	@Test
+	public void doubleStream2() {
+		double[] array = new double[100000];
+		Arrays.fill(array, 1);
+		DoubleBuffer buf = DoubleBuffer.wrap(array);
+
+		double expected = 0;
+		for (Iterator<Double> iter = BufferUtils.stream(buf).iterator(); iter.hasNext();)
+			expected += iter.next();
+
+		double actual = BufferUtils.stream(buf).parallel().sum();
+
+		Assertions.assertEquals(expected, actual);
 	}
 
 	// ======================================================================================

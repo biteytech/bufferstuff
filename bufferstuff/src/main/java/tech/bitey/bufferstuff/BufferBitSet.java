@@ -1332,6 +1332,6 @@ public class BufferBitSet implements Cloneable {
 	 * {@link Integer#numberOfLeadingZeros(int)} modified to work for a {@code byte}
 	 */
 	private static int numberOfLeadingZeros(byte b) {
-		return Integer.numberOfLeadingZeros(b & 0xFF) & 7;
+		return Integer.numberOfLeadingZeros(b & 0xFF) - 24;
 	}
 }
