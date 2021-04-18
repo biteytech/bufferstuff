@@ -1,6 +1,6 @@
 # bufferstuff
 
-[![Build Status](https://travis-ci.org/biteytech/bufferstuff.svg?branch=master)](https://travis-ci.org/biteytech/bufferstuff)
+[![Build Status](https://travis-ci.com/biteytech/bufferstuff.svg?branch=master)](https://travis-ci.com/biteytech/bufferstuff)
 
 Utilities for working with NIO Buffers. Including a BitSet implementation and sorting algos.
 
@@ -10,9 +10,11 @@ To add a dependency on bufferstuff using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>bufferstuff</artifactId>
-  <version>0.5.3</version>
+  <version>0.6.0</version>
 </dependency>
 ```
+
+Requires Java 11 or higher.
 
 ## Functionality
 ### tech.bitey.bufferstuff.BufferBitSet
