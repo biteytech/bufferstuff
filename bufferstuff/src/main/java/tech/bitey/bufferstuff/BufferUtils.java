@@ -4,6 +4,7 @@ import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
@@ -11,6 +12,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -1162,4 +1165,29 @@ public enum BufferUtils {
 		}
 	}
 
+	/**
+	 * Writes all {@link ByteBuffer#remaining() remaining} bytes from the given
+	 * {@link ByteBuffer buffer} into the given {@link WritableByteChannel channel}.
+	 * 
+	 * @param channel - the channel being written to
+	 * @param buffer  - the buffer being read from
+	 * @throws IOException
+	 */
+	public static void writeFully(WritableByteChannel channel, ByteBuffer buffer) throws IOException {
+		while (buffer.remaining() > 0)
+			channel.write(buffer);
+	}
+
+	/**
+	 * Reads bytes from the given {@link ReadableByteChannel channel} until the
+	 * given buffer is full ({@link ByteBuffer#remaining() remaining} is {@code 0}).
+	 * 
+	 * @param channel - the channel being read from
+	 * @param buffer  - the buffer being written to
+	 * @throws IOException
+	 */
+	public static void readFully(ReadableByteChannel channel, ByteBuffer buffer) throws IOException {
+		while (buffer.remaining() > 0)
+			channel.read(buffer);
+	}
 }

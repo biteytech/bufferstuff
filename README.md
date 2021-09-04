@@ -1,6 +1,6 @@
 # bufferstuff
 
-[![Build Status](https://travis-ci.com/biteytech/bufferstuff.svg?branch=master)](https://travis-ci.com/biteytech/bufferstuff)
+[![Build Status](https://api.travis-ci.com/biteytech/bufferstuff.svg?branch=master)](https://app.travis-ci.com/github/biteytech/bufferstuff)
 
 Utilities for working with NIO Buffers. Including a BitSet implementation and sorting algos.
 
@@ -10,7 +10,7 @@ To add a dependency on bufferstuff using Maven, use the following:
 <dependency>
   <groupId>tech.bitey</groupId>
   <artifactId>bufferstuff</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.1</version>
 </dependency>
 ```
 

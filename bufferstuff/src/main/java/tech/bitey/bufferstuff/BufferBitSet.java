@@ -4,7 +4,9 @@ import static java.lang.Integer.bitCount;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static tech.bitey.bufferstuff.BufferUtils.allocate;
 import static tech.bitey.bufferstuff.BufferUtils.duplicate;
+import static tech.bitey.bufferstuff.BufferUtils.readFully;
 import static tech.bitey.bufferstuff.BufferUtils.slice;
+import static tech.bitey.bufferstuff.BufferUtils.writeFully;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -347,18 +349,18 @@ public class BufferBitSet implements Cloneable {
 		header.put(0, (byte) (fromIndex & 7));
 		header.putInt(1, limit);
 
-		channel.write(header);
+		writeFully(channel, header);
 
 		if (limit > 0) {
 			if (limit > 1) {
 				// write everything except last byte
-				channel.write(slice(buffer, 0, limit - 1));
+				writeFully(channel, slice(buffer, 0, limit - 1));
 			}
 
 			// handle last byte
 			ByteBuffer lastByte = ByteBuffer.allocate(1);
 			lastByte.put(0, (byte) (buffer.get(limit - 1) & (MASK >>> ((-toIndex) & 7))));
-			channel.write(lastByte);
+			writeFully(channel, lastByte);
 		}
 	}
 
@@ -375,7 +377,7 @@ public class BufferBitSet implements Cloneable {
 	public static BufferBitSet readFrom(ReadableByteChannel channel) throws IOException {
 
 		ByteBuffer header = ByteBuffer.allocate(5).order(BIG_ENDIAN);
-		channel.read(header);
+		readFully(channel, header);
 
 		int offset = header.get(0);
 		int capacity = header.getInt(1);
@@ -384,7 +386,7 @@ public class BufferBitSet implements Cloneable {
 			return EMPTY_BITSET;
 
 		ByteBuffer buffer = allocate(capacity);
-		channel.read(buffer);
+		readFully(channel, buffer);
 
 		if (offset == 0)
 			return new BufferBitSet(buffer, false, false);
