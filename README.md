@@ -1,4 +1,6 @@
-# bufferstuff
+# This library has been converted into a module of [biteytech/dataframe](https://github.com/biteytech/dataframe)
+
+## bufferstuff
 
 [![Build Status](https://api.travis-ci.com/biteytech/bufferstuff.svg?branch=master)](https://app.travis-ci.com/github/biteytech/bufferstuff)
 
